@@ -3,11 +3,12 @@ package io.github.djxy.permissionManager.translator;
 import com.google.common.base.Preconditions;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextAction;
-import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.format.TextStyle;
 import org.spongepowered.api.text.format.TextStyles;
+
+import java.util.Map;
 
 /**
  * Created by Samuel on 2016-08-13.
@@ -95,8 +96,11 @@ public class TranslationParser {
         this.variableStyle = variableStyle;
     }
 
-    public Text parse(String translation, Translator translator){
+    public Text parse(String translation, Map<String, String> subTranslations, Map<String, String> variables, Map<String, TextAction> actions){
         Preconditions.checkNotNull(translation);
+        Preconditions.checkNotNull(subTranslations);
+        Preconditions.checkNotNull(variables);
+        Preconditions.checkNotNull(actions);
         Preconditions.checkArgument(!translation.isEmpty());
 
         Text text = Text.of();
@@ -106,19 +110,18 @@ public class TranslationParser {
         while(startIndex != translation.length() && (index = translation.substring(startIndex).indexOf('{')) != -1){
             index = index+startIndex;
             int i = startIndex + translation.substring(startIndex).indexOf('}');
-            String var = translation.substring(index+1, i);
+            String currentVariable = translation.substring(index+1, i);
 
             text = text.concat(transformText(translation.substring(startIndex, index)));
 
-            if(var.startsWith("click")){
-                TextAction action = values.containsKey(var)? (TextAction) values.get(var) : TextActions.executeCallback(e -> {
-                });
-                String click = containTranslation(language, var)?getTranslation(language, var):getTranslation(language, "clickHere");
+            if(currentVariable.startsWith("click")){
+                TextAction action = actions.get(currentVariable);
+                String click = subTranslations.get(currentVariable);
                 text = text.concat(transformClick(click, action));
             }
             else {
-                Object value = values.containsKey(var)?values.get(var):"{"+var+"}";
-                text = value instanceof Text?text.concat((Text) value).concat(Text.of(TextColors.RESET, TextStyles.RESET)):text.concat(transformVariable(value.toString()));
+                String variable = variables.get(currentVariable);
+                text = text.concat(transformVariable(variable));
             }
 
             startIndex = i+1;
@@ -126,19 +129,19 @@ public class TranslationParser {
 
         text = text.concat(transformText(translation.substring(startIndex, translation.length())));
 
-        return displayPrefix?prefix.concat(text):text;
+        return prefix.concat(text);
     }
 
     public Text transformText(String text){
-        return Text.of(text);
+        return Text.of(textColor, textStyle, text, TextColors.RESET, TextStyles.RESET);
     }
 
     public Text transformVariable(String text){
-        return Text.of(TextColors.YELLOW, text, TextColors.RESET);
+        return Text.of(variableColor, variableStyle, text, TextColors.RESET, TextStyles.RESET);
     }
 
     public Text transformClick(String text, TextAction action){
-        return Text.of(TextColors.RED, TextStyles.UNDERLINE, action, text, TextColors.RESET, TextStyles.UNDERLINE);
+        return Text.of(clickColor, TextStyles.UNDERLINE, action, text, TextColors.RESET, TextStyles.RESET);
     }
 
 }
