@@ -1,0 +1,178 @@
+package io.github.djxy.permissionManager.subjects.user;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Sets;
+import io.github.djxy.permissionManager.area.Country;
+import io.github.djxy.permissionManager.language.Language;
+import io.github.djxy.permissionManager.subjects.ContextContainer;
+import io.github.djxy.permissionManager.subjects.Permission;
+import io.github.djxy.permissionManager.subjects.Subject;
+import io.github.djxy.permissionManager.subjects.group.Group;
+import io.github.djxy.permissionManager.util.ContextUtil;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.service.context.Context;
+import org.spongepowered.api.util.Tristate;
+
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArraySet;
+
+/**
+ * Created by Samuel on 2016-08-09.
+ */
+public class User extends Subject {
+
+    private final UUID uuid;
+    private Language mainLanguage = Language.getDefault();
+    private CopyOnWriteArraySet<Language> languages = new CopyOnWriteArraySet<>();
+    private Country country;
+
+    protected User(UUID uuid, UserCollection userCollection) {
+        super(uuid.toString(), userCollection);
+        this.uuid = uuid;
+    }
+
+    public Language getMainLanguage() {
+        return mainLanguage;
+    }
+
+    public void setMainLanguage(Language mainLanguage) {
+        this.mainLanguage = mainLanguage;
+    }
+
+    public Country getCountry() {
+        return country;
+    }
+
+    public void setCountry(Country country) {
+        this.country = country;
+    }
+
+    public void addLanguage(Language language){
+        languages.add(language);
+    }
+
+    public void removeLanguage(Language language){
+        languages.remove(language);
+    }
+
+    public Set<Language> getLanguages() {
+        return new CopyOnWriteArraySet<>(languages);
+    }
+
+    @Override
+    public Optional<CommandSource> getCommandSource() {
+        return Optional.of(getPlayer());
+    }
+
+    @Override
+    public Optional<String> getOption(Set<Context> set, String key) {
+        Preconditions.checkNotNull(set);
+        Preconditions.checkNotNull(key);
+        Context context = null;
+
+        if(ContextUtil.isGlobalContext(set))
+            context = new Context(Context.WORLD_KEY, getPlayerWorld());
+        if(ContextUtil.isSingleContext(set))
+            context = ContextUtil.getContext(set);
+
+        if(context == null)
+            return Optional.empty();
+
+        ContextContainer container = contexts.get(context);
+
+        if(container != null) {
+            String value = container.getOption(key);
+
+            if (value != null)
+                return Optional.of(value);
+        }
+
+        String value = globalContext.getOption(key);
+
+        if(value != null)
+            return Optional.of(value);
+
+        set = Sets.newHashSet(context);
+
+        if(container != null) {
+            for (Group group : container.getGroups()) {
+                Optional<String> valueOpt = group.getOption(set, key);
+
+                if (valueOpt.isPresent())
+                    return valueOpt;
+            }
+        }
+
+        for (Group group : globalContext.getGroups()) {
+            Optional<String> valueOpt = group.getOption(set, key);
+
+            if (valueOpt.isPresent())
+                return valueOpt;
+        }
+
+        return Optional.empty();
+    }
+
+    @Override
+    public Tristate getPermissionValue(Set<Context> set, String permission) {
+        Preconditions.checkNotNull(set);
+        Preconditions.checkNotNull(permission);
+
+        Context context = null;
+
+        if(ContextUtil.isGlobalContext(set))
+            context = new Context(Context.WORLD_KEY, getPlayerWorld());
+        if(ContextUtil.isSingleContext(set))
+            context = ContextUtil.getContext(set);
+
+        if(context == null)
+            return Tristate.UNDEFINED;
+
+        ContextContainer container = contexts.get(context);
+
+        if(container != null) {
+            Permission perm = container.getPermissions().getPermission(permission);
+
+            if (perm != null)
+                return Tristate.fromBoolean(perm.getValue());
+        }
+
+        Permission perm = globalContext.getPermissions().getPermission(permission);
+
+        if(perm != null)
+            return Tristate.fromBoolean(perm.getValue());
+
+        set = Sets.newHashSet(context);
+
+        if(container != null) {
+            for (Group group : container.getGroups()) {
+                Tristate tristate = group.getPermissionValue(set, permission);
+
+                if (!tristate.equals(Tristate.UNDEFINED))
+                    return tristate;
+            }
+        }
+
+        for (Group group : globalContext.getGroups()) {
+            Tristate tristate = group.getPermissionValue(set, permission);
+
+            if (!tristate.equals(Tristate.UNDEFINED))
+                return tristate;
+        }
+
+        return Tristate.UNDEFINED;
+    }
+
+    private Player getPlayer(){
+        return Sponge.getServer().getPlayer(uuid).get();
+    }
+
+    private String getPlayerWorld(){
+        return "world";
+    }
+
+}
