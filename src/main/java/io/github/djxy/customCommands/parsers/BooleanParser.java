@@ -14,7 +14,6 @@ public class BooleanParser extends Parser<Boolean> {
     static {
         values.put("true", true);
         values.put("false", false);
-        values.put("fals123e", false);
     }
 
     public BooleanParser() {
