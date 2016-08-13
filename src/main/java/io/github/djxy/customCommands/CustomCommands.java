@@ -141,7 +141,13 @@ public class CustomCommands {
             if(node.getPermission() != null && !commandSource.hasPermission(node.getPermission()))
                 throw new CommandException(Text.of(TextColors.RED, "You don't have the permission to do this command."));
 
-            node.getCommandExecutor().execute(commandSource, node.getValues(new HashMap<>(), args));
+            Map<String, Object> values = node.getValues(new LinkedHashMap<>(), args);
+
+            for(String key : values.keySet())
+                if(values.get(key) == null)
+                    throw new CommandException(Text.of(TextColors.RED, "The value '"+key+"' isn't valid."));
+
+            node.getCommandExecutor().execute(commandSource, values);
 
             return CommandResult.success();
         }
