@@ -1,11 +1,16 @@
 package io.github.djxy.customCommands;
 
+import com.google.common.base.Preconditions;
 import io.github.djxy.customCommands.annotations.CustomCommand;
 import io.github.djxy.customCommands.annotations.CustomParser;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.game.state.GameConstructionEvent;
+import org.spongepowered.api.plugin.Plugin;
+import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.world.Location;
@@ -21,17 +26,32 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by Samuel on 2016-06-01.
  */
+@Plugin(id = "customcommands", name = "CustomCommands", version = "1.0", authors = {"Djxy"})
 public class CustomCommands {
 
     private static final ConcurrentHashMap<String,Node> nodes = new ConcurrentHashMap<>();
-    public static CustomCommands instance = new CustomCommands();
+    private static CustomCommands instance;
 
-    private CustomCommands() {
+    public static CustomCommands getInstance() {
+        return instance;
+    }
+
+    @Listener
+    public void onGameConstructionEvent(GameConstructionEvent event){
+        instance = this;
+
+        for(PluginContainer plugin : Sponge.getPluginManager().getPlugins()) {
+            if (plugin.getInstance().isPresent())
+                registerObject(plugin.getInstance().get());
+        }
     }
 
     public static void addCommand(Command command){
+        Preconditions.checkNotNull(command);
+
         if(!nodes.containsKey(command.getAlias())) {
             nodes.put(command.getAlias(), new Node("", new String[0], new HashMap<>()));
+            System.out.println(instance);
             Sponge.getCommandManager().register(instance, new CommandCallable(command.getAlias()), command.getAlias());
         }
         else if(nodes.get(command.getAlias()).get(command.getCommand(), 0) != null && nodes.get(command.getAlias()).get(command.getCommand(), 0).getCommandExecutor() != null)
@@ -48,18 +68,22 @@ public class CustomCommands {
     }
 
     public static void registerObject(final Object obj) {
+        Preconditions.checkNotNull(obj);
+
         for(Method method : obj.getClass().getMethods()) {
             CustomCommand customCommand = method.getAnnotation(CustomCommand.class);
 
             if(customCommand != null && !Modifier.isStatic(method.getModifiers())) {
-                for (Parameter parameter : method.getParameters()) {
-                    if (parameter.getType().isAssignableFrom(Map.class)) {
+                Parameter parameters[] = method.getParameters();
+
+                if(parameters.length == 2){
+                    if (parameters[0].getType().isAssignableFrom(CommandSource.class) && parameters[1].getType().isAssignableFrom(Map.class)) {
                         try {
                             registerCommand(customCommand, new CommandExecutor() {
                                 @Override
                                 public void execute(CommandSource source, Map<String, Object> values) {
                                     try {
-                                        method.invoke(obj, values);
+                                        method.invoke(obj, source, values);
                                     } catch (IllegalAccessException e) {
                                         e.printStackTrace();
                                     } catch (InvocationTargetException e) {
