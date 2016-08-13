@@ -16,12 +16,12 @@ import java.util.Map;
 public class TranslationParser {
 
     private Text prefix = Text.of();
-    private TextColor clickColor = TextColors.RED;
     private TextStyle textStyle = TextStyles.NONE;
     private TextColor textColor = TextColors.WHITE;
+    private TextColor clickColor = TextColors.RED;
     private TextStyle clickStyle = TextStyles.UNDERLINE;
     private TextColor variableColor = TextColors.YELLOW;
-    private TextStyle variableStyle = TextStyles.UNDERLINE;
+    private TextStyle variableStyle = TextStyles.NONE;
 
     public TranslationParser() {
     }
