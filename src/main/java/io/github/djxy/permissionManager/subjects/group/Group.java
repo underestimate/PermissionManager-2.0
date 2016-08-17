@@ -5,6 +5,7 @@ import io.github.djxy.permissionManager.subjects.ContextContainer;
 import io.github.djxy.permissionManager.subjects.Permission;
 import io.github.djxy.permissionManager.subjects.Subject;
 import io.github.djxy.permissionManager.util.ContextUtil;
+import ninja.leaping.configurate.ConfigurationNode;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.util.Tristate;
@@ -28,6 +29,9 @@ public class Group extends Subject implements Comparable<Group> {
 
     public void setRank(int rank) {
         this.rank = rank;
+
+        for(GroupListener listener : listeners)
+            listener.onGroupRankChange();
     }
 
     public int getRank() {
@@ -46,7 +50,9 @@ public class Group extends Subject implements Comparable<Group> {
 
     @Override
     public Tristate getPermissionValue(Set<Context> set, String permission) {
-        return getPermissionValue(set, permission, new ArrayList<>());
+        Permission permission1 = getPermissionValue(set, permission, new ArrayList<>());
+
+        return permission1 == null?Tristate.UNDEFINED:Tristate.fromBoolean(permission1.getValue());
     }
 
     public void addListener(GroupListener listener){
@@ -113,7 +119,7 @@ public class Group extends Subject implements Comparable<Group> {
         return Optional.empty();
     }
 
-    private Tristate getPermissionValue(Set<Context> set, String permission, ArrayList<Group> groupsChecked) {
+    public Permission getPermissionValue(Set<Context> set, String permission, ArrayList<Group> groupsChecked) {
         Preconditions.checkNotNull(set);
         Preconditions.checkNotNull(permission);
         Preconditions.checkNotNull(groupsChecked);
@@ -127,37 +133,49 @@ public class Group extends Subject implements Comparable<Group> {
             Permission perm = container.getPermissions().getPermission(permission);
 
             if(perm != null)
-                return Tristate.fromBoolean(perm.getValue());
+                return perm;
         }
 
         Permission perm = globalContext.getPermissions().getPermission(permission);
 
         if(perm != null)
-            return Tristate.fromBoolean(perm.getValue());
+            return perm;
 
         groupsChecked.add(this);
 
         if(container != null) {
             for (Group group : container.getGroups()) {
                 if (!groupsChecked.contains(group)) {
-                    Tristate tristate = group.getPermissionValue(set, permission, groupsChecked);
+                    perm = group.getPermissionValue(set, permission, groupsChecked);
 
-                    if (!tristate.equals(Tristate.UNDEFINED))
-                        return tristate;
+                    if (perm != null)
+                        return perm;
                 }
             }
         }
 
         for (Group group : globalContext.getGroups()) {
             if (!groupsChecked.contains(group)) {
-                Tristate tristate = group.getPermissionValue(set, permission, groupsChecked);
+                perm = group.getPermissionValue(set, permission, groupsChecked);
 
-                if (!tristate.equals(Tristate.UNDEFINED))
-                    return tristate;
+                if (perm != null)
+                    return perm;
             }
         }
 
-        return Tristate.UNDEFINED;
+        return null;
+    }
+
+    @Override
+    public void deserialize(ConfigurationNode node) {
+        super.deserialize(node);
+        rank = node.getNode("rank").getInt(Integer.MAX_VALUE);
+    }
+
+    @Override
+    public void serialize(ConfigurationNode node) {
+        super.serialize(node);
+        node.getNode("rank").setValue(rank);
     }
 
     @Override

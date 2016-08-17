@@ -9,15 +9,14 @@ import io.github.djxy.permissionManager.subjects.Permission;
 import io.github.djxy.permissionManager.subjects.Subject;
 import io.github.djxy.permissionManager.subjects.group.Group;
 import io.github.djxy.permissionManager.util.ContextUtil;
+import ninja.leaping.configurate.ConfigurationNode;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.util.Tristate;
 
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
@@ -150,21 +149,57 @@ public class User extends Subject {
 
         if(container != null) {
             for (Group group : container.getGroups()) {
-                Tristate tristate = group.getPermissionValue(set, permission);
+                perm = group.getPermissionValue(set, permission, new ArrayList<>());
 
-                if (!tristate.equals(Tristate.UNDEFINED))
-                    return tristate;
+                if (perm != null)
+                    return Tristate.fromBoolean(perm.getValue());
             }
         }
 
         for (Group group : globalContext.getGroups()) {
-            Tristate tristate = group.getPermissionValue(set, permission);
+            perm = group.getPermissionValue(set, permission, new ArrayList<>());
 
-            if (!tristate.equals(Tristate.UNDEFINED))
-                return tristate;
+            if (perm != null)
+                return Tristate.fromBoolean(perm.getValue());
         }
 
         return Tristate.UNDEFINED;
+    }
+
+    @Override
+    public void deserialize(ConfigurationNode node) {
+        super.deserialize(node);
+
+        country = Country.getCountry(node.getNode("country").getString(""));
+        mainLanguage = node.getNode("languages", "main").getString("").isEmpty()?Language.getDefault():Language.getLanguage(node.getNode("languages", "main").getString(""));
+
+        List<ConfigurationNode> permissionList = (List<ConfigurationNode>) node.getNode("languages", "others").getChildrenList();
+
+        for(ConfigurationNode nodeValue : permissionList){
+            String value = nodeValue.getString("");
+
+            if(!value.isEmpty()){
+                Language language = Language.getLanguage(value);
+
+                if(language != null)
+                    addLanguage(language);
+            }
+        }
+    }
+
+    @Override
+    public void serialize(ConfigurationNode node) {
+        super.serialize(node);
+
+        node.getNode("country").setValue(country == null ? null : country.getCommonName());
+        node.getNode("languages", "main").setValue(mainLanguage == null?null:mainLanguage.getName());
+
+        List<String> languages = new ArrayList<>();
+
+        for(Language language : this.languages)
+            languages.add(language.getName());
+
+        node.getNode("languages", "others").setValue(languages);
     }
 
     private Player getPlayer(){
