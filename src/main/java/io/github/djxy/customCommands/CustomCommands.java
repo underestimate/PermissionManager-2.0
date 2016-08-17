@@ -51,7 +51,6 @@ public class CustomCommands {
 
         if(!nodes.containsKey(command.getAlias())) {
             nodes.put(command.getAlias(), new Node("", new String[0], new HashMap<>()));
-            System.out.println(instance);
             Sponge.getCommandManager().register(instance, new CommandCallable(command.getAlias()), command.getAlias());
         }
         else if(nodes.get(command.getAlias()).get(command.getCommand(), 0) != null && nodes.get(command.getAlias()).get(command.getCommand(), 0).getCommandExecutor() != null)
