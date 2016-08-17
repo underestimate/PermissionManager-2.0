@@ -21,6 +21,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 public class Group extends Subject implements Comparable<Group> {
 
     private int rank = Integer.MAX_VALUE;
+    private boolean defaultGroup = false;
     private final CopyOnWriteArraySet<GroupListener> listeners = new CopyOnWriteArraySet<>();
 
     protected Group(String identifier, GroupCollection collection) {
@@ -36,6 +37,18 @@ public class Group extends Subject implements Comparable<Group> {
 
     public int getRank() {
         return rank;
+    }
+
+    public boolean isDefaultGroup() {
+        return defaultGroup;
+    }
+
+    public void setDefaultGroup(boolean defaultGroup) {
+        this.defaultGroup = defaultGroup;
+
+        if(this.defaultGroup)
+            for(GroupListener listener : listeners)
+                listener.onGroupSetDefault(this);
     }
 
     @Override

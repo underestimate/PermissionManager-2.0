@@ -11,13 +11,16 @@ public class GroupCollection extends SubjectCollection<Group> {
 
     public final static GroupCollection instance = new GroupCollection();
 
+    private Group defaultGroup;
+    private final Listener groupListener = new Listener();
+
     private GroupCollection() {
         super(PermissionService.SUBJECTS_GROUP);
     }
 
     @Override
     public Group getDefaults() {
-        return null;
+        return defaultGroup;
     }
 
     public synchronized void renameGroup(Group group, String identifier) throws SubjectIdentifierExistException {
@@ -44,9 +47,27 @@ public class GroupCollection extends SubjectCollection<Group> {
 
         subjects.put(identifier, group);
 
-        group.addListener(this);
+        group.addListener(subjectListener);
+        group.addListener(groupListener);
 
         return group;
     }
 
+    private class Listener implements GroupListener{
+
+        @Override
+        public void onGroupDeleted(Group group) {}
+
+        @Override
+        public void onGroupRankChange() {}
+
+        @Override
+        public void onGroupSetDefault(Group group) {
+            if(defaultGroup != null)
+                defaultGroup.setDefaultGroup(false);
+
+            defaultGroup = group;
+        }
+
+    }
 }

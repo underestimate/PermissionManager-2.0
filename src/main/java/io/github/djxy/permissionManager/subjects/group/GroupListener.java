@@ -9,4 +9,6 @@ public interface GroupListener {
 
     public void onGroupRankChange();
 
+    public void onGroupSetDefault(Group group);
+
 }

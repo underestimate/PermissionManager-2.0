@@ -96,6 +96,9 @@ public class ContextContainer implements GroupListener, ConfigurationNodeSeriali
     }
 
     @Override
+    public void onGroupSetDefault(Group group) {}
+
+    @Override
     public void deserialize(ConfigurationNode node) {
         permissions.deserialize(node);
 
