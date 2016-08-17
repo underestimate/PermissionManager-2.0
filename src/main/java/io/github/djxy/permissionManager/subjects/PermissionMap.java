@@ -1,20 +1,27 @@
 package io.github.djxy.permissionManager.subjects;
 
 import com.google.common.base.Preconditions;
+import ninja.leaping.configurate.ConfigurationNode;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by Samuel on 2016-08-09.
  */
-public class PermissionMap {
+public class PermissionMap implements ConfigurationNodeSerializer, ConfigurationNodeDeserializer {
 
     private final ConcurrentHashMap<String,Permission> permissions;
 
     public PermissionMap() {
         this.permissions = new ConcurrentHashMap<>();
+    }
+
+    public List<Permission> getPermissions(){
+        return new ArrayList<>(permissions.values());
     }
 
     public void putPermission(String permission, Permission perm){
@@ -71,4 +78,34 @@ public class PermissionMap {
         return map;
     }
 
+    @Override
+    public void deserialize(ConfigurationNode node) {
+        List<ConfigurationNode> permissionList = (List<ConfigurationNode>) node.getNode("permissions").getChildrenList();
+
+        for(ConfigurationNode nodeValue : permissionList){
+            String value = nodeValue.getString("");
+
+            if(!value.isEmpty()){
+                boolean permValue = !value.startsWith("-");
+                String perm = !permValue ?value.substring(1):value;
+                Permission permission = new Permission(perm, permValue);
+
+                permissions.put(perm, permission);
+            }
+        }
+    }
+
+    @Override
+    public void serialize(ConfigurationNode node) {
+        List<String> permissions = new ArrayList<>();
+
+        for(Map.Entry pairs : this.permissions.entrySet()){
+            String permission = (String) pairs.getKey();
+            Permission perm = (Permission) pairs.getValue();
+
+            permissions.add((!perm.getValue() ?"-":"")+permission);
+        }
+
+        node.getNode("permissions").setValue(permissions);
+    }
 }
