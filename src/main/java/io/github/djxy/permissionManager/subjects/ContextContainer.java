@@ -3,19 +3,18 @@ package io.github.djxy.permissionManager.subjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import io.github.djxy.permissionManager.subjects.group.Group;
+import io.github.djxy.permissionManager.subjects.group.GroupCollection;
 import io.github.djxy.permissionManager.subjects.group.GroupListener;
+import ninja.leaping.configurate.ConfigurationNode;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Created by Samuel on 2016-08-09.
  */
-public class ContextContainer implements GroupListener {
+public class ContextContainer implements GroupListener, ConfigurationNodeSerializer, ConfigurationNodeDeserializer {
 
     private final PermissionMap permissions;
     private final CopyOnWriteArrayList<Group> groups;
@@ -91,4 +90,51 @@ public class ContextContainer implements GroupListener {
         removeGroup(group);
     }
 
+    @Override
+    public void onGroupRankChange() {
+        Collections.sort(groups);
+    }
+
+    @Override
+    public void deserialize(ConfigurationNode node) {
+        permissions.deserialize(node);
+
+        List<ConfigurationNode> groupList = (List<ConfigurationNode>) node.getNode("groups").getChildrenList();
+
+        for(ConfigurationNode nodeValue : groupList){
+            String value = nodeValue.getString("");
+
+            if(!value.isEmpty() && GroupCollection.instance.hasRegistered(value))
+                addGroup(GroupCollection.instance.get(value));
+        }
+
+        Map<Object,ConfigurationNode> dataMap = (Map<Object, ConfigurationNode>) node.getNode("data").getChildrenMap();
+
+        for(Object data : dataMap.keySet())
+            setOption(data.toString(), dataMap.get(data).getString(""));
+
+
+        for(Permission permission : permissions.getPermissions())
+            if(!node.getNode("rules", permission.getPermission()).isVirtual())
+                permission.deserialize(node.getNode("rules", permission.getPermission()));
+    }
+
+    @Override
+    public void serialize(ConfigurationNode node) {
+        permissions.serialize(node);
+
+        List<String> groups = new ArrayList<>();
+
+        for(Group group : this.groups)
+            groups.add(group.getIdentifier());
+
+        node.getNode("groups").setValue(groups);
+
+        for(Map.Entry pairs : options.entrySet())
+            node.getNode("data", pairs.getKey()).setValue(pairs.getValue());
+
+        for(Permission permission : permissions.getPermissions())
+            if(!permission.getRules().isEmpty())
+                permission.serialize(node.getNode("rules", permission.getPermission()));
+    }
 }
