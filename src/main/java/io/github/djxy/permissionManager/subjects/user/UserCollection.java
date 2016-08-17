@@ -28,7 +28,7 @@ public class UserCollection extends SubjectCollection<User> {
 
         subjects.put(uuid.toString(), user);
 
-        user.addListener(this);
+        user.addListener(subjectListener);
 
         return user;
     }

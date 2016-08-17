@@ -14,10 +14,11 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by Samuel on 2016-08-12.
  */
-public abstract class SubjectCollection<V extends Subject> implements org.spongepowered.api.service.permission.SubjectCollection, SubjectListener {
+public abstract class SubjectCollection<V extends Subject> implements org.spongepowered.api.service.permission.SubjectCollection {
 
     protected final String identifier;
     protected final ConcurrentHashMap<String,V> subjects = new ConcurrentHashMap<>();
+    protected final Listener subjectListener = new Listener();
     private final ConcurrentHashMap<Context, ConcurrentHashMap<String, ConcurrentHashMap<Subject, Boolean>>> contextsSubjectsWithPermissions = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, ConcurrentHashMap<Subject, Boolean>> globalContextSubjectsWithPermissions = new ConcurrentHashMap<>();
 
@@ -84,59 +85,63 @@ public abstract class SubjectCollection<V extends Subject> implements org.sponge
         return new HashMap<>(subjectWithPermissions.get(s));
     }
 
-    @Override
-    public void onSetPermission(Set<Context> set, Subject subject, String permission, boolean value) {
-        Preconditions.checkNotNull(set);
-        Preconditions.checkNotNull(permission);
-        Preconditions.checkNotNull(value);
+    private class Listener implements io.github.djxy.permissionManager.subjects.SubjectListener {
 
-        ConcurrentHashMap<String, ConcurrentHashMap<Subject, Boolean>> subjectWithPermissions = null;
+        @Override
+        public void onSetPermission(Set<Context> set, Subject subject, String permission, boolean value) {
+            Preconditions.checkNotNull(set);
+            Preconditions.checkNotNull(permission);
+            Preconditions.checkNotNull(value);
 
-        if (ContextUtil.isGlobalContext(set))
-            subjectWithPermissions = globalContextSubjectsWithPermissions;
-        if (ContextUtil.isSingleContext(set)) {
-            Context context = ContextUtil.getContext(set);
+            ConcurrentHashMap<String, ConcurrentHashMap<Subject, Boolean>> subjectWithPermissions = null;
 
-            if (!contextsSubjectsWithPermissions.containsKey(context))
-                contextsSubjectsWithPermissions.put(context, new ConcurrentHashMap<>());
+            if (ContextUtil.isGlobalContext(set))
+                subjectWithPermissions = globalContextSubjectsWithPermissions;
+            if (ContextUtil.isSingleContext(set)) {
+                Context context = ContextUtil.getContext(set);
 
-            subjectWithPermissions = contextsSubjectsWithPermissions.get(context);
-        }
+                if (!contextsSubjectsWithPermissions.containsKey(context))
+                    contextsSubjectsWithPermissions.put(context, new ConcurrentHashMap<>());
 
-        if(subjectWithPermissions == null)
-            return;
+                subjectWithPermissions = contextsSubjectsWithPermissions.get(context);
+            }
 
-        if(!subjectWithPermissions.containsKey(permission))
-            subjectWithPermissions.put(permission, new ConcurrentHashMap<>());
-
-        subjectWithPermissions.get(permission).put(subject, value);
-    }
-
-    @Override
-    public void onRemovePermission(Set<Context> set, Subject subject, String permission) {
-        Preconditions.checkNotNull(set);
-        Preconditions.checkNotNull(permission);
-
-        ConcurrentHashMap<String, ConcurrentHashMap<Subject, Boolean>> subjectWithPermissions = null;
-
-        if (ContextUtil.isGlobalContext(set))
-            subjectWithPermissions = globalContextSubjectsWithPermissions;
-        if (ContextUtil.isSingleContext(set)) {
-            Context context = ContextUtil.getContext(set);
-
-            if (!contextsSubjectsWithPermissions.containsKey(context))
+            if(subjectWithPermissions == null)
                 return;
 
-            subjectWithPermissions = contextsSubjectsWithPermissions.get(context);
+            if(!subjectWithPermissions.containsKey(permission))
+                subjectWithPermissions.put(permission, new ConcurrentHashMap<>());
+
+            subjectWithPermissions.get(permission).put(subject, value);
         }
 
-        if(subjectWithPermissions == null)
-            return;
+        @Override
+        public void onRemovePermission(Set<Context> set, Subject subject, String permission) {
+            Preconditions.checkNotNull(set);
+            Preconditions.checkNotNull(permission);
 
-        if(!subjectWithPermissions.containsKey(permission))
-            return;
+            ConcurrentHashMap<String, ConcurrentHashMap<Subject, Boolean>> subjectWithPermissions = null;
 
-        subjectWithPermissions.get(permission).remove(subject);
+            if (ContextUtil.isGlobalContext(set))
+                subjectWithPermissions = globalContextSubjectsWithPermissions;
+            if (ContextUtil.isSingleContext(set)) {
+                Context context = ContextUtil.getContext(set);
+
+                if (!contextsSubjectsWithPermissions.containsKey(context))
+                    return;
+
+                subjectWithPermissions = contextsSubjectsWithPermissions.get(context);
+            }
+
+            if(subjectWithPermissions == null)
+                return;
+
+            if(!subjectWithPermissions.containsKey(permission))
+                return;
+
+            subjectWithPermissions.get(permission).remove(subject);
+        }
+
     }
 
 }
