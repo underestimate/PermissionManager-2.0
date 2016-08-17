@@ -38,6 +38,8 @@ public class SubjectTest {
             groupWorld = GroupCollection.instance.createGroup("groupWorld");
             groupWorld2 = GroupCollection.instance.createGroup("groupWorld2");
 
+            groupGlobal.setDefaultGroup(true);
+
             user.addParent(globalContext, groupGlobal);
             groupGlobal.addParent(globalContext, groupGlobal2);
 
@@ -80,6 +82,21 @@ public class SubjectTest {
         } catch (SubjectIdentifierExistException e) {
             e.printStackTrace();
         }
+    }
+
+    @Test
+    public void testLastDefaultGroupValue(){
+        groupGlobal2.setDefaultGroup(true);
+        groupGlobal.setDefaultGroup(true);
+
+        Assert.assertEquals(false, groupGlobal2.isDefaultGroup());
+    }
+
+    @Test
+    public void testDefaultGroup(){
+        groupGlobal2.setDefaultGroup(true);
+
+        Assert.assertEquals(groupGlobal2, GroupCollection.instance.getDefaults());
     }
 
     @Test
