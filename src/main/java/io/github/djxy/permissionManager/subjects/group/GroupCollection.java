@@ -9,7 +9,9 @@ import org.spongepowered.api.service.permission.PermissionService;
  */
 public class GroupCollection extends SubjectCollection<Group> {
 
-    public GroupCollection() {
+    public final static GroupCollection instance = new GroupCollection();
+
+    private GroupCollection() {
         super(PermissionService.SUBJECTS_GROUP);
     }
 

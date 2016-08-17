@@ -12,7 +12,9 @@ import java.util.UUID;
  */
 public class UserCollection extends SubjectCollection<User> {
 
-    public UserCollection() {
+    public final static UserCollection instance = new UserCollection();
+
+    private UserCollection() {
         super(PermissionService.SUBJECTS_USER);
     }
 
