@@ -7,4 +7,6 @@ public interface GroupListener {
 
     public void onGroupDeleted(Group group);
 
+    public void onGroupRankChange();
+
 }
