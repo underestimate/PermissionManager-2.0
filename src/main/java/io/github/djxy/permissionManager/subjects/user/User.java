@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 import io.github.djxy.permissionManager.area.Country;
 import io.github.djxy.permissionManager.language.Language;
+import io.github.djxy.permissionManager.rules.Rule;
 import io.github.djxy.permissionManager.subjects.ContextContainer;
 import io.github.djxy.permissionManager.subjects.Permission;
 import io.github.djxy.permissionManager.subjects.Subject;
@@ -137,13 +138,13 @@ public class User extends Subject {
             Permission perm = container.getPermissions().getPermission(permission);
 
             if (perm != null)
-                return Tristate.fromBoolean(perm.getValue());
+                return testPermissionRules(perm);
         }
 
         Permission perm = globalContext.getPermissions().getPermission(permission);
 
         if(perm != null)
-            return Tristate.fromBoolean(perm.getValue());
+            return testPermissionRules(perm);
 
         set = Sets.newHashSet(context);
 
@@ -152,7 +153,7 @@ public class User extends Subject {
                 perm = group.getPermissionValue(set, permission, new ArrayList<>());
 
                 if (perm != null)
-                    return Tristate.fromBoolean(perm.getValue());
+                    return testPermissionRules(perm);
             }
         }
 
@@ -160,10 +161,31 @@ public class User extends Subject {
             perm = group.getPermissionValue(set, permission, new ArrayList<>());
 
             if (perm != null)
-                return Tristate.fromBoolean(perm.getValue());
+                return testPermissionRules(perm);
         }
 
         return Tristate.UNDEFINED;
+    }
+
+    /**
+     *
+     * @param permission
+     * @return Tristate.FALSE = can,t apply rules. Tristate.TRUE = can apply rules
+     */
+    private Tristate testPermissionRules(Permission permission){
+        List<Rule> rules = permission.getRules();
+
+        if(rules.isEmpty())
+            return Tristate.fromBoolean(permission.getValue());
+
+        for(Rule rule : rules)
+            if(!rule.canApply(getPlayer()))
+                return Tristate.FALSE;
+
+        for(Rule rule : rules)
+            rule.apply(getPlayer());
+
+        return Tristate.TRUE;
     }
 
     @Override
