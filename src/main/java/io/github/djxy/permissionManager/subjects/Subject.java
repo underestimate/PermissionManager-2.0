@@ -4,10 +4,10 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 import io.github.djxy.permissionManager.subjects.group.Group;
 import io.github.djxy.permissionManager.util.ContextUtil;
+import ninja.leaping.configurate.ConfigurationNode;
 import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.service.permission.SubjectCollection;
 import org.spongepowered.api.service.permission.SubjectData;
-import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.Tristate;
 
 import java.util.*;
@@ -17,16 +17,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * Created by Samuel on 2016-08-09.
  */
-public abstract class Subject implements org.spongepowered.api.service.permission.Subject, SubjectData {
+public abstract class Subject implements org.spongepowered.api.service.permission.Subject, SubjectData, ConfigurationNodeSerializer, ConfigurationNodeDeserializer {
 
     protected String identifier;
     protected final SubjectCollection collection;
     protected final ConcurrentHashMap<Context, ContextContainer> contexts;
-    protected final ContextContainer globalContext;
     private final CopyOnWriteArrayList<SubjectListener> listeners;
-    private Text prefix = Text.of();
-    private Text suffix = Text.of();
-    private Text name = Text.of();
+    protected ContextContainer globalContext;
 
     public Subject(String identifier, SubjectCollection collection) {
         Preconditions.checkNotNull(identifier);
@@ -41,36 +38,6 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
 
     public String getIdentifier() {
         return identifier;
-    }
-
-    public Text getPrefix() {
-        return prefix;
-    }
-
-    public void setPrefix(Text prefix) {
-        Preconditions.checkNotNull(prefix);
-
-        this.prefix = prefix;
-    }
-
-    public Text getSuffix() {
-        return suffix;
-    }
-
-    public void setSuffix(Text suffix) {
-        Preconditions.checkNotNull(suffix);
-
-        this.suffix = suffix;
-    }
-
-    public Text getName() {
-        return name;
-    }
-
-    public void setName(Text name) {
-        Preconditions.checkNotNull(name);
-
-        this.name = name;
     }
 
     public void addListener(SubjectListener listener){
@@ -440,7 +407,6 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
     public boolean setOption(Set<Context> set, String key, String value) {
         Preconditions.checkNotNull(set);
         Preconditions.checkNotNull(key);
-        Preconditions.checkNotNull(value);
 
         ContextContainer container = null;
 
@@ -458,7 +424,10 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
         if(container == null)
             return false;
 
-        container.setOption(key, value);
+        if(value == null)
+            container.removeOption(key);
+        else
+            container.setOption(key, value);
 
         return true;
     }
@@ -503,6 +472,43 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
     @Override
     public Optional<String> getOption(String key) {
         return getOption(GLOBAL_CONTEXT, key);
+    }
+
+    @Override
+    public void deserialize(ConfigurationNode node) {
+        globalContext = new ContextContainer();
+
+        globalContext.deserialize(node);
+
+        contexts.clear();
+
+        ConfigurationNode worlds = node.getNode("worlds");
+
+        if(!worlds.isVirtual() && worlds.hasMapChildren()){
+            Map<Object,ConfigurationNode> worldsMap = (Map<Object, ConfigurationNode>) worlds.getChildrenMap();
+
+            for(Object world : worldsMap.keySet()){
+                ContextContainer worldContainer = new ContextContainer();
+
+                worldContainer.deserialize(worldsMap.get(world));
+
+                contexts.put(new Context(Context.WORLD_KEY, world.toString()), worldContainer);
+            }
+        }
+    }
+
+    @Override
+    public void serialize(ConfigurationNode node) {
+        globalContext.serialize(node);
+
+        Enumeration<Context> enumeration = contexts.keys();
+
+        while(enumeration.hasMoreElements()){
+            Context context = enumeration.nextElement();
+
+            if(context.getKey().equals(Context.WORLD_KEY))
+                contexts.get(context).serialize(node.getNode("worlds", context.getValue()));
+        }
     }
 
     @Override
