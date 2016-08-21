@@ -2,6 +2,7 @@ package io.github.djxy.permissionManager.subjects;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
+import io.github.djxy.permissionManager.logger.Logger;
 import io.github.djxy.permissionManager.subjects.group.Group;
 import io.github.djxy.permissionManager.util.ContextUtil;
 import ninja.leaping.configurate.ConfigurationNode;
