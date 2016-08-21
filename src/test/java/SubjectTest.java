@@ -2,6 +2,8 @@ import com.google.common.collect.Sets;
 import io.github.djxy.permissionManager.area.Country;
 import io.github.djxy.permissionManager.exceptions.SubjectIdentifierExistException;
 import io.github.djxy.permissionManager.language.Language;
+import io.github.djxy.permissionManager.logger.Logger;
+import io.github.djxy.permissionManager.logger.LoggerMode;
 import io.github.djxy.permissionManager.subjects.group.Group;
 import io.github.djxy.permissionManager.subjects.group.GroupCollection;
 import io.github.djxy.permissionManager.subjects.user.User;
@@ -13,6 +15,7 @@ import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.service.permission.SubjectData;
 import org.spongepowered.api.util.Tristate;
 
+import java.nio.file.FileSystems;
 import java.util.Set;
 import java.util.UUID;
 
@@ -31,7 +34,14 @@ public class SubjectTest {
 
     @BeforeClass
     public static void initSubjects() {
+        Logger.setLoggerMode(LoggerMode.DEBUG_IDE);
+
         try {
+            UserCollection.instance.setDirectory(FileSystems.getDefault().getPath("users"));
+            GroupCollection.instance.setDirectory(FileSystems.getDefault().getPath("groups"));
+
+            GroupCollection.instance.createDefaultGroup();
+
             user = UserCollection.instance.createUser(UUID.randomUUID());
             groupGlobal = GroupCollection.instance.createGroup("groupGlobal");
             groupGlobal2 = GroupCollection.instance.createGroup("groupGlobal2");
