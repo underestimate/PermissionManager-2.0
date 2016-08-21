@@ -108,7 +108,7 @@ public class ContextContainer implements GroupListener, ConfigurationNodeSeriali
             String value = nodeValue.getString("");
 
             if(!value.isEmpty() && GroupCollection.instance.hasRegistered(value))
-                addGroup(GroupCollection.instance.get(value));
+                addGroup((Group) GroupCollection.instance.get(value));
         }
 
         Map<Object,ConfigurationNode> dataMap = (Map<Object, ConfigurationNode>) node.getNode("data").getChildrenMap();
