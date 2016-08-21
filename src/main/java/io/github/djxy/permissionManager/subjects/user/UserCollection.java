@@ -2,44 +2,97 @@ package io.github.djxy.permissionManager.subjects.user;
 
 import com.google.common.base.Preconditions;
 import io.github.djxy.permissionManager.exceptions.SubjectIdentifierExistException;
+import io.github.djxy.permissionManager.exceptions.SubjectIdentifierInvalidException;
+import io.github.djxy.permissionManager.logger.Logger;
 import io.github.djxy.permissionManager.subjects.SubjectCollection;
+import io.github.djxy.permissionManager.subjects.group.GroupCollection;
 import org.spongepowered.api.service.permission.PermissionService;
+import org.spongepowered.api.service.permission.Subject;
+import org.spongepowered.api.service.permission.SubjectData;
 
+import java.io.IOException;
 import java.util.UUID;
 
 /**
  * Created by Samuel on 2016-08-09.
  */
-public class UserCollection extends SubjectCollection<User> {
+public class UserCollection extends SubjectCollection {
+
+    private static final Logger LOGGER = new Logger(UserCollection.class);
 
     public final static UserCollection instance = new UserCollection();
 
     private UserCollection() {
-        super(PermissionService.SUBJECTS_USER);
+        super(PermissionService.SUBJECTS_USER, "User");
     }
 
     public synchronized User createUser(UUID uuid) throws SubjectIdentifierExistException {
+        return createUser(uuid, false);
+    }
+
+    public void unload(UUID uuid){
         Preconditions.checkNotNull(uuid);
 
-        if(userExist(uuid))
+        if(!hasRegistered(uuid.toString()))
+            return;
+
+        try {
+            save(uuid.toString());
+
+            subjects.remove(uuid.toString());
+
+            LOGGER.info("User "+uuid+" unloaded.");
+            LOGGER.info(subjects.size()+" user(s) loaded.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected Subject createSubjectFromFile(String identifier) throws SubjectIdentifierInvalidException, SubjectIdentifierExistException {
+        Preconditions.checkNotNull(identifier);
+        UUID uuid = null;
+
+        try{
+            uuid = UUID.fromString(identifier);
+        }catch (Exception e){
+            throw new SubjectIdentifierInvalidException(identifier+" is invalid.");
+        }
+
+        return createUser(uuid, true);
+    }
+
+    private synchronized User createUser(UUID uuid, boolean fromFile) throws SubjectIdentifierExistException {
+        Preconditions.checkNotNull(uuid);
+
+        if((fromFile && hasRegistered(getIdentifier())) || (!fromFile && userExist(uuid)))
             throw new SubjectIdentifierExistException("User with the same UUID already exist.");
 
         User user = new User(uuid, this);
 
         subjects.put(uuid.toString(), user);
 
+        user.addParent(SubjectData.GLOBAL_CONTEXT, GroupCollection.instance.getDefaults());
+
         user.addListener(subjectListener);
+
+        LOGGER.info("User "+uuid+" created. From file: "+fromFile);
 
         return user;
     }
 
     @Override
-    public User getDefaults() {
-        return null;
+    public synchronized boolean load(String identifier) {
+        boolean loaded = super.load(identifier);
+
+        if(loaded)
+            LOGGER.info(subjects.size()+" user(s) loaded.");
+
+        return loaded;
     }
 
     private boolean userExist(UUID uuid){
-        return hasRegistered(uuid.toString());
+        return hasRegistered(uuid.toString()) || directory.resolve(uuid.toString()+".yml").toFile().exists();
     }
 
 }
