@@ -11,10 +11,11 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Maven: com.google.code.gson:gson:2.2.4" level="project" />
+    <orderEntry type="library" name="RedProtect_Sponge" level="project" />
     <orderEntry type="library" name="Maven: org.spongepowered:spongeapi:5.0.0-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.21" level="project" />
     <orderEntry type="library" name="Maven: com.google.guava:guava:17.0" level="project" />
+    <orderEntry type="library" name="Maven: com.google.code.gson:gson:2.2.4" level="project" />
     <orderEntry type="library" name="Maven: org.apache.commons:commons-lang3:3.3.2" level="project" />
     <orderEntry type="library" name="Maven: com.google.code.findbugs:jsr305:1.3.9" level="project" />
     <orderEntry type="library" name="Maven: com.google.inject:guice:4.0" level="project" />
@@ -33,5 +34,18 @@
     <orderEntry type="library" name="Maven: org.spongepowered:event-gen-core:2.0.0-SNAPSHOT" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.10" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.hamcrest:hamcrest-core:1.1" level="project" />
+    <orderEntry type="library" name="Maven: com.github.FoxDenStudio:FoxGuard:v0.19.2-dev-api5" level="project" />
+    <orderEntry type="library" name="Maven: com.github.FoxDenStudio.FoxGuard:FoxCore:v0.19.2-dev-api5" level="project" />
+    <orderEntry type="library" name="Maven: org.mapdb:mapdb:3.0.0" level="project" />
+    <orderEntry type="library" name="Maven: org.jetbrains.kotlin:kotlin-stdlib:1.0.2" level="project" />
+    <orderEntry type="library" name="Maven: org.jetbrains.kotlin:kotlin-runtime:1.0.2" level="project" />
+    <orderEntry type="library" name="Maven: org.eclipse.collections:eclipse-collections-api:7.1.0" level="project" />
+    <orderEntry type="library" name="Maven: net.jcip:jcip-annotations:1.0" level="project" />
+    <orderEntry type="library" name="Maven: org.eclipse.collections:eclipse-collections:7.1.0" level="project" />
+    <orderEntry type="library" name="Maven: org.eclipse.collections:eclipse-collections-forkjoin:7.1.0" level="project" />
+    <orderEntry type="library" name="Maven: net.jpountz.lz4:lz4:1.3.0" level="project" />
+    <orderEntry type="library" name="Maven: org.mapdb:elsa:3.0.0-M5" level="project" />
+    <orderEntry type="library" name="Maven: com.github.FoxDenStudio.FoxGuard:FoxGuard:v0.19.2-dev-api5" level="project" />
+    <orderEntry type="library" name="Maven: net.minecrell.mcstats:statslite-sponge:0.2.2" level="project" />
   </component>
 </module>
