@@ -1,5 +1,6 @@
 package io.github.djxy.permissionManager.promotion;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 import io.github.djxy.permissionManager.subjects.ConfigurationNodeDeserializer;
 import io.github.djxy.permissionManager.subjects.ConfigurationNodeSerializer;
@@ -18,14 +19,82 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by Samuel on 2016-08-15.
  */
-public class Promotion implements ConfigurationNodeSerializer, ConfigurationNodeDeserializer {
+public final class Promotion implements ConfigurationNodeSerializer, ConfigurationNodeDeserializer {
 
     private ContextContainer addGlobalContext = new ContextContainer();
     private ConcurrentHashMap<Context,ContextContainer> addContexts = new ConcurrentHashMap<>();
     private ContextContainer removeGlobalContext = new ContextContainer();
     private ConcurrentHashMap<Context,ContextContainer> removeContexts = new ConcurrentHashMap<>();
+    private String name;
 
-    protected Promotion() {
+    protected Promotion(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    protected void setName(String name) {
+        this.name = name;
+    }
+
+    public ContextContainer getAddGlobalContextContainer(){
+        return addGlobalContext;
+    }
+
+    public ContextContainer getRemoveGlobalContextContainer(){
+        return removeGlobalContext;
+    }
+
+    public ContextContainer getAddContextContainer(Context context){
+        Preconditions.checkNotNull(context);
+
+        return addContexts.get(context);
+    }
+
+    public ContextContainer getRemoveContextContainer(Context context){
+        Preconditions.checkNotNull(context);
+
+        return removeContexts.get(context);
+    }
+
+    public boolean containsAddContext(Context context){
+        Preconditions.checkNotNull(context);
+
+        return addContexts.containsKey(context);
+    }
+
+    public boolean containsRemoveContext(Context context){
+        Preconditions.checkNotNull(context);
+
+        return removeContexts.containsKey(context);
+    }
+
+    public ContextContainer createAddContext(Context context){
+        Preconditions.checkNotNull(context);
+
+        if(addContexts.containsKey(context))
+            return addContexts.get(context);
+
+        ContextContainer container = new ContextContainer();
+
+        addContexts.put(context, container);
+
+        return container;
+    }
+
+    public ContextContainer createRemoveContext(Context context){
+        Preconditions.checkNotNull(context);
+
+        if(removeContexts.containsKey(context))
+            return removeContexts.get(context);
+
+        ContextContainer container = new ContextContainer();
+
+        removeContexts.put(context, container);
+
+        return container;
     }
 
     public void promote(User user){

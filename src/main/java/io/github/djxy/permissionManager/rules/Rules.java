@@ -18,14 +18,14 @@ public class Rules {
     private final ConcurrentHashMap<Class<? extends Rule>, String> ruleNames = new ConcurrentHashMap<>();
 
     private Rules() {
-        //addRule("cooldown", CooldownRule.class);
-        //addRule("economy", EconomyRule.class);
-        addRule("home", HomeRule.class);
-        addRule("region", RegionRule.class);
-        addRule("time", TimeRule.class);
+        //createRule("cooldown", CooldownRule.class);
+        //createRule("economy", EconomyRule.class);
+        createRule("home", HomeRule.class);
+        createRule("region", RegionRule.class);
+        createRule("time", TimeRule.class);
     }
 
-    public void addRule(String name, Class<? extends Rule> rule){
+    public void createRule(String name, Class<? extends Rule> rule){
         Preconditions.checkNotNull(name);
         Preconditions.checkNotNull(rule);
 

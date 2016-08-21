@@ -6,6 +6,7 @@ import io.github.djxy.permissionManager.commands.CreateGroupCommand;
 import io.github.djxy.permissionManager.events.PlayerLoginEvent;
 import io.github.djxy.permissionManager.logger.Logger;
 import io.github.djxy.permissionManager.logger.LoggerMode;
+import io.github.djxy.permissionManager.promotion.Promotions;
 import io.github.djxy.permissionManager.rules.region.RegionRuleService;
 import io.github.djxy.permissionManager.rules.region.plugins.FoxGuardPlugin;
 import io.github.djxy.permissionManager.rules.region.plugins.RedProtectPlugin;
@@ -14,7 +15,10 @@ import io.github.djxy.permissionManager.subjects.user.UserCollection;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.game.state.*;
+import org.spongepowered.api.event.game.state.GameConstructionEvent;
+import org.spongepowered.api.event.game.state.GameInitializationEvent;
+import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
+import org.spongepowered.api.event.game.state.GameStoppedServerEvent;
 import org.spongepowered.api.plugin.Plugin;
 
 import java.nio.file.Path;
@@ -51,9 +55,13 @@ public class PermissionManager {
             RegionRuleService.instance.addRegionPlugin(new RedProtectPlugin());
 
         UserCollection.instance.setDirectory(path.resolve("users"));
+
         GroupCollection.instance.setDirectory(path.resolve("groups"));
         GroupCollection.instance.load();
         GroupCollection.instance.createDefaultGroup();
+
+        Promotions.instance.setDirectory(path.resolve("promotions"));
+        Promotions.instance.load();
     }
 
     @Listener
