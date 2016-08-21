@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 import io.github.djxy.permissionManager.area.Country;
 import io.github.djxy.permissionManager.language.Language;
+import io.github.djxy.permissionManager.logger.Logger;
 import io.github.djxy.permissionManager.rules.Rule;
 import io.github.djxy.permissionManager.subjects.ContextContainer;
 import io.github.djxy.permissionManager.subjects.Permission;
@@ -24,6 +25,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * Created by Samuel on 2016-08-09.
  */
 public class User extends Subject {
+
+    private final static Logger LOGGER = new Logger(User.class);
 
     private final UUID uuid;
     private Language mainLanguage = Language.getDefault();
@@ -65,7 +68,7 @@ public class User extends Subject {
 
     @Override
     public Optional<CommandSource> getCommandSource() {
-        return Optional.of(getPlayer());
+        return getPlayer().isPresent()?Optional.of(getPlayer().get()):Optional.empty();
     }
 
     @Override
@@ -74,8 +77,12 @@ public class User extends Subject {
         Preconditions.checkNotNull(key);
         Context context = null;
 
-        if(ContextUtil.isGlobalContext(set))
-            context = new Context(Context.WORLD_KEY, getPlayerWorld());
+        if(ContextUtil.isGlobalContext(set)) {
+            if(!getPlayerWorld().isPresent())
+                return Optional.empty();
+
+            context = new Context(Context.WORLD_KEY, getPlayerWorld().get());
+        }
         if(ContextUtil.isSingleContext(set))
             context = ContextUtil.getContext(set);
 
@@ -122,10 +129,16 @@ public class User extends Subject {
         Preconditions.checkNotNull(set);
         Preconditions.checkNotNull(permission);
 
+        LOGGER.info(getIdentifier()+" get permission value for "+permission);
+
         Context context = null;
 
-        if(ContextUtil.isGlobalContext(set))
-            context = new Context(Context.WORLD_KEY, getPlayerWorld());
+        if(ContextUtil.isGlobalContext(set)) {
+            if(!getPlayerWorld().isPresent())
+                return Tristate.UNDEFINED;
+
+            context = new Context(Context.WORLD_KEY, getPlayerWorld().get());
+        }
         if(ContextUtil.isSingleContext(set))
             context = ContextUtil.getContext(set);
 
@@ -138,7 +151,7 @@ public class User extends Subject {
             Permission perm = container.getPermissions().getPermission(permission);
 
             if (perm != null)
-                return testPermissionRules(perm);
+                return Tristate.fromBoolean(perm.getValue());
         }
 
         Permission perm = globalContext.getPermissions().getPermission(permission);
@@ -175,15 +188,20 @@ public class User extends Subject {
     private Tristate testPermissionRules(Permission permission){
         List<Rule> rules = permission.getRules();
 
+        if(!getPlayer().isPresent())
+            return Tristate.UNDEFINED;
+
         if(rules.isEmpty())
             return Tristate.fromBoolean(permission.getValue());
 
+        Player player = getPlayer().get();
+
         for(Rule rule : rules)
-            if(!rule.canApply(getPlayer()))
+            if(!rule.canApply(player))
                 return Tristate.FALSE;
 
         for(Rule rule : rules)
-            rule.apply(getPlayer());
+            rule.apply(player);
 
         return Tristate.TRUE;
     }
@@ -224,12 +242,12 @@ public class User extends Subject {
         node.getNode("languages", "others").setValue(languages);
     }
 
-    private Player getPlayer(){
-        return Sponge.getServer().getPlayer(uuid).get();
+    private Optional<Player> getPlayer(){
+        return Sponge.getServer().getPlayer(uuid);
     }
 
-    private String getPlayerWorld(){
-        return "world";
+    private Optional<String> getPlayerWorld(){
+        return getPlayer().isPresent()?Optional.of(getPlayer().get().getWorld().getName()):Optional.empty();
     }
 
 }
