@@ -26,6 +26,10 @@ public class Permission implements ConfigurationNodeDeserializer, ConfigurationN
         this.value = value;
     }
 
+    public void addRule(Rule rule){
+        rules.put(rule.getClass(), rule);
+    }
+
     public List<Rule> getRules() {
         return new ArrayList<>(rules.values());
     }
@@ -49,8 +53,10 @@ public class Permission implements ConfigurationNodeDeserializer, ConfigurationN
         for(Object ruleNode : rulesMap.keySet()){
             Rule rule = Rules.instance.getRule(ruleNode.toString());
 
-            if(rule != null)
+            if(rule != null) {
                 rule.deserialize(rulesMap.get(ruleNode));
+                addRule(rule);
+            }
         }
     }
 
