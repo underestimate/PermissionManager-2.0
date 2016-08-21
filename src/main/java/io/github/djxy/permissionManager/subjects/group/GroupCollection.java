@@ -1,13 +1,22 @@
 package io.github.djxy.permissionManager.subjects.group;
 
+import com.google.common.base.Preconditions;
 import io.github.djxy.permissionManager.exceptions.SubjectIdentifierExistException;
+import io.github.djxy.permissionManager.exceptions.SubjectIdentifierInvalidException;
+import io.github.djxy.permissionManager.logger.Logger;
 import io.github.djxy.permissionManager.subjects.SubjectCollection;
 import org.spongepowered.api.service.permission.PermissionService;
+import org.spongepowered.api.service.permission.Subject;
+
+import java.io.File;
+import java.util.UUID;
 
 /**
  * Created by Samuel on 2016-08-09.
  */
-public class GroupCollection extends SubjectCollection<Group> {
+public class GroupCollection extends SubjectCollection {
+
+    private static final Logger LOGGER = new Logger(GroupCollection.class);
 
     public final static GroupCollection instance = new GroupCollection();
 
@@ -15,11 +24,11 @@ public class GroupCollection extends SubjectCollection<Group> {
     private final Listener groupListener = new Listener();
 
     private GroupCollection() {
-        super(PermissionService.SUBJECTS_GROUP);
+        super(PermissionService.SUBJECTS_GROUP, "Group");
     }
 
     @Override
-    public Group getDefaults() {
+    public Subject getDefaults() {
         return defaultGroup;
     }
 
@@ -30,6 +39,8 @@ public class GroupCollection extends SubjectCollection<Group> {
         subjects.put(identifier, group);
         subjects.remove(group.getIdentifier());
 
+        LOGGER.info("Group " + group.getIdentifier() + " renamed " + identifier+".");
+
         group.setIdentifier(identifier);
     }
 
@@ -37,6 +48,15 @@ public class GroupCollection extends SubjectCollection<Group> {
         subjects.remove(group.getIdentifier());
 
         group.delete();
+
+        LOGGER.info("Group " + group.getIdentifier() + " deleted.");
+
+        File file = directory.resolve(group.getIdentifier()+".yml").toFile();
+
+        if(!file.exists())
+            return;
+
+        file.delete();
     }
 
     public synchronized Group createGroup(String identifier) throws SubjectIdentifierExistException {
@@ -50,7 +70,36 @@ public class GroupCollection extends SubjectCollection<Group> {
         group.addListener(subjectListener);
         group.addListener(groupListener);
 
+        LOGGER.info("Group " + group.getIdentifier() + " created.");
+
         return group;
+    }
+
+    public void createDefaultGroup(){
+        if(GroupCollection.instance.getDefaults() != null)
+            return;
+
+        try {
+            Group group;
+
+            if(GroupCollection.instance.hasRegistered("default"))
+                group = GroupCollection.instance.createGroup(UUID.randomUUID().toString());
+            else
+                group = GroupCollection.instance.createGroup("default");
+
+            group.setDefaultGroup(true);
+
+            LOGGER.info("Default group(" + group.getIdentifier() + ") created.");
+        } catch (SubjectIdentifierExistException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected Subject createSubjectFromFile(String identifier) throws SubjectIdentifierInvalidException, SubjectIdentifierExistException {
+        Preconditions.checkNotNull(identifier);
+
+        return createGroup(identifier);
     }
 
     private class Listener implements GroupListener{
@@ -66,7 +115,11 @@ public class GroupCollection extends SubjectCollection<Group> {
             if(defaultGroup != null)
                 defaultGroup.setDefaultGroup(false);
 
+            if(group == defaultGroup)
+                return;
+
             defaultGroup = group;
+            LOGGER.info("New default group("+defaultGroup.getIdentifier()+").");
         }
 
     }
