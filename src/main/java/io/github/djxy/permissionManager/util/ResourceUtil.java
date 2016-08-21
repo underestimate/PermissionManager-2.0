@@ -3,8 +3,10 @@ package io.github.djxy.permissionManager.util;
 import com.google.common.base.Preconditions;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
+import io.github.djxy.permissionManager.logger.Logger;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -12,44 +14,39 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ResourceUtil {
 
-    private static final ConcurrentHashMap<String,JsonArray> jsonArrays = new ConcurrentHashMap<>();
+    private final static Logger LOGGER = new Logger(ResourceUtil.class);
 
-    public synchronized static JsonArray loadJsonArray(String fileName){
+    private static final ConcurrentHashMap<String,JsonArray> jsonArrays = new ConcurrentHashMap<>();
+    private static final Object object = new ResourceUtil();
+
+    public synchronized static JsonArray loadJsonArray(String fileName) {
         Preconditions.checkNotNull(fileName, "fileName");
 
         if(jsonArrays.containsKey(fileName))
             return jsonArrays.get(fileName);
 
-        File file = new File(ClassLoader.getSystemClassLoader().getResource(fileName).getFile());
+        try{
+            BufferedReader br = new BufferedReader(new InputStreamReader(object.getClass().getClassLoader().getResource(fileName).openStream()));
+            String line;
 
-        StringBuilder builder = new StringBuilder((int) file.length());
+            StringBuilder builder = new StringBuilder(1024);
 
-        BufferedReader br = null;
-        try {
-            br = new BufferedReader(new FileReader(file));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        String line;
-
-        try {
             while((line = br.readLine()) != null)
                 builder.append(line);
-        } catch (IOException e) {
+
+            br.close();
+
+            jsonArrays.put(fileName, new JsonParser().parse(builder.toString()).getAsJsonArray());
+
+            LOGGER.info(fileName + " loaded.");
+
+            return jsonArrays.get(fileName);
+        } catch(Exception e){
+            LOGGER.error("Couldn't read "+fileName+".");
             e.printStackTrace();
-        } finally {
-            if(br != null) {
-                try {
-                    br.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
         }
 
-        jsonArrays.put(fileName, new JsonParser().parse(builder.toString()).getAsJsonArray());
-
-        return jsonArrays.get(fileName);
+        return new JsonArray();
     }
 
 }
