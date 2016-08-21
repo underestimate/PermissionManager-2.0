@@ -1,8 +1,6 @@
 package io.github.djxy.permissionManager.rules;
 
 import com.google.common.base.Preconditions;
-import io.github.djxy.permissionManager.rules.cooldown.CooldownRule;
-import io.github.djxy.permissionManager.rules.economy.EconomyRule;
 import io.github.djxy.permissionManager.rules.home.HomeRule;
 import io.github.djxy.permissionManager.rules.region.RegionRule;
 import io.github.djxy.permissionManager.rules.time.TimeRule;
@@ -20,8 +18,8 @@ public class Rules {
     private final ConcurrentHashMap<Class<? extends Rule>, String> ruleNames = new ConcurrentHashMap<>();
 
     private Rules() {
-        addRule("cooldown", CooldownRule.class);
-        addRule("economy", EconomyRule.class);
+        //addRule("cooldown", CooldownRule.class);
+        //addRule("economy", EconomyRule.class);
         addRule("home", HomeRule.class);
         addRule("region", RegionRule.class);
         addRule("time", TimeRule.class);
