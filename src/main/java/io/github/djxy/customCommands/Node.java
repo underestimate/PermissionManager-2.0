@@ -1,6 +1,6 @@
-package io.github.djxy.customCommands;
+package io.github.djxy.customcommands;
 
-import io.github.djxy.customCommands.parsers.Parser;
+import io.github.djxy.customcommands.parsers.Parser;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;

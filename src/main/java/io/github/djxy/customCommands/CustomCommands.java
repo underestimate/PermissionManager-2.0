@@ -1,8 +1,8 @@
-package io.github.djxy.customCommands;
+package io.github.djxy.customcommands;
 
 import com.google.common.base.Preconditions;
-import io.github.djxy.customCommands.annotations.CustomCommand;
-import io.github.djxy.customCommands.annotations.CustomParser;
+import io.github.djxy.customcommands.annotations.CustomCommand;
+import io.github.djxy.customcommands.annotations.CustomParser;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;

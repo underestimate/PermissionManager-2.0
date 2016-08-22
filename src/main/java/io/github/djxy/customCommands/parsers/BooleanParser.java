@@ -1,4 +1,4 @@
-package io.github.djxy.customCommands.parsers;
+package io.github.djxy.customcommands.parsers;
 
 import java.util.HashMap;
 import java.util.List;

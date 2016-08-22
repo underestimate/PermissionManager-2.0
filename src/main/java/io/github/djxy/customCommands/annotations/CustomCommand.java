@@ -1,4 +1,4 @@
-package io.github.djxy.customCommands.annotations;
+package io.github.djxy.customcommands.annotations;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

@@ -1,4 +1,4 @@
-package io.github.djxy.customCommands.parsers;
+package io.github.djxy.customcommands.parsers;
 
 import java.util.ArrayList;
 import java.util.List;

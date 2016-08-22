@@ -1,4 +1,4 @@
-package io.github.djxy.customCommands;
+package io.github.djxy.customcommands;
 
 import java.util.ArrayList;
 
