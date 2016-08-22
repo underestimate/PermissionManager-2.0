@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Created by Samuel on 2016-08-09.
@@ -32,6 +33,8 @@ public class User extends Subject {
 
     private final UUID uuid;
     private Language language = Language.getDefault();
+    private final CopyOnWriteArrayList<String> commandsOnCurrentTick = new CopyOnWriteArrayList<>();
+    private long tickOfLastCommands = -1;
 
     protected User(UUID uuid, UserCollection userCollection) {
         super(uuid.toString(), userCollection);
@@ -46,6 +49,25 @@ public class User extends Subject {
         this.language = language;
     }
 
+    public void addCommandCurrentTick(String command){
+        Preconditions.checkNotNull(command);
+        long tick = Sponge.getServer().getRunningTimeTicks();
+
+        LOGGER.info(command);
+
+        if(tickOfLastCommands < tick)
+            commandsOnCurrentTick.clear();
+
+        tickOfLastCommands = tick;
+        commandsOnCurrentTick.add(command);
+    }
+
+    public List<String> getCommandsOnCurrentTick(){
+        if(Sponge.getServer().getRunningTimeTicks() == tickOfLastCommands)
+            return (List<String>) commandsOnCurrentTick.clone();
+
+        return new ArrayList<>();
+    }
 
     @Override
     public Optional<CommandSource> getCommandSource() {
