@@ -1,6 +1,6 @@
 package io.github.djxy.permissionmanager.rules.economy;
 
-import io.github.djxy.permissionmanager.rules.Rule;
+import io.github.djxy.permissionmanager.rules.CommandRule;
 import ninja.leaping.configurate.ConfigurationNode;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
@@ -15,7 +15,7 @@ import java.util.Optional;
 /**
  * Created by Samuel on 2016-08-16.
  */
-public class EconomyRule implements Rule {
+public class EconomyRule extends CommandRule {
 
     private double cost;
 
@@ -32,6 +32,9 @@ public class EconomyRule implements Rule {
 
     @Override
     public boolean canApply(Player player) {
+        if(!super.isFromCommand(player))
+            return true;
+
         Optional<EconomyService> service = Sponge.getServiceManager().provide(EconomyService.class);
 
         if(!service.isPresent())
@@ -45,6 +48,9 @@ public class EconomyRule implements Rule {
 
     @Override
     public void apply(Player player) {
+        if(!isFromCommand(player))
+            return;
+
         Optional<EconomyService> service = Sponge.getServiceManager().provide(EconomyService.class);
 
         if(!service.isPresent())
@@ -59,11 +65,13 @@ public class EconomyRule implements Rule {
     @Override
     public void deserialize(ConfigurationNode node) {
         cost = node.getDouble(0);
+        super.deserialize(node);
     }
 
     @Override
     public void serialize(ConfigurationNode node) {
         node.setValue(cost);
+        super.serialize(node);
     }
 
 }
