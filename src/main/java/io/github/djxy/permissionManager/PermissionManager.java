@@ -3,7 +3,7 @@ package io.github.djxy.permissionmanager;
 import com.google.inject.Inject;
 import io.github.djxy.customcommands.CustomCommands;
 import io.github.djxy.permissionmanager.commands.CreateGroupCommand;
-import io.github.djxy.permissionmanager.events.PlayerLoginEvent;
+import io.github.djxy.permissionmanager.events.PlayerEvent;
 import io.github.djxy.permissionmanager.logger.Logger;
 import io.github.djxy.permissionmanager.logger.LoggerMode;
 import io.github.djxy.permissionmanager.promotion.Promotions;
@@ -45,7 +45,7 @@ public class PermissionManager {
     public void onGameConstructionEvent(GameConstructionEvent event){
         instance = this;
 
-        Sponge.getEventManager().registerListeners(this, new PlayerLoginEvent());
+        Sponge.getEventManager().registerListeners(this, new PlayerEvent());
 
         Logger.setLoggerMode(LoggerMode.DEBUG_SERVER);
 
