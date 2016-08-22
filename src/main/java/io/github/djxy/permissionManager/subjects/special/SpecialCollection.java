@@ -1,8 +1,8 @@
-package io.github.djxy.permissionManager.subjects.special;
+package io.github.djxy.permissionmanager.subjects.special;
 
-import io.github.djxy.permissionManager.exceptions.SubjectIdentifierExistException;
-import io.github.djxy.permissionManager.exceptions.SubjectIdentifierInvalidException;
-import io.github.djxy.permissionManager.subjects.SubjectCollection;
+import io.github.djxy.permissionmanager.exceptions.SubjectIdentifierExistException;
+import io.github.djxy.permissionmanager.exceptions.SubjectIdentifierInvalidException;
+import io.github.djxy.permissionmanager.subjects.SubjectCollection;
 import org.spongepowered.api.service.permission.Subject;
 
 import java.io.IOException;

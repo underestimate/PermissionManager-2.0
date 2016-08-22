@@ -1,7 +1,7 @@
-package io.github.djxy.permissionManager.rules.region.plugins;
+package io.github.djxy.permissionmanager.rules.region.plugins;
 
-import io.github.djxy.permissionManager.logger.Logger;
-import io.github.djxy.permissionManager.rules.region.RegionPlugin;
+import io.github.djxy.permissionmanager.logger.Logger;
+import io.github.djxy.permissionmanager.rules.region.RegionPlugin;
 import net.foxdenstudio.sponge.foxguard.plugin.FGManager;
 import net.foxdenstudio.sponge.foxguard.plugin.region.IRegion;
 import org.spongepowered.api.entity.living.player.Player;

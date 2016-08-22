@@ -1,9 +1,9 @@
-package io.github.djxy.permissionManager.commands;
+package io.github.djxy.permissionmanager.commands;
 
-import io.github.djxy.customCommands.annotations.CustomCommand;
-import io.github.djxy.customCommands.annotations.CustomParser;
-import io.github.djxy.customCommands.parsers.BooleanParser;
-import io.github.djxy.permissionManager.translator.TranslationParser;
+import io.github.djxy.customcommands.annotations.CustomCommand;
+import io.github.djxy.customcommands.annotations.CustomParser;
+import io.github.djxy.customcommands.parsers.BooleanParser;
+import io.github.djxy.permissionmanager.translator.TranslationParser;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.text.action.TextAction;
 import org.spongepowered.api.text.action.TextActions;

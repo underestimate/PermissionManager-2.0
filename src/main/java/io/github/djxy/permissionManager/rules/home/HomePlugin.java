@@ -1,4 +1,4 @@
-package io.github.djxy.permissionManager.rules.home;
+package io.github.djxy.permissionmanager.rules.home;
 
 import org.spongepowered.api.entity.living.player.Player;
 

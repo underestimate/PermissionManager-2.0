@@ -1,4 +1,4 @@
-package io.github.djxy.permissionManager.logger;
+package io.github.djxy.permissionmanager.logger;
 
 import com.google.common.base.Preconditions;
 

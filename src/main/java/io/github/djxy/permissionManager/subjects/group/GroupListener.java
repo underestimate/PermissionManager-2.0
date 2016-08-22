@@ -1,4 +1,4 @@
-package io.github.djxy.permissionManager.subjects.group;
+package io.github.djxy.permissionmanager.subjects.group;
 
 /**
  * Created by Samuel on 2016-08-12.

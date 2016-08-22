@@ -1,7 +1,7 @@
-package io.github.djxy.permissionManager.translator;
+package io.github.djxy.permissionmanager.translator;
 
 import com.google.common.base.Preconditions;
-import io.github.djxy.permissionManager.language.Language;
+import io.github.djxy.permissionmanager.language.Language;
 
 import java.util.concurrent.ConcurrentHashMap;
 

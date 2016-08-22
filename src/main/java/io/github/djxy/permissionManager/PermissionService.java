@@ -1,8 +1,8 @@
-package io.github.djxy.permissionManager;
+package io.github.djxy.permissionmanager;
 
-import io.github.djxy.permissionManager.subjects.group.GroupCollection;
-import io.github.djxy.permissionManager.subjects.special.SpecialCollection;
-import io.github.djxy.permissionManager.subjects.user.UserCollection;
+import io.github.djxy.permissionmanager.subjects.group.GroupCollection;
+import io.github.djxy.permissionmanager.subjects.special.SpecialCollection;
+import io.github.djxy.permissionmanager.subjects.user.UserCollection;
 import org.spongepowered.api.service.context.ContextCalculator;
 import org.spongepowered.api.service.permission.PermissionDescription;
 import org.spongepowered.api.service.permission.Subject;

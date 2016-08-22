@@ -1,7 +1,7 @@
-package io.github.djxy.permissionManager.rules.region;
+package io.github.djxy.permissionmanager.rules.region;
 
 import com.google.common.collect.ImmutableSet;
-import io.github.djxy.permissionManager.rules.Rule;
+import io.github.djxy.permissionmanager.rules.Rule;
 import ninja.leaping.configurate.ConfigurationNode;
 import org.spongepowered.api.entity.living.player.Player;
 

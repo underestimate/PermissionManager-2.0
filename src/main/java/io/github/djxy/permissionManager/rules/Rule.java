@@ -1,7 +1,7 @@
-package io.github.djxy.permissionManager.rules;
+package io.github.djxy.permissionmanager.rules;
 
-import io.github.djxy.permissionManager.subjects.ConfigurationNodeDeserializer;
-import io.github.djxy.permissionManager.subjects.ConfigurationNodeSerializer;
+import io.github.djxy.permissionmanager.subjects.ConfigurationNodeDeserializer;
+import io.github.djxy.permissionmanager.subjects.ConfigurationNodeSerializer;
 import org.spongepowered.api.entity.living.player.Player;
 
 /**

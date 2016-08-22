@@ -1,9 +1,9 @@
-package io.github.djxy.permissionManager.language;
+package io.github.djxy.permissionmanager.language;
 
 import com.google.common.base.Preconditions;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import io.github.djxy.permissionManager.util.ResourceUtil;
+import io.github.djxy.permissionmanager.util.ResourceUtil;
 
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;

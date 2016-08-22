@@ -1,10 +1,10 @@
-package io.github.djxy.permissionManager.subjects;
+package io.github.djxy.permissionmanager.subjects;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import io.github.djxy.permissionManager.subjects.group.Group;
-import io.github.djxy.permissionManager.subjects.group.GroupCollection;
-import io.github.djxy.permissionManager.subjects.group.GroupListener;
+import io.github.djxy.permissionmanager.subjects.group.Group;
+import io.github.djxy.permissionmanager.subjects.group.GroupCollection;
+import io.github.djxy.permissionmanager.subjects.group.GroupListener;
 import ninja.leaping.configurate.ConfigurationNode;
 
 import java.util.*;

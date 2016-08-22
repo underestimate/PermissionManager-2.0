@@ -1,7 +1,7 @@
-package io.github.djxy.permissionManager.events;
+package io.github.djxy.permissionmanager.events;
 
-import io.github.djxy.permissionManager.exceptions.SubjectIdentifierExistException;
-import io.github.djxy.permissionManager.subjects.user.UserCollection;
+import io.github.djxy.permissionmanager.exceptions.SubjectIdentifierExistException;
+import io.github.djxy.permissionmanager.subjects.user.UserCollection;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 

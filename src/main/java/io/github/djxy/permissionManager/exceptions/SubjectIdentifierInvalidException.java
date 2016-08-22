@@ -1,4 +1,4 @@
-package io.github.djxy.permissionManager.exceptions;
+package io.github.djxy.permissionmanager.exceptions;
 
 /**
  * Created by Samuel on 2016-08-12.

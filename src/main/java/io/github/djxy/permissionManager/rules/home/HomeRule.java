@@ -1,6 +1,6 @@
-package io.github.djxy.permissionManager.rules.home;
+package io.github.djxy.permissionmanager.rules.home;
 
-import io.github.djxy.permissionManager.rules.Rule;
+import io.github.djxy.permissionmanager.rules.Rule;
 import ninja.leaping.configurate.ConfigurationNode;
 import org.spongepowered.api.entity.living.player.Player;
 

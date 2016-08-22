@@ -1,4 +1,4 @@
-package io.github.djxy.permissionManager.logger;
+package io.github.djxy.permissionmanager.logger;
 
 /**
  * Created by Samuel on 2016-08-17.

@@ -1,8 +1,8 @@
-package io.github.djxy.permissionManager.subjects;
+package io.github.djxy.permissionmanager.subjects;
 
 import com.google.common.base.Preconditions;
-import io.github.djxy.permissionManager.rules.Rule;
-import io.github.djxy.permissionManager.rules.Rules;
+import io.github.djxy.permissionmanager.rules.Rule;
+import io.github.djxy.permissionmanager.rules.Rules;
 import ninja.leaping.configurate.ConfigurationNode;
 
 import java.util.ArrayList;

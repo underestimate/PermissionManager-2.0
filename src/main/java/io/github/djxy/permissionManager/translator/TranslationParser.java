@@ -1,4 +1,4 @@
-package io.github.djxy.permissionManager.translator;
+package io.github.djxy.permissionmanager.translator;
 
 import com.google.common.base.Preconditions;
 import org.spongepowered.api.text.Text;

@@ -1,9 +1,9 @@
-package io.github.djxy.permissionManager.util;
+package io.github.djxy.permissionmanager.util;
 
 import com.google.common.base.Preconditions;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
-import io.github.djxy.permissionManager.logger.Logger;
+import io.github.djxy.permissionmanager.logger.Logger;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

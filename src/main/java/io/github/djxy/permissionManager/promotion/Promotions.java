@@ -1,8 +1,8 @@
-package io.github.djxy.permissionManager.promotion;
+package io.github.djxy.permissionmanager.promotion;
 
 import com.google.common.base.Preconditions;
-import io.github.djxy.permissionManager.exceptions.PromotionNameExistException;
-import io.github.djxy.permissionManager.logger.Logger;
+import io.github.djxy.permissionmanager.exceptions.PromotionNameExistException;
+import io.github.djxy.permissionmanager.logger.Logger;
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.ConfigurationOptions;
 import ninja.leaping.configurate.loader.ConfigurationLoader;

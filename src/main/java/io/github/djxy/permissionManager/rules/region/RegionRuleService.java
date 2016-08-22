@@ -1,4 +1,4 @@
-package io.github.djxy.permissionManager.rules.region;
+package io.github.djxy.permissionmanager.rules.region;
 
 import org.spongepowered.api.entity.living.player.Player;
 

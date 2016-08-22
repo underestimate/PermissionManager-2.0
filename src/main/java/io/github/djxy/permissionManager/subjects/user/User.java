@@ -1,15 +1,15 @@
-package io.github.djxy.permissionManager.subjects.user;
+package io.github.djxy.permissionmanager.subjects.user;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
-import io.github.djxy.permissionManager.language.Language;
-import io.github.djxy.permissionManager.logger.Logger;
-import io.github.djxy.permissionManager.rules.Rule;
-import io.github.djxy.permissionManager.subjects.ContextContainer;
-import io.github.djxy.permissionManager.subjects.Permission;
-import io.github.djxy.permissionManager.subjects.Subject;
-import io.github.djxy.permissionManager.subjects.group.Group;
-import io.github.djxy.permissionManager.util.ContextUtil;
+import io.github.djxy.permissionmanager.language.Language;
+import io.github.djxy.permissionmanager.logger.Logger;
+import io.github.djxy.permissionmanager.rules.Rule;
+import io.github.djxy.permissionmanager.subjects.ContextContainer;
+import io.github.djxy.permissionmanager.subjects.Permission;
+import io.github.djxy.permissionmanager.subjects.Subject;
+import io.github.djxy.permissionmanager.subjects.group.Group;
+import io.github.djxy.permissionmanager.util.ContextUtil;
 import ninja.leaping.configurate.ConfigurationNode;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;

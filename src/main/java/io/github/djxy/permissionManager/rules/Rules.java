@@ -1,9 +1,9 @@
-package io.github.djxy.permissionManager.rules;
+package io.github.djxy.permissionmanager.rules;
 
 import com.google.common.base.Preconditions;
-import io.github.djxy.permissionManager.rules.home.HomeRule;
-import io.github.djxy.permissionManager.rules.region.RegionRule;
-import io.github.djxy.permissionManager.rules.time.TimeRule;
+import io.github.djxy.permissionmanager.rules.home.HomeRule;
+import io.github.djxy.permissionmanager.rules.region.RegionRule;
+import io.github.djxy.permissionmanager.rules.time.TimeRule;
 
 import java.util.concurrent.ConcurrentHashMap;
 

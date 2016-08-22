@@ -1,12 +1,12 @@
-package io.github.djxy.permissionManager.promotion;
+package io.github.djxy.permissionmanager.promotion;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
-import io.github.djxy.permissionManager.subjects.ConfigurationNodeDeserializer;
-import io.github.djxy.permissionManager.subjects.ConfigurationNodeSerializer;
-import io.github.djxy.permissionManager.subjects.ContextContainer;
-import io.github.djxy.permissionManager.subjects.group.Group;
-import io.github.djxy.permissionManager.subjects.user.User;
+import io.github.djxy.permissionmanager.subjects.ConfigurationNodeDeserializer;
+import io.github.djxy.permissionmanager.subjects.ConfigurationNodeSerializer;
+import io.github.djxy.permissionmanager.subjects.ContextContainer;
+import io.github.djxy.permissionmanager.subjects.group.Group;
+import io.github.djxy.permissionmanager.subjects.user.User;
 import ninja.leaping.configurate.ConfigurationNode;
 import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.service.permission.SubjectData;

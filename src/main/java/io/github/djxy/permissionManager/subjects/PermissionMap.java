@@ -1,4 +1,4 @@
-package io.github.djxy.permissionManager.subjects;
+package io.github.djxy.permissionmanager.subjects;
 
 import com.google.common.base.Preconditions;
 import ninja.leaping.configurate.ConfigurationNode;

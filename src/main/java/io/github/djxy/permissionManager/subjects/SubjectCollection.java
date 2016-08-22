@@ -1,11 +1,11 @@
-package io.github.djxy.permissionManager.subjects;
+package io.github.djxy.permissionmanager.subjects;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import io.github.djxy.permissionManager.exceptions.SubjectIdentifierExistException;
-import io.github.djxy.permissionManager.exceptions.SubjectIdentifierInvalidException;
-import io.github.djxy.permissionManager.logger.Logger;
-import io.github.djxy.permissionManager.util.ContextUtil;
+import io.github.djxy.permissionmanager.exceptions.SubjectIdentifierExistException;
+import io.github.djxy.permissionmanager.exceptions.SubjectIdentifierInvalidException;
+import io.github.djxy.permissionmanager.logger.Logger;
+import io.github.djxy.permissionmanager.util.ContextUtil;
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.ConfigurationOptions;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
@@ -150,15 +150,15 @@ public abstract class SubjectCollection implements org.spongepowered.api.service
         if(!file.exists())
             return false;
 
-        io.github.djxy.permissionManager.subjects.Subject subject;
+        io.github.djxy.permissionmanager.subjects.Subject subject;
 
         LOGGER.info(subjectName+" " + identifier + " loading started.");
 
         if(subjects.containsKey(identifier))
-            subject = (io.github.djxy.permissionManager.subjects.Subject) subjects.get(identifier);
+            subject = (io.github.djxy.permissionmanager.subjects.Subject) subjects.get(identifier);
         else{
             try{
-                subject = (io.github.djxy.permissionManager.subjects.Subject) createSubjectFromFile(identifier);
+                subject = (io.github.djxy.permissionmanager.subjects.Subject) createSubjectFromFile(identifier);
             }catch (Exception e){
                 LOGGER.error(subjectName +" " + identifier + " loading failed.");
                 e.printStackTrace();
@@ -203,7 +203,7 @@ public abstract class SubjectCollection implements org.spongepowered.api.service
         if(!subjects.containsKey(identifier))
             return;
 
-        io.github.djxy.permissionManager.subjects.Subject subject = (io.github.djxy.permissionManager.subjects.Subject) subjects.get(identifier);
+        io.github.djxy.permissionmanager.subjects.Subject subject = (io.github.djxy.permissionmanager.subjects.Subject) subjects.get(identifier);
 
         ConfigurationLoader loader = YAMLConfigurationLoader.builder().setIndent(4).setFlowStyle(DumperOptions.FlowStyle.BLOCK).setDefaultOptions(ConfigurationOptions.defaults()).setFile(file).build();
         ConfigurationNode node = loader.createEmptyNode();
@@ -215,7 +215,7 @@ public abstract class SubjectCollection implements org.spongepowered.api.service
         LOGGER.info(subjectName+" " + identifier + " saved.");
     }
 
-    private class Listener implements io.github.djxy.permissionManager.subjects.SubjectListener {
+    private class Listener implements io.github.djxy.permissionmanager.subjects.SubjectListener {
 
         @Override
         public void onSetPermission(Set<Context> set, Subject subject, String permission, boolean value) {

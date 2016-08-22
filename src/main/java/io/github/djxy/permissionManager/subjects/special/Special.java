@@ -1,6 +1,6 @@
-package io.github.djxy.permissionManager.subjects.special;
+package io.github.djxy.permissionmanager.subjects.special;
 
-import io.github.djxy.permissionManager.subjects.Subject;
+import io.github.djxy.permissionmanager.subjects.Subject;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.service.context.Context;

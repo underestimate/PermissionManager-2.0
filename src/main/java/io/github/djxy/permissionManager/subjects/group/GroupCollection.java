@@ -1,10 +1,10 @@
-package io.github.djxy.permissionManager.subjects.group;
+package io.github.djxy.permissionmanager.subjects.group;
 
 import com.google.common.base.Preconditions;
-import io.github.djxy.permissionManager.exceptions.SubjectIdentifierExistException;
-import io.github.djxy.permissionManager.exceptions.SubjectIdentifierInvalidException;
-import io.github.djxy.permissionManager.logger.Logger;
-import io.github.djxy.permissionManager.subjects.SubjectCollection;
+import io.github.djxy.permissionmanager.exceptions.SubjectIdentifierExistException;
+import io.github.djxy.permissionmanager.exceptions.SubjectIdentifierInvalidException;
+import io.github.djxy.permissionmanager.logger.Logger;
+import io.github.djxy.permissionmanager.subjects.SubjectCollection;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.Subject;
 
