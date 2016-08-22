@@ -1,6 +1,7 @@
 package io.github.djxy.permissionmanager.rules.cooldown;
 
-import io.github.djxy.permissionmanager.rules.Rule;
+import io.github.djxy.permissionmanager.logger.Logger;
+import io.github.djxy.permissionmanager.rules.CommandRule;
 import ninja.leaping.configurate.ConfigurationNode;
 import org.spongepowered.api.entity.living.player.Player;
 
@@ -10,10 +11,11 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by Samuel on 2016-08-16.
  */
-public class CooldownRule implements Rule {
+public class CooldownRule extends CommandRule {
 
-    private static final ConcurrentHashMap<UUID,Long> cooldowns = new ConcurrentHashMap<>();
+    private final static Logger LOGGER = new Logger(CooldownRule.class);
 
+    private final ConcurrentHashMap<UUID,Long> cooldowns = new ConcurrentHashMap<>();
     private long cooldown;
 
     public CooldownRule() {
@@ -29,22 +31,28 @@ public class CooldownRule implements Rule {
 
     @Override
     public boolean canApply(Player player) {
-        return !cooldowns.containsKey(player.getUniqueId()) || System.currentTimeMillis() >= cooldowns.get(player.getUniqueId());
+        return !super.isFromCommand(player) || !cooldowns.containsKey(player.getUniqueId()) || System.currentTimeMillis() >= cooldowns.get(player.getUniqueId());
     }
 
     @Override
     public void apply(Player player) {
+        if(!isFromCommand(player))
+            return;
+
+        LOGGER.info(player.getName()+" is now cooldown for "+cooldown+" millisecondes.");
         cooldowns.put(player.getUniqueId(), System.currentTimeMillis()+cooldown);
     }
 
     @Override
     public void deserialize(ConfigurationNode node) {
         cooldown = node.getLong(0);
+        super.deserialize(node);
     }
 
     @Override
     public void serialize(ConfigurationNode node) {
         node.setValue(cooldown);
+        super.serialize(node);
     }
 
 }
