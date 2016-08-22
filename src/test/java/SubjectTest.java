@@ -1,5 +1,4 @@
 import com.google.common.collect.Sets;
-import io.github.djxy.permissionManager.area.Country;
 import io.github.djxy.permissionManager.exceptions.SubjectIdentifierExistException;
 import io.github.djxy.permissionManager.language.Language;
 import io.github.djxy.permissionManager.logger.Logger;
@@ -87,7 +86,6 @@ public class SubjectTest {
             groupWorld2.setOption(worldContext, "option.10", "0");
 
             groupGlobal.setRank(0);
-            user.setCountry(Country.getCountry("Canada"));
             user.setLanguage(Language.getLanguage("French"));
         } catch (SubjectIdentifierExistException e) {
             e.printStackTrace();
@@ -150,13 +148,8 @@ public class SubjectTest {
     }
 
     @Test
-    public void checkUserCountry() {
+    public void checkUserLanguage() {
         Assert.assertEquals(true, user.getLanguage().equals(Language.getLanguage("French")));
-    }
-
-    @Test
-    public void checkUserMainLanguage() {
-        Assert.assertEquals(true, user.getCountry().equals(Country.getCountry("Canada")));
     }
 
     @Test
