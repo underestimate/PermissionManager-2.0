@@ -88,7 +88,7 @@ public class SubjectTest {
 
             groupGlobal.setRank(0);
             user.setCountry(Country.getCountry("Canada"));
-            user.setMainLanguage(Language.getLanguage("French"));
+            user.setLanguage(Language.getLanguage("French"));
         } catch (SubjectIdentifierExistException e) {
             e.printStackTrace();
         }
@@ -151,7 +151,7 @@ public class SubjectTest {
 
     @Test
     public void checkUserCountry() {
-        Assert.assertEquals(true, user.getMainLanguage().equals(Language.getLanguage("French")));
+        Assert.assertEquals(true, user.getLanguage().equals(Language.getLanguage("French")));
     }
 
     @Test
