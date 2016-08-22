@@ -2,7 +2,6 @@ package io.github.djxy.permissionManager.subjects.user;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
-import io.github.djxy.permissionManager.area.Country;
 import io.github.djxy.permissionManager.language.Language;
 import io.github.djxy.permissionManager.logger.Logger;
 import io.github.djxy.permissionManager.rules.Rule;
@@ -18,8 +17,11 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.util.Tristate;
 
-import java.util.*;
-import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * Created by Samuel on 2016-08-09.
@@ -29,42 +31,21 @@ public class User extends Subject {
     private final static Logger LOGGER = new Logger(User.class);
 
     private final UUID uuid;
-    private Language mainLanguage = Language.getDefault();
-    private CopyOnWriteArraySet<Language> languages = new CopyOnWriteArraySet<>();
-    private Country country;
+    private Language language = Language.getDefault();
 
     protected User(UUID uuid, UserCollection userCollection) {
         super(uuid.toString(), userCollection);
         this.uuid = uuid;
     }
 
-    public Language getMainLanguage() {
-        return mainLanguage;
+    public Language getLanguage() {
+        return language;
     }
 
-    public void setMainLanguage(Language mainLanguage) {
-        this.mainLanguage = mainLanguage;
+    public void setLanguage(Language language) {
+        this.language = language;
     }
 
-    public Country getCountry() {
-        return country;
-    }
-
-    public void setCountry(Country country) {
-        this.country = country;
-    }
-
-    public void addLanguage(Language language){
-        languages.add(language);
-    }
-
-    public void removeLanguage(Language language){
-        languages.remove(language);
-    }
-
-    public Set<Language> getLanguages() {
-        return new CopyOnWriteArraySet<>(languages);
-    }
 
     @Override
     public Optional<CommandSource> getCommandSource() {
@@ -210,36 +191,14 @@ public class User extends Subject {
     public void deserialize(ConfigurationNode node) {
         super.deserialize(node);
 
-        country = Country.getCountry(node.getNode("country").getString(""));
-        mainLanguage = node.getNode("languages", "main").getString("").isEmpty()?Language.getDefault():Language.getLanguage(node.getNode("languages", "main").getString(""));
-
-        List<ConfigurationNode> permissionList = (List<ConfigurationNode>) node.getNode("languages", "others").getChildrenList();
-
-        for(ConfigurationNode nodeValue : permissionList){
-            String value = nodeValue.getString("");
-
-            if(!value.isEmpty()){
-                Language language = Language.getLanguage(value);
-
-                if(language != null)
-                    addLanguage(language);
-            }
-        }
+        language = node.getNode("language").getString("").isEmpty()?Language.getDefault():Language.getLanguage(node.getNode("language").getString(""));
     }
 
     @Override
     public void serialize(ConfigurationNode node) {
         super.serialize(node);
 
-        node.getNode("country").setValue(country == null ? null : country.getCommonName());
-        node.getNode("languages", "main").setValue(mainLanguage == null?null:mainLanguage.getName());
-
-        List<String> languages = new ArrayList<>();
-
-        for(Language language : this.languages)
-            languages.add(language.getName());
-
-        node.getNode("languages", "others").setValue(languages);
+        node.getNode("language").setValue(language == null ? null : language.getName());
     }
 
     private Optional<Player> getPlayer(){
