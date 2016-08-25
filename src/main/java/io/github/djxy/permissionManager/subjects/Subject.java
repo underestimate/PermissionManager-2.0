@@ -2,6 +2,7 @@ package io.github.djxy.permissionmanager.subjects;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
+import io.github.djxy.permissionmanager.logger.Logger;
 import io.github.djxy.permissionmanager.subjects.group.Group;
 import io.github.djxy.permissionmanager.util.ContextUtil;
 import ninja.leaping.configurate.ConfigurationNode;
@@ -18,6 +19,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * Created by Samuel on 2016-08-09.
  */
 public abstract class Subject implements org.spongepowered.api.service.permission.Subject, SubjectData, ConfigurationNodeSerializer, ConfigurationNodeDeserializer {
+
+    private static final Logger LOGGER = new Logger(Subject.class);
 
     protected String identifier;
     protected final SubjectCollection collection;
@@ -159,8 +162,10 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
 
         ContextContainer container = null;
 
-        if(ContextUtil.isGlobalContext(set))
+        if(ContextUtil.isGlobalContext(set)) {
             container = globalContext;
+            LOGGER.info("Set permission "+permission+" to "+getIdentifier()+" globally.");
+        }
         else if(ContextUtil.isSingleContext(set)){
             Context context = ContextUtil.getContext(set);
 
@@ -168,6 +173,7 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
                 contexts.put(context, new ContextContainer());
 
             container = contexts.get(context);
+            LOGGER.info("Set permission "+permission+"("+tristate.toString()+") to "+getIdentifier()+" in context("+context.getKey()+"="+context.getValue()+").");
         }
 
         if(container == null)
