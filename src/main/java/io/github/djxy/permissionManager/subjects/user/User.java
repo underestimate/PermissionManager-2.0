@@ -41,6 +41,10 @@ public class User extends Subject {
         this.uuid = uuid;
     }
 
+    public UUID getUniqueId() {
+        return uuid;
+    }
+
     public Language getLanguage() {
         return language;
     }
@@ -52,8 +56,6 @@ public class User extends Subject {
     public void addCommandCurrentTick(String command){
         Preconditions.checkNotNull(command);
         long tick = Sponge.getServer().getRunningTimeTicks();
-
-        LOGGER.info(command);
 
         if(tickOfLastCommands < tick)
             commandsOnCurrentTick.clear();
