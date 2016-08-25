@@ -9,6 +9,7 @@ import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.Subject;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.UUID;
 
 /**
@@ -41,7 +42,20 @@ public class GroupCollection extends SubjectCollection {
 
         LOGGER.info("Group " + group.getIdentifier() + " renamed " + identifier+".");
 
+        File file = directory.resolve(group.getIdentifier()+".yml").toFile();
+
+        if(file.exists()) {
+            file.delete();
+            LOGGER.info(group.getIdentifier() + ".yml has been deleted.");
+        }
+
         group.setIdentifier(identifier);
+
+        try {
+            save(identifier);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void deleteGroup(Group group){
@@ -60,6 +74,8 @@ public class GroupCollection extends SubjectCollection {
     }
 
     public synchronized Group createGroup(String identifier) throws SubjectIdentifierExistException {
+        Preconditions.checkNotNull(identifier);
+
         if(hasRegistered(identifier))
             throw new SubjectIdentifierExistException("There is already a group named "+identifier+".");
 
