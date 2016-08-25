@@ -111,7 +111,7 @@ public class ContextContainer implements GroupListener, ConfigurationNodeSeriali
                 addGroup((Group) GroupCollection.instance.get(value));
         }
 
-        Map<Object,ConfigurationNode> dataMap = (Map<Object, ConfigurationNode>) node.getNode("data").getChildrenMap();
+        Map<Object,ConfigurationNode> dataMap = (Map<Object, ConfigurationNode>) node.getNode("options").getChildrenMap();
 
         for(Object data : dataMap.keySet())
             setOption(data.toString(), dataMap.get(data).getString(""));
@@ -124,20 +124,27 @@ public class ContextContainer implements GroupListener, ConfigurationNodeSeriali
 
     @Override
     public void serialize(ConfigurationNode node) {
-        permissions.serialize(node);
+        if(!permissions.isEmpty())
+            permissions.serialize(node);
 
-        List<String> groups = new ArrayList<>();
+        if(!groups.isEmpty()) {
+            List<String> groups = new ArrayList<>();
 
-        for(Group group : this.groups)
-            groups.add(group.getIdentifier());
+            for (Group group : this.groups)
+                groups.add(group.getIdentifier());
 
-        node.getNode("groups").setValue(groups);
+            node.getNode("groups").setValue(groups);
+        }
 
-        for(Map.Entry pairs : options.entrySet())
-            node.getNode("data", pairs.getKey()).setValue(pairs.getValue());
+        if(!options.isEmpty()) {
+            for (Map.Entry pairs : options.entrySet())
+                node.getNode("options", pairs.getKey()).setValue(pairs.getValue());
+        }
 
-        for(Permission permission : permissions.getPermissions())
-            if(!permission.getRules().isEmpty())
-                permission.serialize(node.getNode("rules", permission.getPermission()));
+        if(!permissions.isEmpty()) {
+            for (Permission permission : permissions.getPermissions())
+                if (!permission.getRules().isEmpty())
+                    permission.serialize(node.getNode("rules", permission.getPermission()));
+        }
     }
 }
