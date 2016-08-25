@@ -24,6 +24,10 @@ public class PermissionMap implements ConfigurationNodeSerializer, Configuration
         return new ArrayList<>(permissions.values());
     }
 
+    public boolean isEmpty(){
+        return permissions.isEmpty();
+    }
+
     public void putPermission(String permission, Permission perm){
         Preconditions.checkNotNull(perm);
         Preconditions.checkNotNull(permission);
