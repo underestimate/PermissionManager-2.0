@@ -9,6 +9,10 @@ public class Logger {
 
     private static LoggerMode loggerMode = LoggerMode.NO_LOG;
 
+    public static LoggerMode getLoggerMode() {
+        return loggerMode;
+    }
+
     public static void setLoggerMode(LoggerMode mode){
         Preconditions.checkNotNull(mode);
 
