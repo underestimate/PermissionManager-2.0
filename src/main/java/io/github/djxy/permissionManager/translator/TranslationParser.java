@@ -23,7 +23,10 @@ public class TranslationParser {
     private TextColor variableColor = TextColors.YELLOW;
     private TextStyle variableStyle = TextStyles.NONE;
 
-    public TranslationParser() {
+    public TranslationParser(Text prefix) {
+        Preconditions.checkNotNull(prefix);
+
+        this.prefix = prefix;
     }
 
     public Text getPrefix() {
