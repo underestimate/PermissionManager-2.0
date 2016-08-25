@@ -2,7 +2,9 @@ package io.github.djxy.permissionmanager;
 
 import com.google.inject.Inject;
 import io.github.djxy.customcommands.CustomCommands;
-import io.github.djxy.permissionmanager.commands.CreateGroupCommand;
+import io.github.djxy.permissionmanager.commands.DebugCommands;
+import io.github.djxy.permissionmanager.commands.GroupCommands;
+import io.github.djxy.permissionmanager.commands.UserCommands;
 import io.github.djxy.permissionmanager.events.PlayerEvent;
 import io.github.djxy.permissionmanager.logger.Logger;
 import io.github.djxy.permissionmanager.logger.LoggerMode;
@@ -12,6 +14,8 @@ import io.github.djxy.permissionmanager.rules.region.plugins.FoxGuardPlugin;
 import io.github.djxy.permissionmanager.rules.region.plugins.RedProtectPlugin;
 import io.github.djxy.permissionmanager.subjects.group.GroupCollection;
 import io.github.djxy.permissionmanager.subjects.user.UserCollection;
+import io.github.djxy.permissionmanager.translator.Translator;
+import io.github.djxy.permissionmanager.util.ResourceUtil;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.event.Listener;
@@ -40,14 +44,17 @@ public class PermissionManager {
     @Inject
     @DefaultConfig(sharedRoot = false)
     private Path path;
+    private Translator translator;
 
     @Listener
     public void onGameConstructionEvent(GameConstructionEvent event){
         instance = this;
 
-        Sponge.getEventManager().registerListeners(this, new PlayerEvent());
+        translator = ResourceUtil.loadTranslations();
 
         Logger.setLoggerMode(LoggerMode.DEBUG_SERVER);
+
+        Sponge.getEventManager().registerListeners(this, new PlayerEvent());
 
         if(Sponge.getPluginManager().isLoaded("foxguard"))
             RegionRuleService.instance.addRegionPlugin(new FoxGuardPlugin());
@@ -73,7 +80,9 @@ public class PermissionManager {
 
     @Listener
     public void onGameInitializationEvent(GameInitializationEvent event){
-        CustomCommands.registerObject(new CreateGroupCommand());
+        CustomCommands.registerObject(new DebugCommands(translator));
+        CustomCommands.registerObject(new UserCommands(translator).register());
+        CustomCommands.registerObject(new GroupCommands(translator).register());
     }
 
     @Listener
