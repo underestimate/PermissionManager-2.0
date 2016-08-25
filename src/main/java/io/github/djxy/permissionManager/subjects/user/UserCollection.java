@@ -3,6 +3,7 @@ package io.github.djxy.permissionmanager.subjects.user;
 import com.google.common.base.Preconditions;
 import io.github.djxy.permissionmanager.exceptions.SubjectIdentifierExistException;
 import io.github.djxy.permissionmanager.exceptions.SubjectIdentifierInvalidException;
+import io.github.djxy.permissionmanager.exceptions.UserCreationException;
 import io.github.djxy.permissionmanager.logger.Logger;
 import io.github.djxy.permissionmanager.subjects.SubjectCollection;
 import io.github.djxy.permissionmanager.subjects.group.GroupCollection;
@@ -28,6 +29,28 @@ public class UserCollection extends SubjectCollection {
 
     public synchronized User createUser(UUID uuid) throws SubjectIdentifierExistException {
         return createUser(uuid, false);
+    }
+
+    @Override
+    public Subject get(String identifier) {
+        Preconditions.checkNotNull(identifier);
+        UUID uuid = UUID.fromString(identifier);
+
+        if(subjects.containsKey(identifier))
+            return subjects.get(identifier);
+
+        if(!canLoadSubject(identifier)) {
+            try {
+                createUser(uuid);
+            } catch (SubjectIdentifierExistException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if(!UserCollection.instance.load(identifier))
+            throw new UserCreationException("Can't create user "+identifier+".");
+
+        return subjects.get(identifier);
     }
 
     public void unload(UUID uuid){
