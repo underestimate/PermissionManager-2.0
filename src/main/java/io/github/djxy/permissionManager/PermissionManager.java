@@ -4,11 +4,11 @@ import com.google.inject.Inject;
 import io.github.djxy.customcommands.CustomCommands;
 import io.github.djxy.permissionmanager.commands.DebugCommands;
 import io.github.djxy.permissionmanager.commands.GroupCommands;
+import io.github.djxy.permissionmanager.commands.MenuCommands;
 import io.github.djxy.permissionmanager.commands.PromotionCommands;
 import io.github.djxy.permissionmanager.commands.UserCommands;
 import io.github.djxy.permissionmanager.events.PlayerEvent;
 import io.github.djxy.permissionmanager.logger.Logger;
-import io.github.djxy.permissionmanager.logger.LoggerMode;
 import io.github.djxy.permissionmanager.promotion.Promotions;
 import io.github.djxy.permissionmanager.rules.region.RegionRuleService;
 import io.github.djxy.permissionmanager.rules.region.plugins.FoxGuardPlugin;
@@ -54,10 +54,13 @@ public class PermissionManager {
 
         translator = ResourceUtil.loadTranslations();
 
-        Logger.setLoggerMode(LoggerMode.DEBUG_SERVER);
+        path.resolve("users").toFile().mkdirs();
+        path.resolve("groups").toFile().mkdirs();
+        path.resolve("promotions").toFile().mkdirs();
 
         FileConversionUtil.convertUsers(path);
         FileConversionUtil.convertGroups(path);
+        FileConversionUtil.convertPromotions(path);
 
         Sponge.getEventManager().registerListeners(this, new PlayerEvent());
 
@@ -66,15 +69,12 @@ public class PermissionManager {
         if(Sponge.getPluginManager().isLoaded("br.net.fabiozumbi12.redprotect"))
             RegionRuleService.instance.addRegionPlugin(new RedProtectPlugin());
 
-        path.resolve("users").toFile().mkdirs();
         UserCollection.instance.setDirectory(path.resolve("users"));
 
-        path.resolve("groups").toFile().mkdirs();
         GroupCollection.instance.setDirectory(path.resolve("groups"));
         GroupCollection.instance.load();
         GroupCollection.instance.createDefaultGroup();
 
-        path.resolve("promotions").toFile().mkdirs();
         Promotions.instance.setDirectory(path.resolve("promotions"));
         Promotions.instance.load();
     }
@@ -92,6 +92,7 @@ public class PermissionManager {
         CustomCommands.registerObject(new PromotionCommands(translator));
         CustomCommands.registerObject(new UserCommands(translator).register());
         CustomCommands.registerObject(new GroupCommands(translator).register());
+        CustomCommands.registerObject(new MenuCommands(translator));
     }
 
     @Listener
