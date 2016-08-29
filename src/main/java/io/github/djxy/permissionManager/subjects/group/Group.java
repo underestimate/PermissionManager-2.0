@@ -189,8 +189,12 @@ public class Group extends Subject implements Comparable<Group> {
     @Override
     public void serialize(ConfigurationNode node) {
         super.serialize(node);
-        node.getNode("rank").setValue(rank);
-        node.getNode("default").setValue(defaultGroup);
+
+        if(rank != Integer.MAX_VALUE)
+            node.getNode("rank").setValue(rank);
+
+        if(defaultGroup)
+            node.getNode("default").setValue(defaultGroup);
     }
 
     @Override
