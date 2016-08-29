@@ -45,13 +45,13 @@ public class CooldownRule extends CommandRule {
 
     @Override
     public void deserialize(ConfigurationNode node) {
-        cooldown = node.getLong(0);
+        cooldown = node.getNode("time").getLong(0);
         super.deserialize(node);
     }
 
     @Override
     public void serialize(ConfigurationNode node) {
-        node.setValue(cooldown);
+        node.getNode("time").setValue(cooldown);
         super.serialize(node);
     }
 

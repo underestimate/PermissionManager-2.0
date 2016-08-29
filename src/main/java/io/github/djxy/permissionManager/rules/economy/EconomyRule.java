@@ -64,13 +64,13 @@ public class EconomyRule extends CommandRule {
 
     @Override
     public void deserialize(ConfigurationNode node) {
-        cost = node.getDouble(0);
+        cost = node.getNode("cost").getDouble(0);
         super.deserialize(node);
     }
 
     @Override
     public void serialize(ConfigurationNode node) {
-        node.setValue(cost);
+        node.getNode("cost").setValue(cost);
         super.serialize(node);
     }
 
