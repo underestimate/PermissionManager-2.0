@@ -51,7 +51,7 @@ public abstract class CommandRule implements Rule{
             players.put(player.getUniqueId(), new PlayerLastCommandCheck());
 
         PlayerLastCommandCheck playerLastCommandCheck = players.get(player.getUniqueId());
-        
+
         if(Sponge.getServer().getRunningTimeTicks() == playerLastCommandCheck.tickLastCheck)
             return playerLastCommandCheck.isFromCommand;
 
