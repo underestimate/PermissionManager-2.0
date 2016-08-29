@@ -87,13 +87,15 @@ public class GroupCommands extends SubjectCommands {
         Group group = (Group) values.get("group");
 
         try {
+            String lastName = group.getIdentifier();
+
             GroupCollection.instance.renameGroup(group, values.get("newName").toString());
             source.sendMessage(
                     parser.parse(
                             translator.getTranslation(getLanguage(source), "group_rename_succesfully"),
                             EMPTY_MAP,
                             createVariableMap(
-                                    "group", group.getIdentifier(),
+                                    "group", lastName,
                                     "newName", values.get("newName").toString()
                             ),
                             EMPTY_MAP
