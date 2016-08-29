@@ -2,6 +2,7 @@ package io.github.djxy.permissionmanager.promotion;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
+import io.github.djxy.permissionmanager.logger.Logger;
 import io.github.djxy.permissionmanager.subjects.ConfigurationNodeDeserializer;
 import io.github.djxy.permissionmanager.subjects.ConfigurationNodeSerializer;
 import io.github.djxy.permissionmanager.subjects.ContextContainer;
@@ -20,6 +21,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * Created by Samuel on 2016-08-15.
  */
 public final class Promotion implements ConfigurationNodeSerializer, ConfigurationNodeDeserializer {
+
+    private static final Logger LOGGER = new Logger(Promotion.class);
 
     private ContextContainer addGlobalContext = new ContextContainer();
     private ConcurrentHashMap<Context,ContextContainer> addContexts = new ConcurrentHashMap<>();
@@ -98,6 +101,7 @@ public final class Promotion implements ConfigurationNodeSerializer, Configurati
     }
 
     public void promote(User user){
+        LOGGER.info("Promotion "+getName()+" apply to "+user.getIdentifier()+".");
         promoteRemove(user, SubjectData.GLOBAL_CONTEXT, removeGlobalContext);
 
         for(Map.Entry<Context,ContextContainer> pairs : removeContexts.entrySet())
