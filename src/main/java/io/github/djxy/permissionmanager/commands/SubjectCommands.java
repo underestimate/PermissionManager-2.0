@@ -86,9 +86,7 @@ public abstract class SubjectCommands extends Command {
                 .setCommandExecutor((source, values) -> {
                     Subject subject = (Subject) values.get(subjectName);
 
-                    try {
-                        subjectCollection.load(subject.getIdentifier());
-
+                    if (subjectCollection.load(subject.getIdentifier())) {
                         source.sendMessage(
                                 parser.parse(
                                         translator.getTranslation(getLanguage(source), subjectName + "_loaded"),
@@ -97,10 +95,9 @@ public abstract class SubjectCommands extends Command {
                                         EMPTY_MAP
                                 )
                         );
-                    } catch (Exception e) {
-                        parser.parse(translator.getTranslation(getLanguage(source), "loading_error"), EMPTY_MAP, EMPTY_MAP, EMPTY_MAP);
-                        e.printStackTrace();
                     }
+                    else
+                        parser.parse(translator.getTranslation(getLanguage(source), "loading_error"), EMPTY_MAP, EMPTY_MAP, EMPTY_MAP);
                 })
                 .build();
     }
