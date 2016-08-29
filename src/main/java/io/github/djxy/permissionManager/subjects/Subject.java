@@ -39,6 +39,10 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
         this.listeners = new CopyOnWriteArrayList<>();
     }
 
+    public Collection<Context> getContexts(){
+        return Collections.list(contexts.keys());
+    }
+
     public String getIdentifier() {
         return identifier;
     }
@@ -161,13 +165,14 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
         Preconditions.checkNotNull(tristate);
 
         ContextContainer container = null;
+        Context context = null;
 
         if(ContextUtil.isGlobalContext(set)) {
             container = globalContext;
             LOGGER.info("Set permission "+permission+" to "+getIdentifier()+" globally.");
         }
         else if(ContextUtil.isSingleContext(set)){
-            Context context = ContextUtil.getContext(set);
+            context = ContextUtil.getContext(set);
 
             if(!contexts.containsKey(context))
                 contexts.put(context, new ContextContainer());
@@ -184,6 +189,9 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
 
             for(SubjectListener listener : listeners)
                 listener.onRemovePermission(set, this, permission);
+
+            if(container.isEmpty() && context != null)
+                contexts.remove(context);
         }
         else {
             container.getPermissions().putPermission(permission, new Permission(permission, tristate.asBoolean()));
@@ -211,28 +219,31 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
     public boolean clearPermissions(Set<Context> set) {
         Preconditions.checkNotNull(set);
 
-        PermissionMap permissionMap = null;
+        ContextContainer container = null;
+        Context context = null;
 
         if(ContextUtil.isGlobalContext(set))
-            permissionMap = globalContext.getPermissions();
+            container = globalContext;
         if(ContextUtil.isSingleContext(set)){
-            Context context = ContextUtil.getContext(set);
+            context = ContextUtil.getContext(set);
 
             if(!contexts.containsKey(context))
                 return false;
 
-
-            permissionMap = contexts.get(context).getPermissions();
+            container = contexts.get(context);
         }
 
-        if(permissionMap == null)
+        if(container == null)
             return false;
 
-        for(String permission : permissionMap.toMap().keySet())
+        for(String permission : container.getPermissions().toMap().keySet())
             for(SubjectListener listener : listeners)
                 listener.onRemovePermission(set, this, permission);
 
-        permissionMap.clear();
+        container.getPermissions().clear();
+
+        if(container.isEmpty() && context != null)
+            contexts.remove(context);
 
         return true;
     }
@@ -320,11 +331,12 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
         Group parent = (Group) subject;
 
         ContextContainer container = null;
+        Context context = null;
 
         if(ContextUtil.isGlobalContext(set))
             container = globalContext;
         if(ContextUtil.isSingleContext(set)){
-            Context context = ContextUtil.getContext(set);
+            context = ContextUtil.getContext(set);
 
             if(!contexts.containsKey(context))
                 return false;
@@ -336,6 +348,9 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
             return false;
 
         container.removeGroup(parent);
+
+        if(container.isEmpty() && context != null)
+            contexts.remove(context);
 
         return true;
     }
@@ -356,16 +371,27 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
     public boolean clearParents(Set<Context> set) {
         Preconditions.checkNotNull(set);
 
+        ContextContainer container = null;
+        Context context = null;
+
         if(ContextUtil.isGlobalContext(set))
-            globalContext.clearGroups();
+            container = globalContext;
         if(ContextUtil.isSingleContext(set)){
-            Context context = ContextUtil.getContext(set);
+            context = ContextUtil.getContext(set);
 
             if(!contexts.containsKey(context))
                 return false;
 
-            contexts.get(context).clearGroups();
+            container = contexts.get(context);
         }
+
+        if(container == null)
+            return false;
+
+        container.clearGroups();
+
+        if(container.isEmpty() && context != null)
+            contexts.remove(context);
 
         return true;
     }
@@ -415,11 +441,12 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
         Preconditions.checkNotNull(key);
 
         ContextContainer container = null;
+        Context context = null;
 
         if(ContextUtil.isGlobalContext(set))
             container = globalContext;
         if(ContextUtil.isSingleContext(set)){
-            Context context = ContextUtil.getContext(set);
+            context = ContextUtil.getContext(set);
 
             if(!contexts.containsKey(context))
                 contexts.put(context, new ContextContainer());
@@ -430,8 +457,12 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
         if(container == null)
             return false;
 
-        if(value == null)
+        if(value == null) {
             container.removeOption(key);
+
+            if(container.isEmpty() && context != null)
+                contexts.remove(context);
+        }
         else
             container.setOption(key, value);
 
@@ -443,11 +474,12 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
         Preconditions.checkNotNull(set);
 
         ContextContainer container = null;
+        Context context = null;
 
         if(ContextUtil.isGlobalContext(set))
             container = globalContext;
         if(ContextUtil.isSingleContext(set)){
-            Context context = ContextUtil.getContext(set);
+            context = ContextUtil.getContext(set);
 
             if(!contexts.containsKey(context))
                 return true;
@@ -459,6 +491,9 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
             return false;
 
         container.clearOptions();
+
+        if(container.isEmpty() && context != null)
+            contexts.remove(context);
 
         return true;
     }
