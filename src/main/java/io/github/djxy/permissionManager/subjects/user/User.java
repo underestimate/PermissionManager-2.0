@@ -50,6 +50,8 @@ public class User extends Subject {
     }
 
     public void setLanguage(Language language) {
+        Preconditions.checkNotNull(language);
+
         this.language = language;
     }
 
@@ -215,14 +217,16 @@ public class User extends Subject {
     public void deserialize(ConfigurationNode node) {
         super.deserialize(node);
 
-        language = node.getNode("language").getString("").isEmpty()?Language.getDefault():Language.getLanguage(node.getNode("language").getString(""));
+        language = node.getNode("options", "language").getString("").isEmpty()?Language.getDefault():Language.getLanguage(node.getNode("options", "language").getString(""));
+
+        language = language == null?Language.getDefault():language;
     }
 
     @Override
     public void serialize(ConfigurationNode node) {
         super.serialize(node);
 
-        node.getNode("language").setValue(language == null ? null : language.getName());
+        node.getNode("options", "language").setValue(language == null ? null : language.getISO639_3());
     }
 
     private Optional<Player> getPlayer(){
