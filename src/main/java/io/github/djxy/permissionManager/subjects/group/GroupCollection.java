@@ -63,6 +63,11 @@ public class GroupCollection extends SubjectCollection {
 
         group.delete();
 
+        if(group == defaultGroup) {
+            defaultGroup = null;
+            createDefaultGroup();
+        }
+
         LOGGER.info("Group " + group.getIdentifier() + " deleted.");
 
         File file = directory.resolve(group.getIdentifier()+".yml").toFile();
@@ -98,16 +103,14 @@ public class GroupCollection extends SubjectCollection {
         try {
             Group group;
 
-            if(GroupCollection.instance.hasRegistered("default"))
-                group = GroupCollection.instance.createGroup(UUID.randomUUID().toString());
-            else
-                group = GroupCollection.instance.createGroup("default");
+            group = GroupCollection.instance.createGroup("default-"+UUID.randomUUID().toString().substring(0, 6));
 
             group.setDefaultGroup(true);
 
             LOGGER.info("Default group(" + group.getIdentifier() + ") created.");
         } catch (SubjectIdentifierExistException e) {
             e.printStackTrace();
+            createDefaultGroup();
         }
     }
 
