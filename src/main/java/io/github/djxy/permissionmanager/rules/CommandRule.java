@@ -98,7 +98,7 @@ public abstract class CommandRule implements Rule{
 
     @Override
     public void deserialize(ConfigurationNode node) {
-        List<ConfigurationNode> list = (List<ConfigurationNode>) node.getParent().getNode("commands").getChildrenList();
+        List<ConfigurationNode> list = (List<ConfigurationNode>) node.getNode("commands").getChildrenList();
 
         for(ConfigurationNode value : list)
             addCommand(value.getString(""));
@@ -106,7 +106,7 @@ public abstract class CommandRule implements Rule{
 
     @Override
     public void serialize(ConfigurationNode node) {
-        node.getParent().getNode("commands").setValue(rawCommands);
+        node.getNode("commands").setValue(rawCommands);
     }
 
     private class PlayerLastCommandCheck {
