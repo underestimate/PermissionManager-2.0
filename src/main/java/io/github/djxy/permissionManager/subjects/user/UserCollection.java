@@ -7,6 +7,7 @@ import io.github.djxy.permissionmanager.exceptions.UserCreationException;
 import io.github.djxy.permissionmanager.logger.Logger;
 import io.github.djxy.permissionmanager.subjects.SubjectCollection;
 import io.github.djxy.permissionmanager.subjects.group.GroupCollection;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.service.permission.SubjectData;
@@ -27,6 +28,12 @@ public class UserCollection extends SubjectCollection {
         super(PermissionService.SUBJECTS_USER, "User");
     }
 
+    public User get(Player player){
+        Preconditions.checkNotNull(player);
+
+        return (User) subjects.get(player.getUniqueId().toString());
+    }
+
     public synchronized User createUser(UUID uuid) throws SubjectIdentifierExistException {
         return createUser(uuid, false);
     }
@@ -41,7 +48,7 @@ public class UserCollection extends SubjectCollection {
 
         if(!canLoadSubject(identifier)) {
             try {
-                createUser(uuid);
+                return createUser(uuid);
             } catch (SubjectIdentifierExistException e) {
                 e.printStackTrace();
             }
