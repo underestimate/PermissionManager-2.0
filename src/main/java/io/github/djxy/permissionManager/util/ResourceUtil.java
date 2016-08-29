@@ -12,7 +12,10 @@ import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -61,10 +64,15 @@ public class ResourceUtil {
 
         for (Language language : Language.getLanguages()) {
             try {
+                InputStream is = object.getClass().getClassLoader().getResource("translations/"+language.getISO639_3()+".hocon").openStream();
+                byte array[] = new byte[is.available()];
+                is.read(array);
+                is.close();
+
                 ConfigurationLoader loader = HoconConfigurationLoader
                         .builder()
                         .setDefaultOptions(ConfigurationOptions.defaults())
-                        .setSource(() -> new BufferedReader(new InputStreamReader(object.getClass().getClassLoader().getResource("translations/"+language.getISO639_3()+".hocon").openStream())))
+                        .setSource(() -> new BufferedReader(new InputStreamReader(new ByteArrayInputStream(new String(array, Charset.forName("UTF-8")).getBytes()))))
                         .build();
                 ConfigurationNode node = loader.load();
 
