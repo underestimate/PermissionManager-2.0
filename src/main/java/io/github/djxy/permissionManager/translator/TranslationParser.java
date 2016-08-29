@@ -144,7 +144,7 @@ public class TranslationParser {
     }
 
     public Text transformClick(String text, TextAction action){
-        return Text.of(clickColor, TextStyles.UNDERLINE, action, text, TextColors.RESET, TextStyles.RESET);
+        return Text.of(clickColor, clickStyle, action, text, TextColors.RESET, TextStyles.RESET);
     }
 
 }
