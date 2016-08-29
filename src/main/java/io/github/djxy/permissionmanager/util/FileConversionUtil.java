@@ -9,6 +9,7 @@ import org.yaml.snakeyaml.DumperOptions;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -48,6 +49,7 @@ public class FileConversionUtil {
 
             if(!subjectFile.exists()){
                 try {
+                    convertSubject(pairs.getValue());
                     saveNode(subjectFile, pairs.getValue());
                     LOGGER.info(pairs.getKey().toString()+" converted.");
                 } catch (IOException e) {
@@ -58,8 +60,80 @@ public class FileConversionUtil {
         }
     }
 
-    public static void convertPromotions(Path path){
+    private static void convertSubject(ConfigurationNode node){
+        if(!node.getNode("rules").isVirtual())
+            convertRules(node.getNode("rules"));
 
+        if(!node.getNode("data").isVirtual())
+            node.getNode("options").setValue(node.getNode("data").getChildrenMap());
+
+        node.getNode("options", "prefix").setValue(node.getNode("prefix"));
+
+        Map<Object,ConfigurationNode> worlds = (Map<Object, ConfigurationNode>) node.getNode("worlds").getChildrenMap();
+
+        for(Map.Entry<Object,ConfigurationNode> pairs : worlds.entrySet()) {
+            if(!node.getNode("rules").isVirtual())
+                node.getNode("worlds", pairs.getKey(), "rules").setValue(node.getNode("rules").getChildrenMap());
+
+            if (!node.getNode("worlds", pairs.getKey(), "data").isVirtual())
+                node.getNode("worlds", pairs.getKey(), "options").setValue(node.getNode("worlds", pairs.getKey(), "data").getChildrenMap());
+        }
+    }
+
+    private static void convertRules(ConfigurationNode node){
+        Map<Object,ConfigurationNode> rulesNode = (Map<Object, ConfigurationNode>) node.getChildrenMap();
+
+        for(Map.Entry<Object,ConfigurationNode> pairs : rulesNode.entrySet()){
+            Map<Object,ConfigurationNode> rules = (Map<Object, ConfigurationNode>) pairs.getValue().getChildrenMap();
+
+            for (Map.Entry<Object,ConfigurationNode> rule : rules.entrySet()) {
+                String name = rule.getKey().toString();
+
+                if(name.equals("cost"))
+                    pairs.getValue().getNode("economy", "cost").setValue(rule.getValue().getNode("cost").getValue());
+                if(name.equals("home"))
+                    rule.getValue().setValue(true);
+                if(name.equals("cooldown"))
+                    rule.getValue().getNode("time").setValue(rule.getValue().getNode("cooldown").getValue());
+                if(name.equals("region"))
+                    rule.getValue().setValue(Arrays.asList(rule.getValue().getNode("location").getString()));
+            }
+        }
+    }
+
+    public static void convertPromotions(Path path){
+        ConfigurationNode root;
+
+        try {
+            root = loadFile(path.resolve("promotions.yml").toFile());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+        Map<Object,ConfigurationNode> subjects = (Map<Object, ConfigurationNode>) root.getChildrenMap();
+
+        for(Map.Entry<Object,ConfigurationNode> pairs : subjects.entrySet()){
+            File subjectFile = path.resolve("promotions").resolve(pairs.getKey().toString()+".yml").toFile();
+
+            if(!subjectFile.exists()){
+                try {
+                    convertPromotion(pairs.getValue());
+                    saveNode(subjectFile, pairs.getValue());
+                    LOGGER.info("Promotion "+pairs.getKey().toString()+" converted.");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        }
+    }
+
+    private static void convertPromotion(ConfigurationNode node){
+        if(!node.getNode("groups", "add").isVirtual())
+            node.getNode("add", "groups").setValue(node.getNode("groups", "add").getChildrenList());
+
+        if(!node.getNode("groups", "remove").isVirtual())
+            node.getNode("remove", "groups").setValue(node.getNode("groups", "remove").getChildrenList());
     }
 
     public static void saveNode(File file, ConfigurationNode node) throws IOException {
