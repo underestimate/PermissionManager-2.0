@@ -26,6 +26,10 @@ public class ContextContainer implements GroupListener, ConfigurationNodeSeriali
         this.options = new ConcurrentHashMap<>();
     }
 
+    public boolean isEmpty(){
+        return permissions.isEmpty() && groups.isEmpty() && options.isEmpty();
+    }
+
     public PermissionMap getPermissions() {
         return permissions;
     }
