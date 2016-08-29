@@ -1,6 +1,7 @@
 package io.github.djxy.permissionmanager.promotion;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import io.github.djxy.permissionmanager.exceptions.PromotionNameExistException;
 import io.github.djxy.permissionmanager.logger.Logger;
 import ninja.leaping.configurate.ConfigurationNode;
@@ -13,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -40,7 +42,11 @@ public class Promotions {
         this.directory = directory;
     }
 
-    public synchronized void setPromotionName(Promotion promotion, String newName) throws PromotionNameExistException {
+    public List<Promotion> getPromotions(){
+        return ImmutableList.copyOf(promotions.values());
+    }
+
+    public synchronized void renamePromotion(Promotion promotion, String newName) throws PromotionNameExistException {
         Preconditions.checkNotNull(newName);
         Preconditions.checkNotNull(promotion);
 
@@ -50,7 +56,22 @@ public class Promotions {
         promotions.remove(promotion.getName());
         promotions.put(newName, promotion);
 
+        LOGGER.info("Promotion " + promotion.getName() + " renamed " + newName + ".");
+
+        File file = directory.resolve(promotion.getName()+".yml").toFile();
+
+        if(file.exists()) {
+            file.delete();
+            LOGGER.info(promotion.getName() + ".yml has been deleted.");
+        }
+
         promotion.setName(newName);
+
+        try {
+            save(newName);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public synchronized Promotion createPromotion(String name) throws PromotionNameExistException {
@@ -62,6 +83,8 @@ public class Promotions {
         Promotion promotion = new Promotion(name);
 
         promotions.put(name, promotion);
+
+        LOGGER.info("Promotion " + name + " created.");
 
         return promotion;
     }
@@ -75,7 +98,18 @@ public class Promotions {
     public void deletePromotion(String name){
         Preconditions.checkNotNull(name);
 
+        if(!promotions.containsKey(name))
+            return;
+
         promotions.remove(name);
+        LOGGER.info("Promotion " + name + " deleted.");
+
+        File file = directory.resolve(name+".yml").toFile();
+
+        if(!file.exists())
+            return;
+
+        file.delete();
     }
 
     public void load(){
