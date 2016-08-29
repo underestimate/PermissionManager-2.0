@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import io.github.djxy.customcommands.CustomCommands;
 import io.github.djxy.permissionmanager.commands.DebugCommands;
 import io.github.djxy.permissionmanager.commands.GroupCommands;
+import io.github.djxy.permissionmanager.commands.PromotionCommands;
 import io.github.djxy.permissionmanager.commands.UserCommands;
 import io.github.djxy.permissionmanager.events.PlayerEvent;
 import io.github.djxy.permissionmanager.logger.Logger;
@@ -15,9 +16,10 @@ import io.github.djxy.permissionmanager.rules.region.plugins.RedProtectPlugin;
 import io.github.djxy.permissionmanager.subjects.group.GroupCollection;
 import io.github.djxy.permissionmanager.subjects.user.UserCollection;
 import io.github.djxy.permissionmanager.translator.Translator;
+import io.github.djxy.permissionmanager.util.FileConversionUtil;
 import io.github.djxy.permissionmanager.util.ResourceUtil;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.config.DefaultConfig;
+import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameConstructionEvent;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
@@ -30,7 +32,7 @@ import java.nio.file.Path;
 /**
  * Created by Samuel on 2016-08-07.
  */
-@Plugin(id = "permissionmanager", name = "PermissionManager v2", version = "2.0", authors = {"Djxy"})
+@Plugin(id = "permissionmanager", name = "PermissionManager", version = "2.0", authors = {"Djxy"})
 public class PermissionManager {
 
     private static final Logger LOGGER = new Logger(PermissionManager.class);
@@ -42,9 +44,9 @@ public class PermissionManager {
     }
 
     @Inject
-    @DefaultConfig(sharedRoot = false)
+    @ConfigDir(sharedRoot = false)
     private Path path;
-    private Translator translator;
+    public static Translator translator;
 
     @Listener
     public void onGameConstructionEvent(GameConstructionEvent event){
@@ -54,6 +56,9 @@ public class PermissionManager {
 
         Logger.setLoggerMode(LoggerMode.DEBUG_SERVER);
 
+        FileConversionUtil.convertUsers(path);
+        FileConversionUtil.convertGroups(path);
+
         Sponge.getEventManager().registerListeners(this, new PlayerEvent());
 
         if(Sponge.getPluginManager().isLoaded("foxguard"))
@@ -61,12 +66,15 @@ public class PermissionManager {
         if(Sponge.getPluginManager().isLoaded("br.net.fabiozumbi12.redprotect"))
             RegionRuleService.instance.addRegionPlugin(new RedProtectPlugin());
 
+        path.resolve("users").toFile().mkdirs();
         UserCollection.instance.setDirectory(path.resolve("users"));
 
+        path.resolve("groups").toFile().mkdirs();
         GroupCollection.instance.setDirectory(path.resolve("groups"));
         GroupCollection.instance.load();
         GroupCollection.instance.createDefaultGroup();
 
+        path.resolve("promotions").toFile().mkdirs();
         Promotions.instance.setDirectory(path.resolve("promotions"));
         Promotions.instance.load();
     }
@@ -81,6 +89,7 @@ public class PermissionManager {
     @Listener
     public void onGameInitializationEvent(GameInitializationEvent event){
         CustomCommands.registerObject(new DebugCommands(translator));
+        CustomCommands.registerObject(new PromotionCommands(translator));
         CustomCommands.registerObject(new UserCommands(translator).register());
         CustomCommands.registerObject(new GroupCommands(translator).register());
     }
@@ -90,6 +99,7 @@ public class PermissionManager {
         LOGGER.info("PermissionService is about to save the subjects.");
         UserCollection.instance.save();
         GroupCollection.instance.save();
+        Promotions.instance.save();
     }
 
 }
