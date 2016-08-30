@@ -4,7 +4,11 @@
     "iso639-3":"eng"
   },
   {
-    "name":"Fran�ais",
+    "name":"Français",
     "iso639-3":"fra"
+  },
+  {
+    "name":"Lietuvių kalba",
+    "iso639-3":"lit"
   }
 ]
