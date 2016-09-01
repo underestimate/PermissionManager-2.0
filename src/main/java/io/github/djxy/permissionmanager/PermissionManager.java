@@ -10,9 +10,11 @@ import io.github.djxy.permissionmanager.commands.UserCommands;
 import io.github.djxy.permissionmanager.events.PlayerEvent;
 import io.github.djxy.permissionmanager.logger.Logger;
 import io.github.djxy.permissionmanager.promotion.Promotions;
+import io.github.djxy.permissionmanager.rules.home.HomeRuleService;
+import io.github.djxy.permissionmanager.rules.home.plugins.RedProtectPluginHome;
 import io.github.djxy.permissionmanager.rules.region.RegionRuleService;
-import io.github.djxy.permissionmanager.rules.region.plugins.FoxGuardPlugin;
-import io.github.djxy.permissionmanager.rules.region.plugins.RedProtectPlugin;
+import io.github.djxy.permissionmanager.rules.region.plugins.FoxGuardPluginRegion;
+import io.github.djxy.permissionmanager.rules.region.plugins.RedProtectPluginRegion;
 import io.github.djxy.permissionmanager.subjects.group.GroupCollection;
 import io.github.djxy.permissionmanager.subjects.user.UserCollection;
 import io.github.djxy.permissionmanager.translator.Translator;
@@ -65,9 +67,11 @@ public class PermissionManager {
         Sponge.getEventManager().registerListeners(this, new PlayerEvent());
 
         if(Sponge.getPluginManager().isLoaded("foxguard"))
-            RegionRuleService.instance.addRegionPlugin(new FoxGuardPlugin());
-        if(Sponge.getPluginManager().isLoaded("br.net.fabiozumbi12.redprotect"))
-            RegionRuleService.instance.addRegionPlugin(new RedProtectPlugin());
+            RegionRuleService.instance.addRegionPlugin(new FoxGuardPluginRegion());
+        if(Sponge.getPluginManager().isLoaded("br.net.fabiozumbi12.redprotect")) {
+            RegionRuleService.instance.addRegionPlugin(new RedProtectPluginRegion());
+            HomeRuleService.instance.addHomePlugin(new RedProtectPluginHome());
+        }
 
         UserCollection.instance.setDirectory(path.resolve("users"));
 
