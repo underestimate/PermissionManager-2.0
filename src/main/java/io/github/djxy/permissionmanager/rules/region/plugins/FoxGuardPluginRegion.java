@@ -12,9 +12,9 @@ import java.util.Set;
 /**
  * Created by Samuel on 2016-08-19.
  */
-public class FoxGuardPlugin implements RegionPlugin {
+public class FoxGuardPluginRegion implements RegionPlugin {
 
-    private static final Logger LOGGER = new Logger(FoxGuardPlugin.class);
+    private static final Logger LOGGER = new Logger(FoxGuardPluginRegion.class);
 
     @Override
     public boolean isPlayerInRegion(Player player, Collection<String> regions) {

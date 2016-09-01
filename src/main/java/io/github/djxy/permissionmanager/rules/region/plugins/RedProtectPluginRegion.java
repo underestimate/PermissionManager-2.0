@@ -11,9 +11,9 @@ import java.util.Collection;
 /**
  * Created by Samuel on 2016-08-19.
  */
-public class RedProtectPlugin implements RegionPlugin {
+public class RedProtectPluginRegion implements RegionPlugin {
 
-    private static final Logger LOGGER = new Logger(RedProtectPlugin.class);
+    private static final Logger LOGGER = new Logger(RedProtectPluginRegion.class);
 
     @Override
     public boolean isPlayerInRegion(Player player, Collection<String> regions) {
