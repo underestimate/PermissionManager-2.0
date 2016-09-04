@@ -9,6 +9,7 @@ import io.github.djxy.permissionmanager.commands.PromotionCommands;
 import io.github.djxy.permissionmanager.commands.UserCommands;
 import io.github.djxy.permissionmanager.events.PlayerEvent;
 import io.github.djxy.permissionmanager.logger.Logger;
+import io.github.djxy.permissionmanager.logger.LoggerMode;
 import io.github.djxy.permissionmanager.promotion.Promotions;
 import io.github.djxy.permissionmanager.rules.home.HomeRuleService;
 import io.github.djxy.permissionmanager.rules.home.plugins.RedProtectPluginHome;
@@ -54,6 +55,8 @@ public class PermissionManager {
     public void onGameConstructionEvent(GameConstructionEvent event){
         instance = this;
 
+        Logger.setLoggerMode(LoggerMode.DEBUG_SERVER);
+
         translator = ResourceUtil.loadTranslations();
 
         path.resolve("users").toFile().mkdirs();
@@ -97,6 +100,8 @@ public class PermissionManager {
         CustomCommands.registerObject(new UserCommands(translator).register());
         CustomCommands.registerObject(new GroupCommands(translator).register());
         CustomCommands.registerObject(new MenuCommands(translator));
+
+        Logger.setLoggerMode(LoggerMode.NO_LOG);
     }
 
     @Listener
