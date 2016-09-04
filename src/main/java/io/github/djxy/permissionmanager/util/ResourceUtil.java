@@ -66,6 +66,7 @@ public class ResourceUtil {
                     translator.addTranslation(language, key, value);
                 }
 
+                LOGGER.error("Translation: "+language.getName());
             } catch (Exception e) {
                 LOGGER.error("Couldn't read " + language.getISO639_3()+".hocon");
                 e.printStackTrace();
