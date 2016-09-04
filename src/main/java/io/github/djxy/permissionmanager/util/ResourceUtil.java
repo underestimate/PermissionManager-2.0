@@ -6,17 +6,9 @@ import com.google.gson.JsonParser;
 import io.github.djxy.permissionmanager.language.Language;
 import io.github.djxy.permissionmanager.logger.Logger;
 import io.github.djxy.permissionmanager.translator.Translator;
-import ninja.leaping.configurate.ConfigurationNode;
-import ninja.leaping.configurate.ConfigurationOptions;
-import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
-import ninja.leaping.configurate.loader.ConfigurationLoader;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.charset.Charset;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -36,17 +28,12 @@ public class ResourceUtil {
             return jsonArrays.get(fileName);
 
         try{
-            BufferedReader br = new BufferedReader(new InputStreamReader(object.getClass().getClassLoader().getResource(fileName).openStream()));
-            String line;
+            InputStream is = object.getClass().getClassLoader().getResource(fileName).openStream();
+            byte array[] = new byte[is.available()];
+            is.read(array);
+            is.close();
 
-            StringBuilder builder = new StringBuilder(1024);
-
-            while((line = br.readLine()) != null)
-                builder.append(line);
-
-            br.close();
-
-            jsonArrays.put(fileName, new JsonParser().parse(builder.toString()).getAsJsonArray());
+            jsonArrays.put(fileName, new JsonParser().parse(new String(array, Charset.forName("UTF-8"))).getAsJsonArray());
 
             LOGGER.info(fileName + " loaded.");
 
@@ -69,17 +56,15 @@ public class ResourceUtil {
                 is.read(array);
                 is.close();
 
-                ConfigurationLoader loader = HoconConfigurationLoader
-                        .builder()
-                        .setDefaultOptions(ConfigurationOptions.defaults())
-                        .setSource(() -> new BufferedReader(new InputStreamReader(new ByteArrayInputStream(new String(array, Charset.forName("UTF-8")).getBytes()))))
-                        .build();
-                ConfigurationNode node = loader.load();
+                String file = new String(array, Charset.forName("UTF-8"));
+                String[] lines = file.split("\\n");
 
-                Map<Object, ConfigurationNode> map = (Map<Object, ConfigurationNode>) node.getChildrenMap();
+                for (String line : lines){
+                    String key = line.substring(0, line.indexOf("\"")-1);
+                    String value = line.substring(line.indexOf("\"")+1, line.lastIndexOf("\""));
 
-                for (Object code : map.keySet())
-                    translator.addTranslation(language, code.toString(), map.get(code).getString(""));
+                    translator.addTranslation(language, key, value);
+                }
 
             } catch (Exception e) {
                 LOGGER.error("Couldn't read " + language.getISO639_3()+".hocon");
