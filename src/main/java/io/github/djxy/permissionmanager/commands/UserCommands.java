@@ -38,9 +38,7 @@ public class UserCommands extends SubjectCommands {
     public void setUserLanguage(CommandSource source, Map<String, Object> values) {
         User user = (User) values.get("user");
         Language language = (Language) values.get("language");
-
-        System.out.println(language.getName());
-
+        
         user.setLanguage(language);
         source.sendMessage(
                 parser.parse(translator.getTranslation(getLanguage(source), "language_user_set"),
@@ -76,8 +74,6 @@ public class UserCommands extends SubjectCommands {
             parsers = {}
     )
     public void getLanguage(CommandSource source, Map<String, Object> values) {
-        User user = (User) values.get("user");
-
         source.sendMessage(
                 parser.parse(translator.getTranslation(getLanguage(source), "language_get"),
                 EMPTY_MAP,
