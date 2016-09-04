@@ -38,7 +38,7 @@ public class UserCommands extends SubjectCommands {
     public void setUserLanguage(CommandSource source, Map<String, Object> values) {
         User user = (User) values.get("user");
         Language language = (Language) values.get("language");
-        
+
         user.setLanguage(language);
         source.sendMessage(
                 parser.parse(translator.getTranslation(getLanguage(source), "language_user_set"),
