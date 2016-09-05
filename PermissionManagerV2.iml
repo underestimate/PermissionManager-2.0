@@ -13,6 +13,12 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="RedProtect_Sponge" level="project" />
     <orderEntry type="library" name="Maven: org.spongepowered:spongeapi:5.0.0-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: com.github.ben-manes.caffeine:caffeine:2.3.2" level="project" />
+    <orderEntry type="library" name="Maven: com.github.ben-manes.caffeine:guava:2.3.2" level="project" />
+    <orderEntry type="library" name="Maven: org.spongepowered:plugin-meta:0.2" level="project" />
+    <orderEntry type="library" name="Maven: com.flowpowered:flow-math:1.0.3" level="project" />
+    <orderEntry type="library" name="Maven: org.spongepowered:event-gen-core:2.0.0-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: org.spongepowered:spongeapi:5.0.0-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.21" level="project" />
     <orderEntry type="library" name="Maven: com.google.guava:guava:17.0" level="project" />
     <orderEntry type="library" name="Maven: com.google.code.gson:gson:2.2.4" level="project" />
