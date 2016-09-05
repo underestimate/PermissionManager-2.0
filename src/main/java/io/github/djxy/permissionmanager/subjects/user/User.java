@@ -78,7 +78,6 @@ public class User extends Subject {
         return getPlayer().isPresent()?Optional.of(getPlayer().get()):Optional.empty();
     }
 
-    @Override
     public Optional<String> getOption(Set<Context> set, String key) {
         Preconditions.checkNotNull(set);
         Preconditions.checkNotNull(key);

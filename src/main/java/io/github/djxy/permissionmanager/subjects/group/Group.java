@@ -56,7 +56,6 @@ public class Group extends Subject implements Comparable<Group> {
         return Optional.empty();
     }
 
-    @Override
     public Optional<String> getOption(Set<Context> set, String s) {
         return getOption(set, s, new ArrayList<>());
     }

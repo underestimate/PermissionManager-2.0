@@ -60,11 +60,6 @@ public abstract class SubjectCollection implements org.spongepowered.api.service
     }
 
     @Override
-    public Subject getDefaults() {
-        return null;
-    }
-
-    @Override
     public Subject get(String s) {
         Preconditions.checkNotNull(s);
 

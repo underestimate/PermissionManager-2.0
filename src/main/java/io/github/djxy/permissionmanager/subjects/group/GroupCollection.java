@@ -28,7 +28,6 @@ public class GroupCollection extends SubjectCollection {
         super(PermissionService.SUBJECTS_GROUP, "Group");
     }
 
-    @Override
     public Subject getDefaults() {
         return defaultGroup;
     }

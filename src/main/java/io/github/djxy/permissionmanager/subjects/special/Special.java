@@ -29,7 +29,6 @@ public class Special extends Subject {
         return Tristate.TRUE;
     }
 
-    @Override
     public Optional<String> getOption(Set<Context> set, String s) {
         return Optional.empty();
     }

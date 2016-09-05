@@ -13,14 +13,17 @@ import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
-import org.spongepowered.api.world.Location;
-import org.spongepowered.api.world.World;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -152,7 +155,7 @@ public class CustomCommands {
         }
 
         @Override
-        public List<String> getSuggestions(CommandSource commandSource, String s, Location<World> location) throws CommandException {
+        public List<String> getSuggestions(CommandSource commandSource, String s) throws CommandException {
             String args[] = Util.split(alias + " " + s);
 
             if(args.length == 0)

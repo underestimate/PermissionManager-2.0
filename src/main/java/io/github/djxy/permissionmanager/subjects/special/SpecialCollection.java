@@ -51,7 +51,6 @@ public class SpecialCollection extends SubjectCollection {
         return new HashMap<>();
     }
 
-    @Override
     public Subject getDefaults() {
         return new Special("", this);
     }

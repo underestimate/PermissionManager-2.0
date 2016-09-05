@@ -9,6 +9,7 @@ import ninja.leaping.configurate.ConfigurationNode;
 import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.service.permission.SubjectCollection;
 import org.spongepowered.api.service.permission.SubjectData;
+import org.spongepowered.api.service.permission.option.OptionSubjectData;
 import org.spongepowered.api.util.Tristate;
 
 import java.util.*;
@@ -18,7 +19,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * Created by Samuel on 2016-08-09.
  */
-public abstract class Subject implements org.spongepowered.api.service.permission.Subject, SubjectData, ConfigurationNodeSerializer, ConfigurationNodeDeserializer {
+public abstract class Subject implements org.spongepowered.api.service.permission.Subject, OptionSubjectData, ConfigurationNodeSerializer, ConfigurationNodeDeserializer {
 
     private static final Logger LOGGER = new Logger(Subject.class);
 
@@ -508,11 +509,6 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
         clearOptions(GLOBAL_CONTEXT);
 
         return true;
-    }
-
-    @Override
-    public Optional<String> getOption(String key) {
-        return getOption(GLOBAL_CONTEXT, key);
     }
 
     @Override

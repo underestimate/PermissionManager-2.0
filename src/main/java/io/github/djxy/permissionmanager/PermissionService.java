@@ -7,6 +7,7 @@ import org.spongepowered.api.service.context.ContextCalculator;
 import org.spongepowered.api.service.permission.PermissionDescription;
 import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.service.permission.SubjectCollection;
+import org.spongepowered.api.service.permission.SubjectData;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,8 +40,8 @@ public class PermissionService implements org.spongepowered.api.service.permissi
     }
 
     @Override
-    public Subject getDefaults() {
-        return GroupCollection.instance.getDefaults();
+    public SubjectData getDefaultData() {
+        return GroupCollection.instance.getDefaults().getSubjectData();
     }
 
     @Override
