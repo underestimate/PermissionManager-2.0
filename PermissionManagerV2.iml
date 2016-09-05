@@ -13,6 +13,10 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="RedProtect_Sponge" level="project" />
     <orderEntry type="library" name="Maven: org.spongepowered:spongeapi:4.2.0-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: com.flowpowered:flow-math:1.0.2" level="project" />
+    <orderEntry type="library" name="Maven: org.spongepowered:plugin-meta:0.1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.spongepowered:event-gen-core:1.1.0" level="project" />
+    <orderEntry type="library" name="Maven: org.spongepowered:spongeapi:4.2.0-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: ninja.leaping.configurate:configurate-hocon:3.1.1" level="project" />
     <orderEntry type="library" name="Maven: com.typesafe:config:1.3.0" level="project" />
     <orderEntry type="library" name="Maven: ninja.leaping.configurate:configurate-core:3.1.1" level="project" />
