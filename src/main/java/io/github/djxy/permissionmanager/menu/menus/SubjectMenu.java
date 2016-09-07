@@ -2,7 +2,7 @@ package io.github.djxy.permissionmanager.menu.menus;
 
 import com.google.common.collect.Sets;
 import io.github.djxy.permissionmanager.menu.Menu;
-import io.github.djxy.permissionmanager.menu.tabs.ContextTab;
+import io.github.djxy.permissionmanager.menu.tabs.WorldContextTab;
 import io.github.djxy.permissionmanager.menu.tabs.WorldTab;
 import io.github.djxy.permissionmanager.subjects.Subject;
 import io.github.djxy.permissionmanager.subjects.user.User;
@@ -25,12 +25,12 @@ public abstract class SubjectMenu extends Menu {
     private final String subjectCollectionName;
     private final WorldTab permissionAddWorldTab;
     private final WorldTab permissionDenyWorldTab;
-    private final ContextTab permissionRemoveWorldTab;
+    private final WorldContextTab permissionRemoveWorldTab;
     private final WorldTab optionAddWorldTab;
-    private final ContextTab optionSetWorldTab;
-    private final ContextTab optionRemoveWorldTab;
+    private final WorldContextTab optionSetWorldTab;
+    private final WorldContextTab optionRemoveWorldTab;
     private final WorldTab groupAddWorldTab;
-    private final ContextTab groupRemoveWorldTab;
+    private final WorldContextTab groupRemoveWorldTab;
     protected final String identifier;
 
     public SubjectMenu(Player player, Translator translator, Menu from, String identifier, String subjectCollectionName, Subject subject) {
@@ -43,16 +43,16 @@ public abstract class SubjectMenu extends Menu {
 
         this.permissionAddWorldTab = new WorldTab(this, translator.getTranslation(user.getLanguage(), "menu_subject_add_permission_world"), "pm "+subjectCollectionName+" "+identifier+" set permission <PERMISSION> #");
         this.permissionDenyWorldTab = new WorldTab(this, translator.getTranslation(user.getLanguage(), "menu_subject_deny_permission_world"), "pm "+subjectCollectionName+" "+identifier+" deny permission <PERMISSION> #");
-        this.permissionRemoveWorldTab = new ContextTab(this, translator.getTranslation(user.getLanguage(), "menu_subject_remove_permission_world"), subject, world -> {
+        this.permissionRemoveWorldTab = new WorldContextTab(this, translator.getTranslation(user.getLanguage(), "menu_subject_remove_permission_world"), subject, world -> {
             new PermissionMenuList(player, translator, this, subject.getPermissions(SubjectData.GLOBAL_CONTEXT), permission -> {
                 runCommandAndRefreshMenu("pm " + subjectCollectionName + " " + identifier + " remove permission " + permission + " " + world);
             }).sendToPlayer();
         });
         this.optionAddWorldTab = new WorldTab(this, translator.getTranslation(user.getLanguage(), "menu_subject_add_option_world"), "pm "+subjectCollectionName+" "+identifier+" set option <OPTION> <VALUE> #");
-        this.optionSetWorldTab = new ContextTab(this, translator.getTranslation(user.getLanguage(), "menu_subject_set_option_world"), subject, world -> {
+        this.optionSetWorldTab = new WorldContextTab(this, translator.getTranslation(user.getLanguage(), "menu_subject_set_option_world"), subject, world -> {
             new OptionMenuList(player, translator, this, subject.getOptions(Sets.newHashSet(new Context(Context.WORLD_KEY, world))), false, "pm "+subjectCollectionName+" "+identifier+" set option # "+world).sendToPlayer();
         });
-        this.optionRemoveWorldTab = new ContextTab(this, translator.getTranslation(user.getLanguage(), "menu_subject_remove_option_world"), subject, world -> {
+        this.optionRemoveWorldTab = new WorldContextTab(this, translator.getTranslation(user.getLanguage(), "menu_subject_remove_option_world"), subject, world -> {
             new OptionMenuList(player, translator, this, subject.getOptions(Sets.newHashSet(new Context(Context.WORLD_KEY, world))), true, option -> {
                 runCommandAndRefreshMenu("pm " + subjectCollectionName + " " + identifier + " remove option " + option + " " + world);
             }).sendToPlayer();
@@ -62,7 +62,7 @@ public abstract class SubjectMenu extends Menu {
                 runCommandAndRefreshMenu("pm " + subjectCollectionName + " " + identifier + " add group " + group + " " + world);
             }).sendToPlayer();
         });
-        this.groupRemoveWorldTab = new ContextTab(this, translator.getTranslation(user.getLanguage(), "menu_subject_remove_group_world"), subject, world -> {
+        this.groupRemoveWorldTab = new WorldContextTab(this, translator.getTranslation(user.getLanguage(), "menu_subject_remove_group_world"), subject, world -> {
             new SubjectGroupMenuList(player, translator, this, subject.getParents(Sets.newHashSet(new Context(Context.WORLD_KEY, world))), group -> {
                 runCommandAndRefreshMenu("pm " + subjectCollectionName + " " + identifier + " remove group " + group + " " + world);
             }).sendToPlayer();

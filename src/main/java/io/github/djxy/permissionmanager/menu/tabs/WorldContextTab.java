@@ -14,13 +14,13 @@ import java.util.function.Consumer;
 /**
  * Created by Samuel on 2016-08-26.
  */
-public class ContextTab extends Tab {
+public class WorldContextTab extends Tab {
 
     private final Subject subject;
     private final String commandSuggested;
     private final Consumer<String> callback;
 
-    public ContextTab(Menu menu, String text, Subject subject, String commandSuggested) {
+    public WorldContextTab(Menu menu, String text, Subject subject, String commandSuggested) {
         super(menu);
         this.commandSuggested = "/"+commandSuggested;
         this.callback = null;
@@ -29,7 +29,7 @@ public class ContextTab extends Tab {
         setText(text);
     }
 
-    public ContextTab(Menu menu, String text, Subject subject, Consumer<String> callback) {
+    public WorldContextTab(Menu menu, String text, Subject subject, Consumer<String> callback) {
         super(menu);
         this.callback = callback;
         this.commandSuggested = null;
@@ -40,7 +40,7 @@ public class ContextTab extends Tab {
 
     @Override
     protected void renderContent(String margin, List<Text> lines) {
-        for(Context context : subject.getContexts())
+        for(Context context : subject.getWorldContexts())
             lines.add(Text.of(margin).concat(createOption(callback(context.getValue()), context.getValue())));
     }
 
