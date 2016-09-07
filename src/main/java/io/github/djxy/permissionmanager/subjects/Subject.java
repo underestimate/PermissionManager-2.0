@@ -40,8 +40,14 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
         this.listeners = new CopyOnWriteArrayList<>();
     }
 
-    public Collection<Context> getContexts(){
-        return Collections.list(contexts.keys());
+    public Collection<Context> getWorldContexts(){
+        ArrayList<Context> worldContexts = new ArrayList<>();
+
+        for(Context context : contexts.keySet())
+            if(context.getKey().equals(Context.WORLD_KEY))
+                worldContexts.add(context);
+
+        return worldContexts;
     }
 
     public String getIdentifier() {
