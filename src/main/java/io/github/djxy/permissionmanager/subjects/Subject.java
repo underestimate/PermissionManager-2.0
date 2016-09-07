@@ -20,6 +20,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public abstract class Subject implements org.spongepowered.api.service.permission.Subject, SubjectData, ConfigurationNodeSerializer, ConfigurationNodeDeserializer {
 
+    public static final String CONTEXT_WEBSITE = "website";
     private static final Logger LOGGER = new Logger(Subject.class);
 
     protected String identifier;
@@ -536,6 +537,20 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
                 contexts.put(new Context(Context.WORLD_KEY, world.toString()), worldContainer);
             }
         }
+
+        ConfigurationNode websites = node.getNode("websites");
+
+        if(!websites.isVirtual() && websites.hasMapChildren()){
+            Map<Object,ConfigurationNode> websitesMap = (Map<Object, ConfigurationNode>) websites.getChildrenMap();
+
+            for(Object website : websitesMap.keySet()){
+                ContextContainer websiteContainer = new ContextContainer();
+
+                websiteContainer.deserialize(websitesMap.get(website));
+
+                contexts.put(new Context(CONTEXT_WEBSITE, website.toString()), websiteContainer);
+            }
+        }
     }
 
     @Override
@@ -549,6 +564,8 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
 
             if(context.getKey().equals(Context.WORLD_KEY))
                 contexts.get(context).serialize(node.getNode("worlds", context.getValue()));
+            if(context.getKey().equals(CONTEXT_WEBSITE))
+                contexts.get(context).serialize(node.getNode("websites", context.getValue()));
         }
     }
 
