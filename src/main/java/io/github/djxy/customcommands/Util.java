@@ -12,7 +12,17 @@ public class Util {
         StringBuilder builder = new StringBuilder(str.length());
 
         for (int i = 0; i < str.length(); i++) {
-            if (str.charAt(i) <= 32 && builder.length() != 0) {
+            if(str.charAt(i) == '\'' && (i == 0 || str.charAt(i-1) == 32)){
+                int next = i+1+str.substring(i+1).indexOf("'");
+
+                if(next+1 == str.length() || str.charAt(next+1) == 32) {
+                    builder.append(str.substring(i + 1, next));
+                    i = next;
+                }
+                else
+                    builder.append(str.charAt(i));
+            }
+            else if (str.charAt(i) == 32 && builder.length() != 0) {
                 words.add(builder.toString());
                 builder = new StringBuilder(str.length() - i);
             }
