@@ -12,6 +12,10 @@
     "iso639-3":"lit"
   },
   {
+    "name":"Português",
+    "iso639-3":"por"
+  },
+  {
     "name":"Русский",
     "iso639-3":"rus"
   }
