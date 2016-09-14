@@ -21,6 +21,7 @@ import io.github.djxy.permissionmanager.subjects.user.UserCollection;
 import io.github.djxy.permissionmanager.translator.Translator;
 import io.github.djxy.permissionmanager.util.FileConversionUtil;
 import io.github.djxy.permissionmanager.util.ResourceUtil;
+import net.foxdenstudio.sponge.foxguard.plugin.compat.djxy.pm.FGCompat;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;
@@ -37,6 +38,8 @@ import java.nio.file.Path;
  */
 @Plugin(id = "permissionmanager", name = "PermissionManager", version = "2.0.1", authors = {"Djxy"})
 public class PermissionManager {
+
+    private static final int FG_COMPAT_MIN_VERSION = 1;
 
     private static final Logger LOGGER = new Logger(PermissionManager.class);
 
@@ -69,8 +72,20 @@ public class PermissionManager {
 
         Sponge.getEventManager().registerListeners(this, new PlayerEvent());
 
-        if(Sponge.getPluginManager().isLoaded("foxguard"))
-            RegionRuleService.instance.addRegionPlugin(new FoxGuardPluginRegion());
+        if (Sponge.getPluginManager().isLoaded("foxguard")) {
+            try {
+                LOGGER.info("FoxGuard is present. Loading compatibility module.");
+                int compatVersion = FGCompat.getCompatVersion();
+                LOGGER.info("FoxGuard compatibility module loaded. Compat version: " + compatVersion + " Minimum version: " + FG_COMPAT_MIN_VERSION);
+                if (compatVersion < FG_COMPAT_MIN_VERSION) {
+                    LOGGER.error("FoxGuard compatibility module version is lower than required! Use a newer version of FoxGuard!");
+                } else {
+                    RegionRuleService.instance.addRegionPlugin(new FoxGuardPluginRegion());
+                }
+            } catch (NoClassDefFoundError e) {
+                LOGGER.error("FoxGuard compatibility module not found! Use a newer version of FoxGuard!");
+            }
+        }
         if(Sponge.getPluginManager().isLoaded("br.net.fabiozumbi12.redprotect")) {
             RegionRuleService.instance.addRegionPlugin(new RedProtectPluginRegion());
             HomeRuleService.instance.addHomePlugin(new RedProtectPluginHome());
