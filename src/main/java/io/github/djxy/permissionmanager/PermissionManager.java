@@ -2,11 +2,7 @@ package io.github.djxy.permissionmanager;
 
 import com.google.inject.Inject;
 import io.github.djxy.customcommands.CustomCommands;
-import io.github.djxy.permissionmanager.commands.DebugCommands;
-import io.github.djxy.permissionmanager.commands.GroupCommands;
-import io.github.djxy.permissionmanager.commands.MenuCommands;
-import io.github.djxy.permissionmanager.commands.PromotionCommands;
-import io.github.djxy.permissionmanager.commands.UserCommands;
+import io.github.djxy.permissionmanager.commands.*;
 import io.github.djxy.permissionmanager.events.PlayerEvent;
 import io.github.djxy.permissionmanager.logger.Logger;
 import io.github.djxy.permissionmanager.logger.LoggerMode;
