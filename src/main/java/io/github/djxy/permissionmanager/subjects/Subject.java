@@ -107,6 +107,8 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
 
         if (!(subject instanceof Group))
             return false;
+        if(!contexts.containsKey(set))
+            return false;
 
         Group parent = (Group) subject;
         ContextContainer container = contexts.get(set);
@@ -147,12 +149,20 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
         Preconditions.checkNotNull(permission);
         Preconditions.checkNotNull(tristate);
 
-        if(!contexts.containsKey(set))
-            contexts.put(set, new ContextContainer());
+        if(tristate != Tristate.UNDEFINED) {
+            if(!contexts.containsKey(set))
+                contexts.put(set, new ContextContainer());
 
-        ContextContainer container = contexts.get(set);
+            ContextContainer container = contexts.get(set);
 
-        if(tristate == Tristate.UNDEFINED) {
+            container.getPermissions().putPermission(permission, new Permission(permission, tristate.asBoolean()));
+
+            for(SubjectListener listener : listeners)
+                listener.onSetPermission(set, this, permission, tristate.asBoolean());
+        }
+        else if(contexts.containsKey(set)) {
+            ContextContainer container = contexts.get(set);
+
             container.getPermissions().removePermission(permission);
 
             for(SubjectListener listener : listeners)
@@ -160,12 +170,6 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
 
             if(container.isEmpty())
                 contexts.remove(set);
-        }
-        else {
-            container.getPermissions().putPermission(permission, new Permission(permission, tristate.asBoolean()));
-
-            for(SubjectListener listener : listeners)
-                listener.onSetPermission(set, this, permission, tristate.asBoolean());
         }
 
         return true;
@@ -263,39 +267,25 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
 
         Group parent = (Group) subject;
 
-        ContextContainer container = null;
-        Context context = null;
-
-        if(ContextUtil.isGlobalContext(set))
-            container = globalContext;
-        if(ContextUtil.isSingleContext(set)){
-            context = ContextUtil.getContext(set);
-
-            if(!contexts.containsKey(context))
-                return false;
-
-            container = contexts.get(context);
-        }
-
-        if(container == null)
+        if(!contexts.containsKey(set))
             return false;
+
+        ContextContainer container = contexts.get(set);
 
         container.removeGroup(parent);
 
-        if(container.isEmpty() && context != null)
-            contexts.remove(context);
+        if(container.isEmpty())
+            contexts.remove(set);
 
         return true;
     }
 
     @Override
     public boolean clearParents() {
-        Enumeration<Context> contexts = this.contexts.keys();
+        Enumeration<Set<Context>> contexts = this.contexts.keys();
 
         while(contexts.hasMoreElements())
-            clearParents(Sets.newHashSet(contexts.nextElement()));
-
-        clearParents(GLOBAL_CONTEXT);
+            clearParents(contexts.nextElement());
 
         return true;
     }
@@ -304,27 +294,15 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
     public boolean clearParents(Set<Context> set) {
         Preconditions.checkNotNull(set);
 
-        ContextContainer container = null;
-        Context context = null;
-
-        if(ContextUtil.isGlobalContext(set))
-            container = globalContext;
-        if(ContextUtil.isSingleContext(set)){
-            context = ContextUtil.getContext(set);
-
-            if(!contexts.containsKey(context))
-                return false;
-
-            container = contexts.get(context);
-        }
-
-        if(container == null)
+        if(!contexts.containsKey(set))
             return false;
+
+        ContextContainer container = contexts.get(set);
 
         container.clearGroups();
 
-        if(container.isEmpty() && context != null)
-            contexts.remove(context);
+        if(container.isEmpty())
+            contexts.remove(set);
 
         return true;
     }
@@ -332,15 +310,13 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
     @Override
     public Map<Set<Context>, Map<String, String>> getAllOptions() {
         Map<Set<Context>, Map<String, String>> options = new HashMap<>();
-        Enumeration<Context> contexts = this.contexts.keys();
+        Enumeration<Set<Context>> contexts = this.contexts.keys();
 
         while(contexts.hasMoreElements()) {
-            Set<Context> set = Sets.newHashSet(contexts.nextElement());
+            Set<Context> set = contexts.nextElement();
 
             options.put(set, getOptions(set));
         }
-
-        options.put(GLOBAL_CONTEXT, getOptions(GLOBAL_CONTEXT));
 
         return options;
     }
@@ -349,23 +325,10 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
     public Map<String, String> getOptions(Set<Context> set) {
         Preconditions.checkNotNull(set);
 
-        ContextContainer container = null;
-
-        if(ContextUtil.isGlobalContext(set))
-            container = globalContext;
-        if(ContextUtil.isSingleContext(set)){
-            Context context = ContextUtil.getContext(set);
-
-            if(!contexts.containsKey(context))
-                return new HashMap<>();
-
-            container = contexts.get(context);
-        }
-
-        if(container == null)
+        if(!contexts.containsKey(set))
             return new HashMap<>();
 
-        return container.getOptions();
+        return contexts.get(set).getOptions();
     }
 
     @Override
@@ -373,28 +336,20 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
         Preconditions.checkNotNull(set);
         Preconditions.checkNotNull(key);
 
-        ContextContainer container = null;
-        Context context = null;
-
-        if(ContextUtil.isGlobalContext(set))
-            container = globalContext;
-        if(ContextUtil.isSingleContext(set)){
-            context = ContextUtil.getContext(set);
-
-            if(!contexts.containsKey(context))
-                contexts.put(context, new ContextContainer());
-
-            container = contexts.get(context);
+        if(value != null){
+            if(!contexts.containsKey(set))
+                contexts.put(set, new ContextContainer());
         }
-
-        if(container == null)
+        else if(!contexts.containsKey(set))
             return false;
+
+        ContextContainer container = contexts.get(set);
 
         if(value == null) {
             container.removeOption(key);
 
-            if(container.isEmpty() && context != null)
-                contexts.remove(context);
+            if(container.isEmpty())
+                contexts.remove(set);
         }
         else
             container.setOption(key, value);
@@ -406,39 +361,25 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
     public boolean clearOptions(Set<Context> set) {
         Preconditions.checkNotNull(set);
 
-        ContextContainer container = null;
-        Context context = null;
-
-        if(ContextUtil.isGlobalContext(set))
-            container = globalContext;
-        if(ContextUtil.isSingleContext(set)){
-            context = ContextUtil.getContext(set);
-
-            if(!contexts.containsKey(context))
-                return true;
-
-            container = contexts.get(context);
-        }
-
-        if(container == null)
+        if(!contexts.containsKey(set))
             return false;
+
+        ContextContainer container = contexts.get(set);
 
         container.clearOptions();
 
-        if(container.isEmpty() && context != null)
-            contexts.remove(context);
+        if(container.isEmpty())
+            contexts.remove(set);
 
         return true;
     }
 
     @Override
     public boolean clearOptions() {
-        Enumeration<Context> contexts = this.contexts.keys();
+        Enumeration<Set<Context>> contexts = this.contexts.keys();
 
         while(contexts.hasMoreElements())
-            clearOptions(Sets.newHashSet(contexts.nextElement()));
-
-        clearOptions(GLOBAL_CONTEXT);
+            clearOptions(contexts.nextElement());
 
         return true;
     }
@@ -450,55 +391,94 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
 
     @Override
     public void deserialize(ConfigurationNode node) {
-        globalContext = new ContextContainer();
+        contexts.put(GLOBAL_CONTEXT, new ContextContainer());
 
-        globalContext.deserialize(node);
+        contexts.get(GLOBAL_CONTEXT).deserialize(node);
 
         contexts.clear();
 
-        ConfigurationNode worlds = node.getNode("worlds");
+        ConfigurationNode[] nodes = {node.getNode("worlds"), node.getNode("websites")};
+        String[] contextKeys = {Context.WORLD_KEY, CONTEXT_WEBSITE};
 
-        if(!worlds.isVirtual() && worlds.hasMapChildren()){
-            Map<Object,ConfigurationNode> worldsMap = (Map<Object, ConfigurationNode>) worlds.getChildrenMap();
+        for(int i = 0; i < nodes.length; i++){
+            ConfigurationNode contextNode = nodes[i];
 
-            for(Object world : worldsMap.keySet()){
-                ContextContainer worldContainer = new ContextContainer();
+            if(!contextNode.isVirtual() && contextNode.hasMapChildren()){
+                Map<Object,ConfigurationNode> map = (Map<Object, ConfigurationNode>) contextNode.getChildrenMap();
 
-                worldContainer.deserialize(worldsMap.get(world));
+                for(Object mapNode : map.keySet()){
+                    ContextContainer container = new ContextContainer();
 
-                contexts.put(new Context(Context.WORLD_KEY, world.toString()), worldContainer);
+                    container.deserialize(map.get(mapNode));
+
+                    contexts.put(Sets.newHashSet(new Context(contextKeys[i], mapNode.toString())), container);
+                }
             }
         }
 
-        ConfigurationNode websites = node.getNode("websites");
+        ConfigurationNode contexts = node.getNode("contexts");
 
-        if(!websites.isVirtual() && websites.hasMapChildren()){
-            Map<Object,ConfigurationNode> websitesMap = (Map<Object, ConfigurationNode>) websites.getChildrenMap();
+        if(!contexts.isVirtual() && contexts.hasListChildren()){
+            List<ConfigurationNode> list = (List<ConfigurationNode>) contexts.getChildrenList();
 
-            for(Object website : websitesMap.keySet()){
-                ContextContainer websiteContainer = new ContextContainer();
-
-                websiteContainer.deserialize(websitesMap.get(website));
-
-                contexts.put(new Context(CONTEXT_WEBSITE, website.toString()), websiteContainer);
-            }
+            for(ConfigurationNode configurationNode : list)
+                deserializeContextSet(configurationNode);
         }
     }
 
     @Override
     public void serialize(ConfigurationNode node) {
-        globalContext.serialize(node);
+        if(contexts.containsKey(GLOBAL_CONTEXT))
+            contexts.get(GLOBAL_CONTEXT).serialize(node);
 
-        Enumeration<Context> enumeration = contexts.keys();
+        Enumeration<Set<Context>> enumeration = contexts.keys();
 
-        while(enumeration.hasMoreElements()){
-            Context context = enumeration.nextElement();
+        while(enumeration.hasMoreElements()) {
+            Set<Context> set = enumeration.nextElement();
 
-            if(context.getKey().equals(Context.WORLD_KEY))
-                contexts.get(context).serialize(node.getNode("worlds", context.getValue()));
-            if(context.getKey().equals(CONTEXT_WEBSITE))
-                contexts.get(context).serialize(node.getNode("websites", context.getValue()));
+            if(ContextUtil.isSingleContext(set)){
+                Context context = ContextUtil.getContext(set);
+
+                if(context.getKey().equals(Context.WORLD_KEY))
+                    contexts.get(set).serialize(node.getNode("worlds", context.getValue()));
+                else if(context.getKey().equals(CONTEXT_WEBSITE))
+                    contexts.get(set).serialize(node.getNode("websites", context.getValue()));
+                else
+                    serializeContextSet(node.getNode("contexts").getAppendedNode(), set);
+            }
+            else if(!ContextUtil.isGlobalContext(set))
+                serializeContextSet(node.getNode("contexts").getAppendedNode(), set);
         }
+    }
+
+    private void serializeContextSet(ConfigurationNode node, Set<Context> set){
+        ConfigurationNode contexts = node.getNode("contexts");
+
+        for(Context context : set)
+            contexts.getNode(context.getKey()).setValue(context.getValue());
+
+        this.contexts.get(set).serialize(node);
+    }
+
+    private void deserializeContextSet(ConfigurationNode node){
+        ConfigurationNode contexts = node.getNode("contexts");
+        Set<Context> set = new HashSet<>();
+
+        if(!contexts.isVirtual() && contexts.hasMapChildren()){
+            Map<Object,ConfigurationNode> map = (Map<Object, ConfigurationNode>) contexts.getChildrenMap();
+
+            for(Object mapNode : map.keySet())
+                set.add(new Context(mapNode.toString(), map.get(mapNode).getString("")));
+        }
+
+        if(set.isEmpty())
+            return;
+
+        ContextContainer container = new ContextContainer();
+
+        container.deserialize(node);
+
+        this.contexts.put(set, container);
     }
 
     @Override

@@ -82,35 +82,36 @@ public class User extends Subject {
     public Optional<String> getOption(Set<Context> set, String key) {
         Preconditions.checkNotNull(set);
         Preconditions.checkNotNull(key);
-        Context context = null;
+
+        ContextContainer container = null;
 
         if(ContextUtil.isGlobalContext(set)) {
-            if(!getPlayerWorld().isPresent())
-                return Optional.empty();
+            if(getPlayerWorld().isPresent()) {
+                container = contexts.get(Sets.newHashSet(new Context(Context.WORLD_KEY, getPlayerWorld().get())));
 
-            context = new Context(Context.WORLD_KEY, getPlayerWorld().get());
+                String value = container.getOption(key);
+
+                if (value != null)
+                    return Optional.of(value);
+            }
         }
-        if(ContextUtil.isSingleContext(set))
-            context = ContextUtil.getContext(set);
+        else if(contexts.containsKey(set)){
+            container = contexts.get(set);
 
-        if(context == null)
-            return Optional.empty();
-
-        ContextContainer container = contexts.get(context);
-
-        if(container != null) {
             String value = container.getOption(key);
 
             if (value != null)
                 return Optional.of(value);
         }
 
-        String value = globalContext.getOption(key);
+        if(contexts.containsKey(GLOBAL_CONTEXT)){
+            ContextContainer globalContainer = contexts.get(GLOBAL_CONTEXT);
 
-        if(value != null)
-            return Optional.of(value);
+            String value = globalContainer.getOption(key);
 
-        set = Sets.newHashSet(context);
+            if (value != null)
+                return Optional.of(value);
+        }
 
         if(container != null) {
             for (Group group : container.getGroups()) {
@@ -121,11 +122,13 @@ public class User extends Subject {
             }
         }
 
-        for (Group group : globalContext.getGroups()) {
-            Optional<String> valueOpt = group.getOption(set, key);
+        if(contexts.containsKey(GLOBAL_CONTEXT)){
+            for (Group group : contexts.get(GLOBAL_CONTEXT).getGroups()) {
+                Optional<String> valueOpt = group.getOption(set, key);
 
-            if (valueOpt.isPresent())
-                return valueOpt;
+                if (valueOpt.isPresent())
+                    return valueOpt;
+            }
         }
 
         return Optional.empty();
@@ -136,52 +139,51 @@ public class User extends Subject {
         Preconditions.checkNotNull(set);
         Preconditions.checkNotNull(permission);
 
-        LOGGER.info(getIdentifier()+" get permission value for "+permission);
+        LOGGER.info(getIdentifier() + " get permission value for " + permission);
 
-        Context context = null;
+        ContextContainer container = null;
 
         if(ContextUtil.isGlobalContext(set)) {
-            if(!getPlayerWorld().isPresent())
-                return Tristate.UNDEFINED;
+            if(getPlayerWorld().isPresent()) {
+                container = contexts.get(Sets.newHashSet(new Context(Context.WORLD_KEY, getPlayerWorld().get())));
 
-            context = new Context(Context.WORLD_KEY, getPlayerWorld().get());
+                Permission value = container.getPermissions().getPermission(permission);
+
+                if (value != null)
+                    return testPermissionRules(value);
+            }
         }
-        if(ContextUtil.isSingleContext(set))
-            context = ContextUtil.getContext(set);
+        else if(contexts.containsKey(set)){
+            container = contexts.get(set);
+            Permission value = container.getPermissions().getPermission(permission);
 
-        if(context == null)
-            return Tristate.UNDEFINED;
-
-        ContextContainer container = contexts.get(context);
-
-        if(container != null) {
-            Permission perm = container.getPermissions().getPermission(permission);
-
-            if (perm != null)
-                return Tristate.fromBoolean(perm.getValue());
+            if (value != null)
+                return testPermissionRules(value);
         }
 
-        Permission perm = globalContext.getPermissions().getPermission(permission);
+        if(contexts.containsKey(GLOBAL_CONTEXT)){
+            Permission value = contexts.get(GLOBAL_CONTEXT).getPermissions().getPermission(permission);
 
-        if(perm != null)
-            return testPermissionRules(perm);
-
-        set = Sets.newHashSet(context);
+            if (value != null)
+                return testPermissionRules(value);
+        }
 
         if(container != null) {
             for (Group group : container.getGroups()) {
-                perm = group.getPermissionValue(set, permission, new ArrayList<>());
+                Permission perm = group.getPermissionValue(set, permission, new ArrayList<>());
 
                 if (perm != null)
                     return testPermissionRules(perm);
             }
         }
 
-        for (Group group : globalContext.getGroups()) {
-            perm = group.getPermissionValue(set, permission, new ArrayList<>());
+        if(contexts.containsKey(GLOBAL_CONTEXT)) {
+            for (Group group : contexts.get(GLOBAL_CONTEXT).getGroups()) {
+                Permission perm = group.getPermissionValue(set, permission, new ArrayList<>());
 
-            if (perm != null)
-                return testPermissionRules(perm);
+                if (perm != null)
+                    return testPermissionRules(perm);
+            }
         }
 
         return Tristate.UNDEFINED;
@@ -195,11 +197,11 @@ public class User extends Subject {
     private Tristate testPermissionRules(Permission permission){
         List<Rule> rules = permission.getRules();
 
-        if(!getPlayer().isPresent())
-            return Tristate.UNDEFINED;
-
         if(rules.isEmpty())
             return Tristate.fromBoolean(permission.getValue());
+
+        if(!getPlayer().isPresent())
+            return Tristate.UNDEFINED;
 
         Player player = getPlayer().get();
 
@@ -230,11 +232,20 @@ public class User extends Subject {
     }
 
     private Optional<Player> getPlayer(){
-        return Sponge.getServer().getPlayer(uuid);
+        return isSpongeInitialized()?Sponge.getServer().getPlayer(uuid):Optional.empty();
     }
 
     private Optional<String> getPlayerWorld(){
-        return getPlayer().isPresent()?Optional.of(getPlayer().get().getWorld().getName()):Optional.empty();
+        return isSpongeInitialized() && getPlayer().isPresent()?Optional.of(getPlayer().get().getWorld().getName()):Optional.empty();
+    }
+
+    private boolean isSpongeInitialized(){
+        try{
+            Sponge.getGame();
+            return true;
+        } catch (Exception e){
+            return false;
+        }
     }
 
 }

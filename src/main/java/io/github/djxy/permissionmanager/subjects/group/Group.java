@@ -4,7 +4,6 @@ import com.google.common.base.Preconditions;
 import io.github.djxy.permissionmanager.subjects.ContextContainer;
 import io.github.djxy.permissionmanager.subjects.Permission;
 import io.github.djxy.permissionmanager.subjects.Subject;
-import io.github.djxy.permissionmanager.util.ContextUtil;
 import ninja.leaping.configurate.ConfigurationNode;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.service.context.Context;
@@ -90,27 +89,28 @@ public class Group extends Subject implements Comparable<Group> {
         Preconditions.checkNotNull(key);
         Preconditions.checkNotNull(groupsChecked);
 
-        ContextContainer container = null;
+        if(contexts.containsKey(set)) {
+            ContextContainer container = contexts.get(set);
 
-        if(ContextUtil.isSingleContext(set))
-            container = contexts.get(ContextUtil.getContext(set));
-
-        if(container != null){
             String value = container.getOption(key);
 
             if (value != null)
                 return Optional.of(value);
         }
 
-        String value = globalContext.getOption(key);
+        if(contexts.containsKey(GLOBAL_CONTEXT)){
+            ContextContainer container = contexts.get(GLOBAL_CONTEXT);
 
-        if(value != null)
-            return Optional.of(value);
+            String value = container.getOption(key);
+
+            if (value != null)
+                return Optional.of(value);
+        }
 
         groupsChecked.add(this);
 
-        if(container != null) {
-            for (Group group : container.getGroups()) {
+        if(contexts.containsKey(set)) {
+            for (Group group : contexts.get(set).getGroups()) {
                 if (!groupsChecked.contains(group)) {
                     Optional<String> valueOpt = group.getOption(set, key);
 
@@ -120,12 +120,14 @@ public class Group extends Subject implements Comparable<Group> {
             }
         }
 
-        for (Group group : globalContext.getGroups()) {
-            if (!groupsChecked.contains(group)) {
-                Optional<String> valueOpt = group.getOption(set, key);
+        if(contexts.containsKey(GLOBAL_CONTEXT)){
+            for (Group group : contexts.get(GLOBAL_CONTEXT).getGroups()) {
+                if (!groupsChecked.contains(group)) {
+                    Optional<String> valueOpt = group.getOption(set, key);
 
-                if (valueOpt.isPresent())
-                    return valueOpt;
+                    if (valueOpt.isPresent())
+                        return valueOpt;
+                }
             }
         }
 
@@ -137,29 +139,26 @@ public class Group extends Subject implements Comparable<Group> {
         Preconditions.checkNotNull(permission);
         Preconditions.checkNotNull(groupsChecked);
 
-        ContextContainer container = null;
-
-        if(ContextUtil.isSingleContext(set))
-            container = contexts.get(ContextUtil.getContext(set));
-
-        if(container != null){
-            Permission perm = container.getPermissions().getPermission(permission);
+        if(contexts.containsKey(set)) {
+            Permission perm = contexts.get(set).getPermissions().getPermission(permission);
 
             if(perm != null)
                 return perm;
         }
 
-        Permission perm = globalContext.getPermissions().getPermission(permission);
+        if(contexts.containsKey(GLOBAL_CONTEXT)){
+            Permission perm = contexts.get(GLOBAL_CONTEXT).getPermissions().getPermission(permission);
 
-        if(perm != null)
-            return perm;
+            if(perm != null)
+                return perm;
+        }
 
         groupsChecked.add(this);
 
-        if(container != null) {
-            for (Group group : container.getGroups()) {
+        if(contexts.containsKey(set)) {
+            for (Group group : contexts.get(set).getGroups()) {
                 if (!groupsChecked.contains(group)) {
-                    perm = group.getPermissionValue(set, permission, groupsChecked);
+                    Permission perm = group.getPermissionValue(set, permission, groupsChecked);
 
                     if (perm != null)
                         return perm;
@@ -167,12 +166,14 @@ public class Group extends Subject implements Comparable<Group> {
             }
         }
 
-        for (Group group : globalContext.getGroups()) {
-            if (!groupsChecked.contains(group)) {
-                perm = group.getPermissionValue(set, permission, groupsChecked);
+        if(contexts.containsKey(GLOBAL_CONTEXT)){
+            for (Group group : contexts.get(GLOBAL_CONTEXT).getGroups()) {
+                if (!groupsChecked.contains(group)) {
+                    Permission perm = group.getPermissionValue(set, permission, groupsChecked);
 
-                if (perm != null)
-                    return perm;
+                    if (perm != null)
+                        return perm;
+                }
             }
         }
 

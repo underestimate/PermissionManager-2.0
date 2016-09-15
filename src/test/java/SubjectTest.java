@@ -30,12 +30,14 @@ public class SubjectTest {
     private static Group groupWorld2;
     private static Set<Context> globalContext = SubjectData.GLOBAL_CONTEXT;
     private static Set<Context> worldContext = Sets.newHashSet(new Context(Context.WORLD_KEY, "world"));
+    private static Set<Context> specialContext = Sets.newHashSet(new Context("test", "1"), new Context("test", "2"));;
 
     @BeforeClass
     public static void initSubjects() {
         Logger.setLoggerMode(LoggerMode.DEBUG_IDE);
 
         try {
+            Language.load();
             UserCollection.instance.setDirectory(FileSystems.getDefault().getPath("users"));
             GroupCollection.instance.setDirectory(FileSystems.getDefault().getPath("groups"));
 
@@ -50,13 +52,16 @@ public class SubjectTest {
             groupGlobal.setDefaultGroup(true);
 
             user.addParent(globalContext, groupGlobal);
+            user.addParent(specialContext, groupGlobal2);
             groupGlobal.addParent(globalContext, groupGlobal2);
+            groupGlobal2.addParent(specialContext, groupWorld2);
 
             user.addParent(worldContext, groupWorld);
             groupWorld.addParent(worldContext, groupWorld2);
 
             user.setPermission(globalContext, "perm.1", Tristate.TRUE);
             user.setPermission(worldContext, "perm.2", Tristate.FALSE);
+            user.setPermission(specialContext, "perm.3", Tristate.TRUE);
 
             groupGlobal.setPermission(globalContext, "perm.3", Tristate.TRUE);
             groupGlobal.setPermission(worldContext, "perm.4", Tristate.FALSE);
@@ -69,9 +74,11 @@ public class SubjectTest {
 
             groupWorld2.setPermission(globalContext, "perm.9", Tristate.TRUE);
             groupWorld2.setPermission(worldContext, "perm.10", Tristate.FALSE);
+            groupWorld2.setPermission(specialContext, "perm.11", Tristate.TRUE);
 
             user.setOption(globalContext, "option.1", "1");
             user.setOption(worldContext, "option.2", "2");
+            user.setOption(specialContext, "option.12", "2");
 
             groupGlobal.setOption(globalContext, "option.3", "3");
             groupGlobal.setOption(worldContext, "option.4", "4");
@@ -84,12 +91,33 @@ public class SubjectTest {
 
             groupWorld2.setOption(globalContext, "option.9", "9");
             groupWorld2.setOption(worldContext, "option.10", "0");
+            groupWorld2.setOption(specialContext, "option.11", "test");
 
             groupGlobal.setRank(0);
-            user.setLanguage(Language.getLanguage("French"));
+            user.setLanguage(Language.getLanguage("fra"));
         } catch (SubjectIdentifierExistException e) {
             e.printStackTrace();
         }
+    }
+
+    @Test
+    public void testSpecialContextPermission(){
+        Assert.assertEquals(true, user.hasPermission(specialContext, "perm.3"));
+    }
+
+    @Test
+    public void testParentsSpecialContextPermission(){
+        Assert.assertEquals(true, user.hasPermission(specialContext, "perm.11"));
+    }
+
+    @Test
+    public void testSpecialContextOption(){
+        Assert.assertEquals(true, user.getOption(specialContext, "option.12").get().equals("2"));
+    }
+
+    @Test
+    public void testParentsSpecialContextOption(){
+        Assert.assertEquals(true, user.getOption(specialContext, "option.11").get().equals("test"));
     }
 
     @Test
@@ -119,7 +147,7 @@ public class SubjectTest {
 
     @Test
     public void userHasOptionInGlobalContext(){
-        Assert.assertEquals(true, user.getOption(globalContext, "option.6").isPresent());
+        Assert.assertEquals(true, !user.getOption(globalContext, "option.6").isPresent());
     }
 
     @Test
@@ -149,7 +177,7 @@ public class SubjectTest {
 
     @Test
     public void checkUserLanguage() {
-        Assert.assertEquals(true, user.getLanguage().equals(Language.getLanguage("French")));
+        Assert.assertEquals(true, user.getLanguage().equals(Language.getLanguage("fra")));
     }
 
     @Test
@@ -157,10 +185,9 @@ public class SubjectTest {
         Assert.assertEquals(true, groupGlobal.getRank() == 0);
     }
 
-    //Work only if the player is in the world 'world'.
     @Test
     public void userHasPermissionInGlobalContext() {
-        Assert.assertEquals(true, user.getPermissionValue(globalContext, "perm.6") != Tristate.UNDEFINED);
+        Assert.assertEquals(true, user.getPermissionValue(globalContext, "perm.6") == Tristate.UNDEFINED);
     }
 
     @Test
