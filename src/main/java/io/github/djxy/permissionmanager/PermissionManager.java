@@ -2,7 +2,11 @@ package io.github.djxy.permissionmanager;
 
 import com.google.inject.Inject;
 import io.github.djxy.customcommands.CustomCommands;
-import io.github.djxy.permissionmanager.commands.*;
+import io.github.djxy.permissionmanager.commands.DebugCommands;
+import io.github.djxy.permissionmanager.commands.GroupCommands;
+import io.github.djxy.permissionmanager.commands.MenuCommands;
+import io.github.djxy.permissionmanager.commands.PromotionCommands;
+import io.github.djxy.permissionmanager.commands.UserCommands;
 import io.github.djxy.permissionmanager.events.PlayerEvent;
 import io.github.djxy.permissionmanager.logger.Logger;
 import io.github.djxy.permissionmanager.logger.LoggerMode;
@@ -20,7 +24,6 @@ import io.github.djxy.permissionmanager.util.ResourceUtil;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.game.state.GameConstructionEvent;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.event.game.state.GameStoppedServerEvent;
@@ -48,7 +51,7 @@ public class PermissionManager {
     public static Translator translator;
 
     @Listener
-    public void onGameConstructionEvent(GameConstructionEvent event){
+    public void onGamePreInitializationEvent(GamePreInitializationEvent event){
         instance = this;
 
         Logger.setLoggerMode(LoggerMode.DEBUG_SERVER);
@@ -80,10 +83,7 @@ public class PermissionManager {
 
         Promotions.instance.setDirectory(path.resolve("promotions"));
         Promotions.instance.load();
-    }
 
-    @Listener
-    public void onGamePreInitializationEvent(GamePreInitializationEvent event){
         Sponge.getServiceManager().setProvider(this, org.spongepowered.api.service.permission.PermissionService.class, PermissionService.instance);
 
         LOGGER.info("PermissionService is now enable.");
