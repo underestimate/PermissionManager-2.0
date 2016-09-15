@@ -71,24 +71,7 @@ public class PermissionManager {
 
         Sponge.getEventManager().registerListeners(this, new PlayerEvent());
 
-        if (Sponge.getPluginManager().isLoaded("foxguard")) {
-            try {
-                LOGGER.info("FoxGuard is present. Loading compatibility module.");
-                int compatVersion = FGCompat.getCompatVersion();
-                LOGGER.info("FoxGuard compatibility module loaded. Compat version: " + compatVersion + " Minimum version: " + FG_COMPAT_MIN_VERSION);
-                if (compatVersion < FG_COMPAT_MIN_VERSION) {
-                    LOGGER.error("FoxGuard compatibility module version is lower than required! Use a newer version of FoxGuard!");
-                } else {
-                    RegionRuleService.instance.addRegionPlugin(new FoxGuardPluginRegion());
-                }
-            } catch (NoClassDefFoundError e) {
-                LOGGER.error("FoxGuard compatibility module not found! Use a newer version of FoxGuard!");
-            }
-        }
-        if(Sponge.getPluginManager().isLoaded("br.net.fabiozumbi12.redprotect")) {
-            RegionRuleService.instance.addRegionPlugin(new RedProtectPluginRegion());
-            HomeRuleService.instance.addHomePlugin(new RedProtectPluginHome());
-        }
+        loadPlugins();
 
         UserCollection.instance.setDirectory(path.resolve("users"));
 
@@ -121,6 +104,27 @@ public class PermissionManager {
         UserCollection.instance.save();
         GroupCollection.instance.save();
         Promotions.instance.save();
+    }
+
+    private void loadPlugins(){
+        if (Sponge.getPluginManager().isLoaded("foxguard")) {
+            try {
+                LOGGER.info("FoxGuard is present. Loading compatibility module.");
+                int compatVersion = FGCompat.getCompatVersion();
+                LOGGER.info("FoxGuard compatibility module loaded. Compat version: " + compatVersion + " Minimum version: " + FG_COMPAT_MIN_VERSION);
+                if (compatVersion < FG_COMPAT_MIN_VERSION) {
+                    LOGGER.error("FoxGuard compatibility module version is lower than required! Use a newer version of FoxGuard!");
+                } else {
+                    RegionRuleService.instance.addRegionPlugin(new FoxGuardPluginRegion());
+                }
+            } catch (NoClassDefFoundError e) {
+                LOGGER.error("FoxGuard compatibility module not found! Use a newer version of FoxGuard!");
+            }
+        }
+        if(Sponge.getPluginManager().isLoaded("br.net.fabiozumbi12.redprotect")) {
+            RegionRuleService.instance.addRegionPlugin(new RedProtectPluginRegion());
+            HomeRuleService.instance.addHomePlugin(new RedProtectPluginHome());
+        }
     }
 
 }

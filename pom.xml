@@ -52,11 +52,6 @@
             <version>4.10</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.github.FoxDenStudio</groupId>
-            <artifactId>FoxGuard</artifactId>
-            <version>v0.19.2-dev-api5</version>
-        </dependency>
     </dependencies>
 
 </project>
