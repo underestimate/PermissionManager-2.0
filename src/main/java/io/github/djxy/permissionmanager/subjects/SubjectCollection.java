@@ -59,7 +59,6 @@ public abstract class SubjectCollection implements org.spongepowered.api.service
         return identifier;
     }
 
-    @Override
     public Subject getDefaults() {
         return null;
     }

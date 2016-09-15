@@ -151,8 +151,7 @@ public class CustomCommands {
             return CommandResult.success();
         }
 
-        @Override
-        public List<String> getSuggestions(CommandSource commandSource, String s, Location<World> location) throws CommandException {
+        public List<String> getSuggestions(CommandSource commandSource, String s) throws CommandException {
             String args[] = Util.split(alias + " " + s);
 
             if(args.length == 0)
@@ -162,6 +161,10 @@ public class CustomCommands {
                 return new ArrayList<>();
 
             return nodes.get(args[0]).getSuggestions(args, 0);
+        }
+
+        public List<String> getSuggestions(CommandSource commandSource, String s, Location<World> location) throws CommandException {
+            return getSuggestions(commandSource, s);
         }
 
         @Override
