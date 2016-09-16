@@ -101,6 +101,16 @@ public class SubjectTest {
     }
 
     @Test
+    public void testPermissionContextsPlayerDoesntHave(){
+        Assert.assertEquals(true, user.getPermissionValue(Sets.newHashSet(new Context("1", "2")), "perm.3") == Tristate.TRUE);
+    }
+
+    @Test
+    public void testOptionContextsPlayerDoesntHave(){
+        Assert.assertEquals(true, !user.getOption(specialContext, "perm.11").isPresent());
+    }
+
+    @Test
     public void testSpecialContextPermission(){
         Assert.assertEquals(true, user.hasPermission(specialContext, "perm.3"));
     }

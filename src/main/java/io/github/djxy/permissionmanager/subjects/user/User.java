@@ -87,12 +87,16 @@ public class User extends Subject {
 
         if(ContextUtil.isGlobalContext(set)) {
             if(getPlayerWorld().isPresent()) {
-                container = contexts.get(Sets.newHashSet(new Context(Context.WORLD_KEY, getPlayerWorld().get())));
+                Set<Context> worldContext = Sets.newHashSet(new Context(Context.WORLD_KEY, getPlayerWorld().get()));
 
-                String value = container.getOption(key);
+                if(contexts.containsKey(worldContext)) {
+                    container = contexts.get(worldContext);
 
-                if (value != null)
-                    return Optional.of(value);
+                    String value = container.getOption(key);
+
+                    if (value != null)
+                        return Optional.of(value);
+                }
             }
         }
         else if(contexts.containsKey(set)){
@@ -145,12 +149,15 @@ public class User extends Subject {
 
         if(ContextUtil.isGlobalContext(set)) {
             if(getPlayerWorld().isPresent()) {
-                container = contexts.get(Sets.newHashSet(new Context(Context.WORLD_KEY, getPlayerWorld().get())));
+                Set<Context> worldContext = Sets.newHashSet(new Context(Context.WORLD_KEY, getPlayerWorld().get()));
 
-                Permission value = container.getPermissions().getPermission(permission);
+                if(contexts.containsKey(worldContext)){
+                    container = contexts.get(worldContext);
+                    Permission value = container.getPermissions().getPermission(permission);
 
-                if (value != null)
-                    return testPermissionRules(value);
+                    if (value != null)
+                        return testPermissionRules(value);
+                }
             }
         }
         else if(contexts.containsKey(set)){
