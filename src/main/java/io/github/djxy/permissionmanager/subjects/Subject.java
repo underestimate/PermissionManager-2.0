@@ -399,11 +399,11 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
 
     @Override
     public void deserialize(ConfigurationNode node) {
+        contexts.clear();
+
         contexts.put(GLOBAL_CONTEXT, new ContextContainer());
 
         contexts.get(GLOBAL_CONTEXT).deserialize(node);
-
-        contexts.clear();
 
         ConfigurationNode[] nodes = {node.getNode("worlds"), node.getNode("websites")};
         String[] contextKeys = {Context.WORLD_KEY, CONTEXT_WEBSITE};
