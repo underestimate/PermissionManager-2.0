@@ -83,16 +83,12 @@ public class User extends Subject {
         Preconditions.checkNotNull(set);
         Preconditions.checkNotNull(key);
 
-        ContextContainer container = null;
-
         if(ContextUtil.isGlobalContext(set)) {
             if(getPlayerWorld().isPresent()) {
                 Set<Context> worldContext = Sets.newHashSet(new Context(Context.WORLD_KEY, getPlayerWorld().get()));
 
                 if(contexts.containsKey(worldContext)) {
-                    container = contexts.get(worldContext);
-
-                    String value = container.getOption(key);
+                    String value = contexts.get(worldContext).getOption(key);
 
                     if (value != null)
                         return Optional.of(value);
@@ -100,9 +96,7 @@ public class User extends Subject {
             }
         }
         else if(contexts.containsKey(set)){
-            container = contexts.get(set);
-
-            String value = container.getOption(key);
+            String value = contexts.get(set).getOption(key);
 
             if (value != null)
                 return Optional.of(value);
@@ -117,8 +111,31 @@ public class User extends Subject {
                 return Optional.of(value);
         }
 
-        if(container != null) {
-            for (Group group : container.getGroups()) {
+        if(ContextUtil.isGlobalContext(set)) {
+            if(getPlayerWorld().isPresent()) {
+                Set<Context> worldContext = Sets.newHashSet(new Context(Context.WORLD_KEY, getPlayerWorld().get()));
+
+                if(contexts.containsKey(worldContext)) {
+                    for (Group group : contexts.get(worldContext).getGroups()) {
+                        Optional<String> valueOpt = group.getOption(worldContext, key);
+
+                        if (valueOpt.isPresent())
+                            return valueOpt;
+                    }
+                }
+
+                if(contexts.containsKey(GLOBAL_CONTEXT)){
+                    for (Group group : contexts.get(GLOBAL_CONTEXT).getGroups()) {
+                        Optional<String> valueOpt = group.getOption(worldContext, key);
+
+                        if (valueOpt.isPresent())
+                            return valueOpt;
+                    }
+                }
+            }
+        }
+        else if(contexts.containsKey(set)){
+            for (Group group : contexts.get(set).getGroups()) {
                 Optional<String> valueOpt = group.getOption(set, key);
 
                 if (valueOpt.isPresent())
@@ -143,17 +160,14 @@ public class User extends Subject {
         Preconditions.checkNotNull(set);
         Preconditions.checkNotNull(permission);
 
-        LOGGER.info(getIdentifier() + " get permission value for " + permission);
-
-        ContextContainer container = null;
+        LOGGER.info(getIdentifier() + " get permission value for " + permission+" - "+set);
 
         if(ContextUtil.isGlobalContext(set)) {
             if(getPlayerWorld().isPresent()) {
                 Set<Context> worldContext = Sets.newHashSet(new Context(Context.WORLD_KEY, getPlayerWorld().get()));
 
                 if(contexts.containsKey(worldContext)){
-                    container = contexts.get(worldContext);
-                    Permission value = container.getPermissions().getPermission(permission);
+                    Permission value = contexts.get(worldContext).getPermissions().getPermission(permission);
 
                     if (value != null)
                         return testPermissionRules(value);
@@ -161,8 +175,7 @@ public class User extends Subject {
             }
         }
         else if(contexts.containsKey(set)){
-            container = contexts.get(set);
-            Permission value = container.getPermissions().getPermission(permission);
+            Permission value = contexts.get(set).getPermissions().getPermission(permission);
 
             if (value != null)
                 return testPermissionRules(value);
@@ -175,8 +188,31 @@ public class User extends Subject {
                 return testPermissionRules(value);
         }
 
-        if(container != null) {
-            for (Group group : container.getGroups()) {
+        if(ContextUtil.isGlobalContext(set)) {
+            if(getPlayerWorld().isPresent()) {
+                Set<Context> worldContext = Sets.newHashSet(new Context(Context.WORLD_KEY, getPlayerWorld().get()));
+
+                if(contexts.containsKey(worldContext)) {
+                    for (Group group : contexts.get(worldContext).getGroups()) {
+                        Permission perm = group.getPermissionValue(worldContext, permission, new ArrayList<>());
+
+                        if (perm != null)
+                            return testPermissionRules(perm);
+                    }
+                }
+
+                if(contexts.containsKey(GLOBAL_CONTEXT)) {
+                    for (Group group : contexts.get(GLOBAL_CONTEXT).getGroups()) {
+                        Permission perm = group.getPermissionValue(worldContext, permission, new ArrayList<>());
+
+                        if (perm != null)
+                            return testPermissionRules(perm);
+                    }
+                }
+            }
+        }
+        else if(contexts.containsKey(set)){
+            for (Group group : contexts.get(set).getGroups()) {
                 Permission perm = group.getPermissionValue(set, permission, new ArrayList<>());
 
                 if (perm != null)

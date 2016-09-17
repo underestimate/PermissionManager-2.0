@@ -1,6 +1,7 @@
 package io.github.djxy.permissionmanager.subjects.group;
 
 import com.google.common.base.Preconditions;
+import io.github.djxy.permissionmanager.logger.Logger;
 import io.github.djxy.permissionmanager.subjects.ContextContainer;
 import io.github.djxy.permissionmanager.subjects.Permission;
 import io.github.djxy.permissionmanager.subjects.Subject;
@@ -18,6 +19,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * Created by Samuel on 2016-08-09.
  */
 public class Group extends Subject implements Comparable<Group> {
+
+    private final static Logger LOGGER = new Logger(Group.class);
 
     private int rank = Integer.MAX_VALUE;
     private boolean defaultGroup = false;
@@ -139,9 +142,11 @@ public class Group extends Subject implements Comparable<Group> {
         Preconditions.checkNotNull(permission);
         Preconditions.checkNotNull(groupsChecked);
 
+        LOGGER.info(getIdentifier() + " get permission value for " + permission + " - " + set);
+
         if(contexts.containsKey(set)) {
             Permission perm = contexts.get(set).getPermissions().getPermission(permission);
-
+            
             if(perm != null)
                 return perm;
         }
