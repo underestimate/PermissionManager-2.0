@@ -17,7 +17,9 @@ import java.util.Set;
  */
 public class SpecialCollection extends SubjectCollection {
 
-    public SpecialCollection(String identifier) {
+    public final static SpecialCollection instance = new SpecialCollection("");
+
+    private SpecialCollection(String identifier) {
         super(identifier, "Special");
     }
 

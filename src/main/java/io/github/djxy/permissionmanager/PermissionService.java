@@ -24,9 +24,9 @@ public class PermissionService implements org.spongepowered.api.service.permissi
     private PermissionService() {
         subjectCollections.put(UserCollection.instance.getIdentifier(), UserCollection.instance);
         subjectCollections.put(GroupCollection.instance.getIdentifier(), GroupCollection.instance);
-        subjectCollections.put(org.spongepowered.api.service.permission.PermissionService.SUBJECTS_SYSTEM, new SpecialCollection(org.spongepowered.api.service.permission.PermissionService.SUBJECTS_SYSTEM));
-        subjectCollections.put(org.spongepowered.api.service.permission.PermissionService.SUBJECTS_ROLE_TEMPLATE, new SpecialCollection(org.spongepowered.api.service.permission.PermissionService.SUBJECTS_ROLE_TEMPLATE));
-        subjectCollections.put(org.spongepowered.api.service.permission.PermissionService.SUBJECTS_COMMAND_BLOCK, new SpecialCollection(org.spongepowered.api.service.permission.PermissionService.SUBJECTS_COMMAND_BLOCK));
+        subjectCollections.put(org.spongepowered.api.service.permission.PermissionService.SUBJECTS_SYSTEM, SpecialCollection.instance);
+        subjectCollections.put(org.spongepowered.api.service.permission.PermissionService.SUBJECTS_ROLE_TEMPLATE, SpecialCollection.instance);
+        subjectCollections.put(org.spongepowered.api.service.permission.PermissionService.SUBJECTS_COMMAND_BLOCK, SpecialCollection.instance);
     }
 
     @Override
@@ -40,11 +40,11 @@ public class PermissionService implements org.spongepowered.api.service.permissi
     }
 
     public SubjectData getDefaultData() {
-        return GroupCollection.instance.getDefaults().getSubjectData();
+        return SpecialCollection.instance.getDefaults().getSubjectData();
     }
 
     public Subject getDefaults() {
-        return GroupCollection.instance.getDefaults();
+        return SpecialCollection.instance.getDefaults();
     }
 
     @Override
