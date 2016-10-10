@@ -15,6 +15,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 public class RegionRule implements Rule {
 
     private final CopyOnWriteArraySet<String> regions = new CopyOnWriteArraySet<>();
+    private boolean isBlackList = false;
 
     public void addRegion(String region){
         regions.add(region);
@@ -26,7 +27,7 @@ public class RegionRule implements Rule {
 
     @Override
     public boolean canApply(Player player) {
-        return RegionRuleService.instance.isPlayerInRegion(player, ImmutableSet.copyOf(regions));
+        return RegionRuleService.instance.isPlayerInRegion(player, ImmutableSet.copyOf(regions)) == !isBlackList;
     }
 
     @Override
@@ -35,13 +36,27 @@ public class RegionRule implements Rule {
 
     @Override
     public void deserialize(ConfigurationNode node) {
-        List<ConfigurationNode> regionlist = (List<ConfigurationNode>) node.getChildrenList();
+        if(node.hasListChildren()) {
+            List<ConfigurationNode> regionlist = (List<ConfigurationNode>) node.getChildrenList();
 
-        for(ConfigurationNode nodeValue : regionlist){
-            String value = nodeValue.getString("");
+            for(ConfigurationNode nodeValue : regionlist){
+                String value = nodeValue.getString("");
 
-            if(!value.isEmpty())
-                regions.add(value);
+                if(!value.isEmpty())
+                    regions.add(value);
+            }
+        }
+        else {
+            List<ConfigurationNode> regionlist = (List<ConfigurationNode>) node.getNode("list").getChildrenList();
+
+            for(ConfigurationNode nodeValue : regionlist){
+                String value = nodeValue.getString("");
+
+                if(!value.isEmpty())
+                    regions.add(value);
+            }
+
+            isBlackList = node.getNode("blacklist").getBoolean(false);
         }
     }
 
@@ -52,7 +67,10 @@ public class RegionRule implements Rule {
         for(String region : this.regions)
             regions.add(region);
 
-        node.setValue(regions);
+        node.getNode("list").setValue(regions);
+
+        if(isBlackList)
+            node.getNode("blacklist").setValue(isBlackList);
     }
 
 }
