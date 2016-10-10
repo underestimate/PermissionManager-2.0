@@ -28,7 +28,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public abstract class Subject implements org.spongepowered.api.service.permission.Subject, SubjectData, ConfigurationNodeSerializer, ConfigurationNodeDeserializer {
 
-    public static final String CONTEXT_WEBSITE = "website";
     private static final Logger LOGGER = new Logger(Subject.class);
 
     protected String identifier;
@@ -405,8 +404,8 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
 
         contexts.get(GLOBAL_CONTEXT).deserialize(node);
 
-        ConfigurationNode[] nodes = {node.getNode("worlds"), node.getNode("websites")};
-        String[] contextKeys = {Context.WORLD_KEY, CONTEXT_WEBSITE};
+        ConfigurationNode[] nodes = {node.getNode("worlds")};
+        String[] contextKeys = {Context.WORLD_KEY};
 
         for(int i = 0; i < nodes.length; i++){
             ConfigurationNode contextNode = nodes[i];
@@ -449,8 +448,6 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
 
                 if(context.getKey().equals(Context.WORLD_KEY))
                     contexts.get(set).serialize(node.getNode("worlds", context.getValue()));
-                else if(context.getKey().equals(CONTEXT_WEBSITE))
-                    contexts.get(set).serialize(node.getNode("websites", context.getValue()));
                 else
                     serializeContextSet(node.getNode("contexts").getAppendedNode(), set);
             }
