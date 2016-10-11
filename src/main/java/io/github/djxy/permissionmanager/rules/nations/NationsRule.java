@@ -21,23 +21,22 @@ public class NationsRule implements Rule {
 
     @Override
     public boolean canApply(Player player) {
-        if(Sponge.getPluginManager().isLoaded("com.arckenver.nations")){
-            Nation nation = DataHandler.getNation(player.getLocation());
-            boolean insideNation = nation != null;
+        if(!Sponge.getPluginManager().isLoaded("com.arckenver.nations"))
+            return false;
 
-            if(insideNation){
-                boolean isMember = nation.isPresident(player.getUniqueId()) || nation.isMinister(player.getUniqueId()) || nation.isCitizen(player.getUniqueId());
+        Nation nation = DataHandler.getNation(player.getLocation());
+        boolean insideNation = nation != null;
 
-                if(isMember)
-                    return locations.contains(Location.OWN_NATION);
-                else
-                    return locations.contains(Location.OTHER_NATION);
-            }
+        if(insideNation){
+            boolean isMember = nation.isPresident(player.getUniqueId()) || nation.isMinister(player.getUniqueId()) || nation.isCitizen(player.getUniqueId());
+
+            if(isMember)
+                return locations.contains(Location.OWN_NATION);
             else
-                return locations.contains(Location.WILDERNESS);
+                return locations.contains(Location.OTHER_NATION);
         }
         else
-            return false;
+            return locations.contains(Location.WILDERNESS);
     }
 
     @Override
@@ -50,7 +49,9 @@ public class NationsRule implements Rule {
         for(ConfigurationNode configurationNode : values){
             try{
                 locations.add(Location.valueOf(configurationNode.getString().toUpperCase()));
-            }catch (Exception e){}
+            }catch (Exception e){
+                e.printStackTrace();
+            }
         }
     }
 
