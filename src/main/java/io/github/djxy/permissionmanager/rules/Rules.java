@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import io.github.djxy.permissionmanager.rules.cooldown.CooldownRule;
 import io.github.djxy.permissionmanager.rules.economy.EconomyRule;
 import io.github.djxy.permissionmanager.rules.home.HomeRule;
+import io.github.djxy.permissionmanager.rules.nations.NationsRule;
 import io.github.djxy.permissionmanager.rules.region.RegionRule;
 import io.github.djxy.permissionmanager.rules.time.TimeRule;
 
@@ -25,6 +26,7 @@ public class Rules {
         createRule("home", HomeRule.class);
         createRule("region", RegionRule.class);
         createRule("time", TimeRule.class);
+        createRule("nations", NationsRule.class);
     }
 
     public void createRule(String name, Class<? extends Rule> rule){

@@ -52,6 +52,11 @@
             <version>4.10</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.github.Arckenver</groupId>
+            <artifactId>Nations</artifactId>
+            <version>-v0.10-g2712cf5-19</version>
+        </dependency>
     </dependencies>
 
 </project>
