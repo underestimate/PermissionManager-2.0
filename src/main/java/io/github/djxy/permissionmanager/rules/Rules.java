@@ -1,6 +1,7 @@
 package io.github.djxy.permissionmanager.rules;
 
 import com.google.common.base.Preconditions;
+import io.github.djxy.permissionmanager.rules.adventuremmo.AdventureMMORule;
 import io.github.djxy.permissionmanager.rules.cooldown.CooldownRule;
 import io.github.djxy.permissionmanager.rules.economy.EconomyRule;
 import io.github.djxy.permissionmanager.rules.home.HomeRule;
@@ -27,6 +28,7 @@ public class Rules {
         createRule("region", RegionRule.class);
         createRule("time", TimeRule.class);
         createRule("nations", NationsRule.class);
+        createRule("adventuremmo", AdventureMMORule.class);
     }
 
     public void createRule(String name, Class<? extends Rule> rule){
