@@ -1,11 +1,11 @@
 package io.github.djxy.permissionmanager.subjects;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import io.github.djxy.permissionmanager.rules.Rule;
 import io.github.djxy.permissionmanager.rules.Rules;
 import ninja.leaping.configurate.ConfigurationNode;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,7 +31,7 @@ public class Permission implements ConfigurationNodeDeserializer, ConfigurationN
     }
 
     public List<Rule> getRules() {
-        return new ArrayList<>(rules.values());
+        return ImmutableList.copyOf(rules.values());
     }
 
     public String getPermission() {
