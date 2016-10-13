@@ -127,7 +127,7 @@ public class PermissionManager {
             RegionRuleService.instance.addRegionPlugin(new RedProtectPluginRegion());
             HomeRuleService.instance.addHomePlugin(new RedProtectPluginHome());
         }
-        if(!Sponge.getPluginManager().isLoaded("com.arckenver.nations")) {
+        if(Sponge.getPluginManager().isLoaded("com.arckenver.nations")) {
             LOGGER.info("Nations is present.");
             HomeRuleService.instance.addHomePlugin(new NationsPluginHome());
         }
