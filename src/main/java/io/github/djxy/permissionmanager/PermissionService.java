@@ -1,5 +1,6 @@
 package io.github.djxy.permissionmanager;
 
+import io.github.djxy.permissionmanager.subjects.Default;
 import io.github.djxy.permissionmanager.subjects.group.GroupCollection;
 import io.github.djxy.permissionmanager.subjects.special.SpecialCollection;
 import io.github.djxy.permissionmanager.subjects.user.UserCollection;
@@ -20,6 +21,7 @@ public class PermissionService implements org.spongepowered.api.service.permissi
     public static final PermissionService instance = new PermissionService();
 
     private final ConcurrentHashMap<String,SubjectCollection> subjectCollections = new ConcurrentHashMap<>();
+    private final Default defaultSubject = new Default(SpecialCollection.instance);
 
     private PermissionService() {
         subjectCollections.put(UserCollection.instance.getIdentifier(), UserCollection.instance);
@@ -40,11 +42,11 @@ public class PermissionService implements org.spongepowered.api.service.permissi
     }
 
     public SubjectData getDefaultData() {
-        return SpecialCollection.instance.getDefaults().getSubjectData();
+        return defaultSubject;
     }
 
     public Subject getDefaults() {
-        return SpecialCollection.instance.getDefaults();
+        return defaultSubject;
     }
 
     @Override
