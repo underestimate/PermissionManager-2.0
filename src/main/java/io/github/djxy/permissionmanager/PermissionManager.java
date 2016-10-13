@@ -12,6 +12,7 @@ import io.github.djxy.permissionmanager.logger.Logger;
 import io.github.djxy.permissionmanager.logger.LoggerMode;
 import io.github.djxy.permissionmanager.promotion.Promotions;
 import io.github.djxy.permissionmanager.rules.home.HomeRuleService;
+import io.github.djxy.permissionmanager.rules.home.plugins.NationsPluginHome;
 import io.github.djxy.permissionmanager.rules.home.plugins.RedProtectPluginHome;
 import io.github.djxy.permissionmanager.rules.region.RegionRuleService;
 import io.github.djxy.permissionmanager.rules.region.plugins.FoxGuardPluginRegion;
@@ -122,8 +123,13 @@ public class PermissionManager {
             }
         }
         if(Sponge.getPluginManager().isLoaded("br.net.fabiozumbi12.redprotect")) {
+            LOGGER.info("RedProtect is present.");
             RegionRuleService.instance.addRegionPlugin(new RedProtectPluginRegion());
             HomeRuleService.instance.addHomePlugin(new RedProtectPluginHome());
+        }
+        if(!Sponge.getPluginManager().isLoaded("com.arckenver.nations")) {
+            LOGGER.info("Nations is present.");
+            HomeRuleService.instance.addHomePlugin(new NationsPluginHome());
         }
     }
 
