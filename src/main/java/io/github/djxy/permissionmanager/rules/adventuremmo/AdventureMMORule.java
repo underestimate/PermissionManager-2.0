@@ -48,7 +48,7 @@ public class AdventureMMORule implements Rule {
         Map<Object,ConfigurationNode> skillsMap = (Map<Object, ConfigurationNode>) node.getNode("skills").getChildrenMap();
 
         for(Object skillNode : skillsMap.keySet())
-            skills.put(skillNode.toString(), skillsMap.get(skillNode).getInt(0));
+            skills.put(skillNode.toString().toUpperCase(), skillsMap.get(skillNode).getInt(0));
     }
 
     @Override
