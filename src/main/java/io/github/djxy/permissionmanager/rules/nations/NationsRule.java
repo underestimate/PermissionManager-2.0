@@ -21,7 +21,7 @@ public class NationsRule implements Rule {
 
     @Override
     public boolean canApply(Player player) {
-        if(!Sponge.getPluginManager().isLoaded("com.arckenver.nations"))
+        if(!Sponge.getPluginManager().isLoaded("nations"))
             return false;
 
         Nation nation = DataHandler.getNation(player.getLocation());
