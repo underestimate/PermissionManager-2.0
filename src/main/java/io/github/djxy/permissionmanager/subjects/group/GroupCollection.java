@@ -33,6 +33,26 @@ public class GroupCollection extends SubjectCollection {
         return defaultGroup;
     }
 
+    @Override
+    public synchronized void load() {
+        File files[] = this.directory.toFile().listFiles();
+
+        if(files == null)
+            return;
+
+        for(File file : files) {
+            if (file.getName().contains(".")) {
+                try {
+                    createGroup(file.getName().substring(0, file.getName().lastIndexOf(".")));
+                } catch (SubjectIdentifierExistException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        super.load();
+    }
+
     public synchronized void renameGroup(Group group, String identifier) throws SubjectIdentifierExistException {
         if(hasRegistered(identifier))
             throw new SubjectIdentifierExistException("There is already a group named "+identifier+".");
