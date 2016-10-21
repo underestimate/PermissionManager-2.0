@@ -42,10 +42,14 @@ public class GroupCollection extends SubjectCollection {
 
         for(File file : files) {
             if (file.getName().contains(".")) {
-                try {
-                    createGroup(file.getName().substring(0, file.getName().lastIndexOf(".")));
-                } catch (SubjectIdentifierExistException e) {
-                    e.printStackTrace();
+                String name = file.getName().substring(0, file.getName().lastIndexOf("."));
+
+                if(!subjects.containsKey(name)) {
+                    try {
+                        createGroup(name);
+                    } catch (SubjectIdentifierExistException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
