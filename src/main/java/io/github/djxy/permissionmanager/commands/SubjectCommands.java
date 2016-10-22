@@ -15,6 +15,7 @@ import io.github.djxy.permissionmanager.subjects.group.Group;
 import io.github.djxy.permissionmanager.subjects.group.GroupCollection;
 import io.github.djxy.permissionmanager.subjects.user.UserCollection;
 import io.github.djxy.permissionmanager.translator.Translator;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.service.context.Context;
@@ -24,6 +25,7 @@ import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.world.World;
 
+import java.util.UUID;
 import java.util.function.Consumer;
 
 /**
@@ -96,7 +98,7 @@ public abstract class SubjectCommands extends Command {
                         MainMenu mainMenu = new MainMenu((Player) source, translator);
 
                         if(subjectCollection == UserCollection.instance)
-                            new UserMenu((Player) source, translator, mainMenu, ((Subject) values.get(subjectName)).getIdentifier()).sendToPlayer();
+                            new UserMenu((Player) source, translator, mainMenu, Sponge.getServer().getGameProfileManager().getCache().getById(UUID.fromString(((Subject) values.get(subjectName)).getIdentifier())).get().getName().get()).sendToPlayer();
                         else if(subjectCollection == GroupCollection.instance)
                             new GroupMenu((Player) source, translator, mainMenu, ((Subject) values.get(subjectName)).getIdentifier()).sendToPlayer();
                     }
