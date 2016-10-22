@@ -31,7 +31,6 @@ public class GroupCommands extends SubjectCommands {
         super(translator, GroupCollection.instance, "groups", "group", new GroupParser());
     }
 
-    /*
     @CustomCommand(
             command = "pm load groups",
             permission = PERMISSION_GROUP_LOAD,
@@ -39,8 +38,16 @@ public class GroupCommands extends SubjectCommands {
     )
     public void loadGroups(CommandSource source, Map<String, Object> values){
         GroupCollection.instance.load();
-        --Ajouter traduction pour charger tout les groupes
-    }*/
+
+        source.sendMessage(
+                parser.parse(
+                        translator.getTranslation(getLanguage(source), "group_loaded_all"),
+                        EMPTY_MAP,
+                        EMPTY_MAP,
+                        EMPTY_MAP
+                )
+        );
+    }
 
     @CustomCommand(
             command = "pm default group #group",
