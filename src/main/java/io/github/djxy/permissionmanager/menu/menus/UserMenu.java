@@ -19,9 +19,9 @@ public class UserMenu extends SubjectMenu {
 
     private final User user;
 
-    public UserMenu(Player player, Translator translator, Menu from, String identifier) {
-        super(player, translator, from, identifier, "users", (Subject) UserCollection.instance.get(Sponge.getServer().getGameProfileManager().getCache().getByName(identifier).get().getUniqueId().toString()));
-        this.user = (User) UserCollection.instance.get(Sponge.getServer().getGameProfileManager().getCache().getByName(identifier).get().getUniqueId().toString());
+    public UserMenu(Player player, Translator translator, Menu from, String name) {
+        super(player, translator, from, name, "users", (Subject) UserCollection.instance.get(Sponge.getServer().getGameProfileManager().getCache().getByName(name).get().getUniqueId().toString()));
+        this.user = (User) UserCollection.instance.get(Sponge.getServer().getGameProfileManager().getCache().getByName(name).get().getUniqueId().toString());
     }
 
     @Override
