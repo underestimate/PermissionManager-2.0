@@ -40,6 +40,7 @@ group_option_remove_global="The group {group} no longer has the option {option} 
 group_option_set_context_world="The group {group} now has the option {option} set to {value} in the world {world}."
 group_option_set_global="The group {group} now has the option {option} set to {value} globally."
 group_loaded="The group {group} has been loaded."
+group_loaded_all="All the groups have been loaded."
 group_saved="The group {group} has been saved."
 group_saved_all="All the groups have been saved."
 user_loaded="{user} has been loaded."

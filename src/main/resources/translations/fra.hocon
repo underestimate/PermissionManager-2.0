@@ -40,6 +40,7 @@ group_option_set_context_world="Le groupe {group} a maintenant l'option {option}
 group_option_remove_global="Le groupe {group} n'a plus l'option {option} globalement."
 group_option_remove_context_world="Le groupe {group} n'a plus l'option {option} dans le monde {world}."
 group_loaded="Le groupe {group} a bien été chargé."
+group_loaded_all="Tous les groupes ont bien été chargé."
 group_saved="Le groupe {group} a bien été enregistré."
 group_saved_all="Tous les groupes ont bien été enregistré."
 user_loaded="{user} a bien été chargé."
