@@ -6,11 +6,17 @@ import io.github.djxy.customcommands.CustomCommands;
 import io.github.djxy.customcommands.parsers.Parser;
 import io.github.djxy.permissionmanager.commands.parsers.GroupParser;
 import io.github.djxy.permissionmanager.commands.parsers.WorldParser;
+import io.github.djxy.permissionmanager.menu.menus.GroupMenu;
+import io.github.djxy.permissionmanager.menu.menus.MainMenu;
+import io.github.djxy.permissionmanager.menu.menus.UserMenu;
 import io.github.djxy.permissionmanager.subjects.Subject;
 import io.github.djxy.permissionmanager.subjects.SubjectCollection;
 import io.github.djxy.permissionmanager.subjects.group.Group;
+import io.github.djxy.permissionmanager.subjects.group.GroupCollection;
+import io.github.djxy.permissionmanager.subjects.user.UserCollection;
 import io.github.djxy.permissionmanager.translator.Translator;
 import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.service.permission.SubjectData;
 import org.spongepowered.api.text.action.TextAction;
@@ -75,7 +81,27 @@ public abstract class SubjectCommands extends Command {
         CustomCommands.addCommand(saveSubject());
         CustomCommands.addCommand(saveSubjects());
 
+        CustomCommands.addCommand(openSubjectMenu());
+
         return this;
+    }
+
+    private io.github.djxy.customcommands.Command openSubjectMenu(){
+        return CommandBuilder.builder()
+                .setCommand("pm " + subjectCollectionName + " #" + subjectName)
+                .setPermission(MenuCommands.PERMISSION_MENU + "." + subjectCollectionName)
+                .addParser(subjectName, subjectParser)
+                .setCommandExecutor((source, values) -> {
+                    if (source instanceof Player) {
+                        MainMenu mainMenu = new MainMenu((Player) source, translator);
+
+                        if(subjectCollection == UserCollection.instance)
+                            new UserMenu((Player) source, translator, mainMenu, ((Subject) values.get(subjectName)).getIdentifier()).sendToPlayer();
+                        else if(subjectCollection == GroupCollection.instance)
+                            new GroupMenu((Player) source, translator, mainMenu, ((Subject) values.get(subjectName)).getIdentifier()).sendToPlayer();
+                    }
+                })
+                .build();
     }
 
     private io.github.djxy.customcommands.Command loadSubject(){
