@@ -25,10 +25,22 @@ public class GroupCommands extends SubjectCommands {
     private static final String PERMISSION_GROUP_RENAME = "permissionmanager.commands.groups.rename";
     private static final String PERMISSION_GROUP_DELETE = "permissionmanager.commands.groups.delete";
     private static final String PERMISSION_GROUP_CREATE = "permissionmanager.commands.groups.create";
+    private static final String PERMISSION_GROUP_LOAD = "permissionmanager.commands.groups.load";
 
     public GroupCommands(Translator translator) {
         super(translator, GroupCollection.instance, "groups", "group", new GroupParser());
     }
+
+    /*
+    @CustomCommand(
+            command = "pm load groups",
+            permission = PERMISSION_GROUP_LOAD,
+            parsers = {}
+    )
+    public void loadGroups(CommandSource source, Map<String, Object> values){
+        GroupCollection.instance.load();
+        --Ajouter traduction pour charger tout les groupes
+    }*/
 
     @CustomCommand(
             command = "pm default group #group",
