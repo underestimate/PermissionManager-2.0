@@ -30,10 +30,10 @@ public class Translator {
         Preconditions.checkNotNull(language);
         Preconditions.checkNotNull(code);
 
-        if(!translations.containsKey(language))
-            return null;
+        if(translations.containsKey(language) && translations.get(language).containsKey(code))
+            return translations.get(language).get(code);
 
-        return translations.get(language).get(code);
+        return translations.get(Language.getDefault()).get(code);
     }
 
 }
