@@ -1,5 +1,6 @@
 package io.github.djxy.permissionmanager.commands;
 
+import com.google.common.collect.ImmutableMap;
 import io.github.djxy.permissionmanager.language.Language;
 import io.github.djxy.permissionmanager.subjects.user.User;
 import io.github.djxy.permissionmanager.subjects.user.UserCollection;
@@ -18,7 +19,7 @@ import java.util.Map;
  */
 public class Command {
 
-    protected static final Map EMPTY_MAP = new HashMap<>();
+    protected static final Map EMPTY_MAP = ImmutableMap.copyOf(new HashMap<>());
 
     protected final TranslationParser parser = new TranslationParser(TextSerializers.FORMATTING_CODE.deserialize("&f[&6Permission&l&4M&r&f] "));
     protected final Translator translator;
