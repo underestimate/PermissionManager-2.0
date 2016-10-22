@@ -13,7 +13,7 @@ import java.util.Map;
  */
 public class MenuCommands extends Command {
 
-    private static final String PERMISSION_MENU = "permissionmanager.commands.menu";
+    public static final String PERMISSION_MENU = "permissionmanager.commands.menu";
 
     public MenuCommands(Translator translator) {
         super(translator);
