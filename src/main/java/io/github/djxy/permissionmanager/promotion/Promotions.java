@@ -56,7 +56,7 @@ public class Promotions {
         promotions.remove(promotion.getName());
         promotions.put(newName, promotion);
 
-        LOGGER.info("Promotion " + promotion.getName() + " renamed " + newName + ".");
+        LOGGER.info("Promotion: " + promotion.getName() + " - Renamed " + newName + ".");
 
         File file = directory.resolve(promotion.getName()+".yml").toFile();
 
@@ -84,7 +84,7 @@ public class Promotions {
 
         promotions.put(name, promotion);
 
-        LOGGER.info("Promotion " + name + " created.");
+        LOGGER.info("Promotion: " + name + " - Created.");
 
         return promotion;
     }
@@ -102,7 +102,7 @@ public class Promotions {
             return;
 
         promotions.remove(name);
-        LOGGER.info("Promotion " + name + " deleted.");
+        LOGGER.info("Promotion: " + name + " - Deleted.");
 
         File file = directory.resolve(name+".yml").toFile();
 
@@ -135,7 +135,7 @@ public class Promotions {
 
         Promotion promotion;
 
-        LOGGER.info("Promotion " + name + " loading started.");
+        LOGGER.info("Promotion: " + name + " - Loading started.");
 
         if(promotions.containsKey(name))
             promotion = promotions.get(name);
@@ -143,7 +143,7 @@ public class Promotions {
             try{
                 promotion = createPromotion(name);
             }catch (Exception e){
-                LOGGER.error("Promotion " + name + " loading failed.");
+                LOGGER.error("Promotion: " + name + " - Loading failed.");
                 e.printStackTrace();
                 return false;
             }
@@ -155,12 +155,12 @@ public class Promotions {
 
             promotion.deserialize(node);
         } catch (Exception e) {
-            LOGGER.error("Promotion " + name + " loading failed.");
+            LOGGER.error("Promotion: " + name + " - Loading failed.");
             e.printStackTrace();
             return false;
         }
 
-        LOGGER.info("Promotion " + name + " loaded.");
+        LOGGER.info("Promotion: " + name + " - Loaded.");
         return true;
     }
 
@@ -193,7 +193,7 @@ public class Promotions {
 
         loader.save(node);
 
-        LOGGER.info("Promotion " + name + " saved.");
+        LOGGER.info("Promotion: " + name + " - Saved.");
         return true;
     }
 

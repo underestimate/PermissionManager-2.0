@@ -151,7 +151,7 @@ public abstract class SubjectCollection implements org.spongepowered.api.service
 
         io.github.djxy.permissionmanager.subjects.Subject subject;
 
-        LOGGER.info(subjectName+" " + identifier + " loading started.");
+        LOGGER.info(subjectName+": " + identifier + " - Loading started.");
 
         if(subjects.containsKey(identifier))
             subject = (io.github.djxy.permissionmanager.subjects.Subject) subjects.get(identifier);
@@ -159,7 +159,7 @@ public abstract class SubjectCollection implements org.spongepowered.api.service
             try{
                 subject = (io.github.djxy.permissionmanager.subjects.Subject) createSubjectFromFile(identifier);
             }catch (Exception e){
-                LOGGER.error(subjectName +" " + identifier + " loading failed.");
+                LOGGER.error(subjectName +": " + identifier + " - Loading failed.");
                 e.printStackTrace();
                 return false;
             }
@@ -171,12 +171,12 @@ public abstract class SubjectCollection implements org.spongepowered.api.service
 
             subject.deserialize(node);
         } catch (Exception e) {
-            LOGGER.error(subjectName + " " + identifier + " loading failed.");
+            LOGGER.error(subjectName + ": " + identifier + " - Loading failed.");
             e.printStackTrace();
             return false;
         }
 
-        LOGGER.info(subjectName+" " + identifier + " loaded.");
+        LOGGER.info(subjectName+": " + identifier + " - Loaded.");
         return true;
     }
 
@@ -211,7 +211,7 @@ public abstract class SubjectCollection implements org.spongepowered.api.service
 
         loader.save(node);
 
-        LOGGER.info(subjectName+" " + identifier + " saved.");
+        LOGGER.info(subjectName+": " + identifier + " - Saved.");
     }
 
     private class Listener implements io.github.djxy.permissionmanager.subjects.SubjectListener {

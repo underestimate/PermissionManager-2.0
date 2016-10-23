@@ -66,11 +66,17 @@ public class Group extends Subject implements Comparable<Group> {
         Preconditions.checkNotNull(key);
         Optional<String> opt;
 
-        if((opt = getOption((SubjectData) getSubjectData(), set, key)).isPresent())
+        if((opt = getOption((SubjectData) getSubjectData(), set, key)).isPresent()) {
+            logGetOption(LOGGER, this, set, key, opt);
             return opt;
+        }
 
-        if((opt = getOption((SubjectData) getTransientSubjectData(), set, key)).isPresent())
+        if((opt = getOption((SubjectData) getTransientSubjectData(), set, key)).isPresent()) {
+            logGetOption(LOGGER, this, set, key, opt);
             return opt;
+        }
+
+        logGetOption(LOGGER, this, set, key, opt);
 
         return Optional.empty();
     }
@@ -139,13 +145,18 @@ public class Group extends Subject implements Comparable<Group> {
         Preconditions.checkNotNull(set);
         Preconditions.checkNotNull(permission);
 
-        return getPermission(set, permission, new ArrayList<>());
+        Permission perm = getPermission(set, permission, new ArrayList<>());
+
+        if(perm != null)
+            logGetPermissionValue(LOGGER, this, set, permission, Tristate.fromBoolean(perm.getValue()));
+        else
+            logGetPermissionValue(LOGGER, this, set, permission, Tristate.UNDEFINED);
+
+        return perm;
     }
 
     private Permission getPermission(Set<Context> set, String permission, List<Group> groupsChecked) {
         Permission perm;
-
-        LOGGER.info(getIdentifier() + " get permission value for " + permission + " - " + set);
 
         if((perm = getPermission((SubjectData) getSubjectData(), set, permission, new ArrayList<>(groupsChecked))) != null)
             return perm;

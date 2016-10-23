@@ -35,11 +35,11 @@ public class ResourceUtil {
 
             jsonArrays.put(fileName, new JsonParser().parse(new String(array, Charset.forName("UTF-8"))).getAsJsonArray());
 
-            LOGGER.info(fileName + " loaded.");
+            LOGGER.info("Resource: "+fileName + " - Loaded.");
 
             return jsonArrays.get(fileName);
         } catch(Exception e){
-            LOGGER.error("Couldn't read "+fileName+".");
+            LOGGER.info("Resource: "+fileName + " - Can't be load.");
             e.printStackTrace();
         }
 
@@ -66,9 +66,9 @@ public class ResourceUtil {
                     translator.addTranslation(language, key, value);
                 }
 
-                LOGGER.info("Translation: "+language.getISO639_3());
+                LOGGER.info("Translation: "+language.getISO639_3()+" - Loaded.");
             } catch (Exception e) {
-                LOGGER.error("Couldn't read " + language.getISO639_3()+".hocon");
+                LOGGER.error("Translation: " + language.getISO639_3()+" - Can't be read.");
                 e.printStackTrace();
             }
         }

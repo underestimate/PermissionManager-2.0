@@ -51,7 +51,7 @@ public class FileConversionUtil {
                 try {
                     convertSubject(pairs.getValue());
                     saveNode(subjectFile, pairs.getValue());
-                    LOGGER.info(pairs.getKey().toString()+" converted.");
+                    LOGGER.info("Subject: "+pairs.getKey().toString()+" - Converted.");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -119,7 +119,7 @@ public class FileConversionUtil {
                 try {
                     convertPromotion(pairs.getValue());
                     saveNode(subjectFile, pairs.getValue());
-                    LOGGER.info("Promotion "+pairs.getKey().toString()+" converted.");
+                    LOGGER.info("Promotion: "+pairs.getKey().toString()+" - Converted.");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

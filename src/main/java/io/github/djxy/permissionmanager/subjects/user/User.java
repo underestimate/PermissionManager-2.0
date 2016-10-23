@@ -7,6 +7,7 @@ import io.github.djxy.permissionmanager.PermissionService;
 import io.github.djxy.permissionmanager.language.Language;
 import io.github.djxy.permissionmanager.logger.Logger;
 import io.github.djxy.permissionmanager.rules.Rule;
+import io.github.djxy.permissionmanager.rules.Rules;
 import io.github.djxy.permissionmanager.subjects.ContextContainer;
 import io.github.djxy.permissionmanager.subjects.Permission;
 import io.github.djxy.permissionmanager.subjects.Subject;
@@ -87,11 +88,17 @@ public class User extends Subject {
         Preconditions.checkNotNull(key);
         Optional<String> opt;
 
-        if((opt = getOption((SubjectData) getSubjectData(), set, key)).isPresent())
+        if((opt = getOption((SubjectData) getSubjectData(), set, key)).isPresent()) {
+            logGetOption(LOGGER, this, set, key, opt);
             return opt;
+        }
 
-        if((opt = getOption((SubjectData) getTransientSubjectData(), set, key)).isPresent())
+        if((opt = getOption((SubjectData) getTransientSubjectData(), set, key)).isPresent()){
+            logGetOption(LOGGER, this, set, key, opt);
             return opt;
+        }
+
+        logGetOption(LOGGER, this, set, key, opt);
 
         return Optional.empty();
     }
@@ -174,17 +181,26 @@ public class User extends Subject {
         Preconditions.checkNotNull(set);
         Preconditions.checkNotNull(permission);
 
-        LOGGER.info(getIdentifier() + " get permission value for " + permission + " - " + set);
-
         Tristate tristate;
 
-        if(!(tristate = getPermissionValue((SubjectData) getSubjectData(), set, permission)).equals(Tristate.UNDEFINED))
+        if(!(tristate = getPermissionValue((SubjectData) getSubjectData(), set, permission)).equals(Tristate.UNDEFINED)) {
+            logGetPermissionValue(LOGGER, this, set, permission, tristate);
             return tristate;
+        }
 
-        if(!(tristate = getPermissionValue((SubjectData) getTransientSubjectData(), set, permission)).equals(Tristate.UNDEFINED))
+        if(!(tristate = getPermissionValue((SubjectData) getTransientSubjectData(), set, permission)).equals(Tristate.UNDEFINED)) {
+            logGetPermissionValue(LOGGER, this, set, permission, tristate);
             return tristate;
+        }
 
-        return PermissionService.instance.getDefaults().getPermissionValue(set, permission);
+        if(!(tristate = PermissionService.instance.getDefaults().getPermissionValue(set, permission)).equals(Tristate.UNDEFINED)) {
+            logGetPermissionValue(LOGGER, this, set, permission, tristate);
+            return tristate;
+        }
+
+        logGetPermissionValue(LOGGER, this, set, permission, Tristate.UNDEFINED);
+
+        return Tristate.UNDEFINED;
     }
 
     private Tristate getPermissionValue(SubjectData subjectData, Set<Context> set, String permission){
@@ -274,9 +290,12 @@ public class User extends Subject {
 
         Player player = getPlayer().get();
 
-        for(Rule rule : rules)
-            if(!rule.canApply(player))
+        for(Rule rule : rules) {
+            if (!rule.canApply(player)) {
+                LOGGER.info("User: "+getIdentifier()+" - Can't apply rule "+ Rules.instance.getName(rule.getClass()));
                 return Tristate.FALSE;
+            }
+        }
 
         for(Rule rule : rules)
             rule.apply(player);

@@ -7,6 +7,7 @@ import io.github.djxy.permissionmanager.util.ContextUtil;
 import ninja.leaping.configurate.ConfigurationNode;
 import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.service.permission.SubjectCollection;
+import org.spongepowered.api.util.Tristate;
 
 import java.util.*;
 
@@ -140,6 +141,14 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
         return "Subject{" +
                 "identifier='" + identifier + '\'' +
                 '}';
+    }
+
+    public static void logGetPermissionValue(Logger logger, Subject subject, Set<Context> set, String permission, Tristate tristate){
+        logger.info("Subject: "+subject.getIdentifier() +" - Contexts " + set+ " - Permission: " + permission + " - Tristate: "+tristate.name());
+    }
+
+    public static void logGetOption(Logger logger, Subject subject, Set<Context> set, String option, Optional<String> value){
+        logger.info("Subject: "+subject.getIdentifier() +" - Contexts " + set+ " - Option: " + option + " - Value: "+value);
     }
 
 }
