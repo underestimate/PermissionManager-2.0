@@ -1,6 +1,6 @@
 package io.github.djxy.permissionmanager;
 
-import io.github.djxy.permissionmanager.subjects.Default;
+import io.github.djxy.permissionmanager.subjects.special.Default;
 import io.github.djxy.permissionmanager.subjects.group.GroupCollection;
 import io.github.djxy.permissionmanager.subjects.special.SpecialCollection;
 import io.github.djxy.permissionmanager.subjects.user.UserCollection;

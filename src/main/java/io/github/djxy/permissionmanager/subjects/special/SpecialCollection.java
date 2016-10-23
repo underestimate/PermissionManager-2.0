@@ -7,40 +7,41 @@ import org.spongepowered.api.service.permission.Subject;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by Samuel on 2016-08-17.
  */
-public class SpecialCollection extends SubjectCollection {
+public class SpecialCollection implements org.spongepowered.api.service.permission.SubjectCollection {
 
-    public final static SpecialCollection instance = new SpecialCollection("");
+    private static final String IDENTIFIER = "Special";
 
-    private SpecialCollection(String identifier) {
-        super(identifier, "Special");
+    public final static SpecialCollection instance = new SpecialCollection();
+
+    private SpecialCollection() {
     }
 
     @Override
     public String getIdentifier() {
-        return super.getIdentifier();
+        return IDENTIFIER;
     }
 
     @Override
     public Subject get(String s) {
+        if(s.equals(Default.IDENTIFIER))
+            return Default.instance;
+
         return new Special(s, this);
     }
 
     @Override
     public boolean hasRegistered(String s) {
-        return super.hasRegistered(s);
+        return true;
     }
 
     @Override
     public Iterable<Subject> getAllSubjects() {
-        return new ArrayList<>();
+        return Arrays.asList(Default.instance);
     }
 
     @Override
@@ -56,36 +57,6 @@ public class SpecialCollection extends SubjectCollection {
     @Override
     public Subject getDefaults() {
         return new Special("", this);
-    }
-
-    @Override
-    public synchronized void save(String identifier) throws IOException {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public synchronized void save() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public synchronized boolean load(String identifier) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public synchronized void load() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void setDirectory(Path directory) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    protected Subject createSubjectFromFile(String identifier) throws SubjectIdentifierInvalidException, SubjectIdentifierExistException {
-        throw new UnsupportedOperationException();
     }
 
 }
