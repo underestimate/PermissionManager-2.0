@@ -1,6 +1,7 @@
 package io.github.djxy.permissionmanager.subjects.user;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import io.github.djxy.permissionmanager.PermissionService;
 import io.github.djxy.permissionmanager.language.Language;
@@ -9,6 +10,7 @@ import io.github.djxy.permissionmanager.rules.Rule;
 import io.github.djxy.permissionmanager.subjects.ContextContainer;
 import io.github.djxy.permissionmanager.subjects.Permission;
 import io.github.djxy.permissionmanager.subjects.Subject;
+import io.github.djxy.permissionmanager.subjects.SubjectData;
 import io.github.djxy.permissionmanager.subjects.group.Group;
 import io.github.djxy.permissionmanager.util.ContextUtil;
 import ninja.leaping.configurate.ConfigurationNode;
@@ -69,7 +71,7 @@ public class User extends Subject {
 
     public List<String> getCommandsOnCurrentTick(){
         if(Sponge.getServer().getRunningTimeTicks() == tickOfLastCommands)
-            return (List<String>) commandsOnCurrentTick.clone();
+            return ImmutableList.copyOf(commandsOnCurrentTick);
 
         return new ArrayList<>();
     }
@@ -83,28 +85,39 @@ public class User extends Subject {
     public Optional<String> getOption(Set<Context> set, String key) {
         Preconditions.checkNotNull(set);
         Preconditions.checkNotNull(key);
+        Optional<String> opt;
 
+        if((opt = getOption((SubjectData) getSubjectData(), set, key)).isPresent())
+            return opt;
+
+        if((opt = getOption((SubjectData) getTransientSubjectData(), set, key)).isPresent())
+            return opt;
+
+        return Optional.empty();
+    }
+
+    private Optional<String> getOption(SubjectData subjectData, Set<Context> set, String key){
         if(ContextUtil.isGlobalContext(set)) {
             if(getPlayerWorld().isPresent()) {
                 Set<Context> worldContext = Sets.newHashSet(new Context(Context.WORLD_KEY, getPlayerWorld().get()));
 
-                if(contexts.containsKey(worldContext)) {
-                    String value = contexts.get(worldContext).getOption(key);
+                if(subjectData.containsContexts(worldContext)) {
+                    String value = subjectData.getContextContainer(worldContext).getOption(key);
 
                     if (value != null)
                         return Optional.of(value);
                 }
             }
         }
-        else if(contexts.containsKey(set)){
-            String value = contexts.get(set).getOption(key);
+        else if(subjectData.containsContexts(set)){
+            String value = subjectData.getContextContainer(set).getOption(key);
 
             if (value != null)
                 return Optional.of(value);
         }
 
-        if(contexts.containsKey(GLOBAL_CONTEXT)){
-            ContextContainer globalContainer = contexts.get(GLOBAL_CONTEXT);
+        if(subjectData.containsContexts(SubjectData.GLOBAL_CONTEXT)){
+            ContextContainer globalContainer = subjectData.getContextContainer(SubjectData.GLOBAL_CONTEXT);
 
             String value = globalContainer.getOption(key);
 
@@ -116,8 +129,8 @@ public class User extends Subject {
             if(getPlayerWorld().isPresent()) {
                 Set<Context> worldContext = Sets.newHashSet(new Context(Context.WORLD_KEY, getPlayerWorld().get()));
 
-                if(contexts.containsKey(worldContext)) {
-                    for (Group group : contexts.get(worldContext).getGroups()) {
+                if(subjectData.containsContexts(worldContext)) {
+                    for (Group group : subjectData.getContextContainer(worldContext).getGroups()) {
                         Optional<String> valueOpt = group.getOption(worldContext, key);
 
                         if (valueOpt.isPresent())
@@ -125,8 +138,8 @@ public class User extends Subject {
                     }
                 }
 
-                if(contexts.containsKey(GLOBAL_CONTEXT)){
-                    for (Group group : contexts.get(GLOBAL_CONTEXT).getGroups()) {
+                if(subjectData.containsContexts(SubjectData.GLOBAL_CONTEXT)){
+                    for (Group group : subjectData.getContextContainer(SubjectData.GLOBAL_CONTEXT).getGroups()) {
                         Optional<String> valueOpt = group.getOption(worldContext, key);
 
                         if (valueOpt.isPresent())
@@ -135,8 +148,8 @@ public class User extends Subject {
                 }
             }
         }
-        else if(contexts.containsKey(set)){
-            for (Group group : contexts.get(set).getGroups()) {
+        else if(subjectData.containsContexts(set)){
+            for (Group group : subjectData.getContextContainer(set).getGroups()) {
                 Optional<String> valueOpt = group.getOption(set, key);
 
                 if (valueOpt.isPresent())
@@ -144,8 +157,8 @@ public class User extends Subject {
             }
         }
 
-        if(contexts.containsKey(GLOBAL_CONTEXT)){
-            for (Group group : contexts.get(GLOBAL_CONTEXT).getGroups()) {
+        if(subjectData.containsContexts(SubjectData.GLOBAL_CONTEXT)){
+            for (Group group : subjectData.getContextContainer(SubjectData.GLOBAL_CONTEXT).getGroups()) {
                 Optional<String> valueOpt = group.getOption(set, key);
 
                 if (valueOpt.isPresent())
@@ -161,29 +174,41 @@ public class User extends Subject {
         Preconditions.checkNotNull(set);
         Preconditions.checkNotNull(permission);
 
-        LOGGER.info(getIdentifier() + " get permission value for " + permission+" - "+set);
+        LOGGER.info(getIdentifier() + " get permission value for " + permission + " - " + set);
 
+        Tristate tristate;
+
+        if(!(tristate = getPermissionValue((SubjectData) getSubjectData(), set, permission)).equals(Tristate.UNDEFINED))
+            return tristate;
+
+        if(!(tristate = getPermissionValue((SubjectData) getTransientSubjectData(), set, permission)).equals(Tristate.UNDEFINED))
+            return tristate;
+
+        return PermissionService.instance.getDefaults().getPermissionValue(set, permission);
+    }
+
+    private Tristate getPermissionValue(SubjectData subjectData, Set<Context> set, String permission){
         if(ContextUtil.isGlobalContext(set)) {
             if(getPlayerWorld().isPresent()) {
                 Set<Context> worldContext = Sets.newHashSet(new Context(Context.WORLD_KEY, getPlayerWorld().get()));
 
-                if(contexts.containsKey(worldContext)){
-                    Permission value = contexts.get(worldContext).getPermissions().getPermission(permission);
+                if(subjectData.containsContexts(worldContext)){
+                    Permission value = subjectData.getContextContainer(worldContext).getPermissions().getPermission(permission);
 
                     if (value != null)
                         return testPermissionRules(value);
                 }
             }
         }
-        else if(contexts.containsKey(set)){
-            Permission value = contexts.get(set).getPermissions().getPermission(permission);
+        else if(subjectData.containsContexts(set)){
+            Permission value = subjectData.getContextContainer(set).getPermissions().getPermission(permission);
 
             if (value != null)
                 return testPermissionRules(value);
         }
 
-        if(contexts.containsKey(GLOBAL_CONTEXT)){
-            Permission value = contexts.get(GLOBAL_CONTEXT).getPermissions().getPermission(permission);
+        if(subjectData.containsContexts(SubjectData.GLOBAL_CONTEXT)){
+            Permission value = subjectData.getContextContainer(SubjectData.GLOBAL_CONTEXT).getPermissions().getPermission(permission);
 
             if (value != null)
                 return testPermissionRules(value);
@@ -193,18 +218,18 @@ public class User extends Subject {
             if(getPlayerWorld().isPresent()) {
                 Set<Context> worldContext = Sets.newHashSet(new Context(Context.WORLD_KEY, getPlayerWorld().get()));
 
-                if(contexts.containsKey(worldContext)) {
-                    for (Group group : contexts.get(worldContext).getGroups()) {
-                        Permission perm = group.getPermissionValue(worldContext, permission, new ArrayList<>());
+                if(subjectData.containsContexts(worldContext)) {
+                    for (Group group : subjectData.getContextContainer(worldContext).getGroups()) {
+                        Permission perm = group.getPermission(worldContext, permission);
 
                         if (perm != null)
                             return testPermissionRules(perm);
                     }
                 }
 
-                if(contexts.containsKey(GLOBAL_CONTEXT)) {
-                    for (Group group : contexts.get(GLOBAL_CONTEXT).getGroups()) {
-                        Permission perm = group.getPermissionValue(worldContext, permission, new ArrayList<>());
+                if(subjectData.containsContexts(SubjectData.GLOBAL_CONTEXT)) {
+                    for (Group group : subjectData.getContextContainer(SubjectData.GLOBAL_CONTEXT).getGroups()) {
+                        Permission perm = group.getPermission(worldContext, permission);
 
                         if (perm != null)
                             return testPermissionRules(perm);
@@ -212,25 +237,25 @@ public class User extends Subject {
                 }
             }
         }
-        else if(contexts.containsKey(set)){
-            for (Group group : contexts.get(set).getGroups()) {
-                Permission perm = group.getPermissionValue(set, permission, new ArrayList<>());
+        else if(subjectData.containsContexts(set)){
+            for (Group group : subjectData.getContextContainer(set).getGroups()) {
+                Permission perm = group.getPermission(set, permission);
 
                 if (perm != null)
                     return testPermissionRules(perm);
             }
         }
 
-        if(contexts.containsKey(GLOBAL_CONTEXT)) {
-            for (Group group : contexts.get(GLOBAL_CONTEXT).getGroups()) {
-                Permission perm = group.getPermissionValue(set, permission, new ArrayList<>());
+        if(subjectData.containsContexts(SubjectData.GLOBAL_CONTEXT)) {
+            for (Group group : subjectData.getContextContainer(SubjectData.GLOBAL_CONTEXT).getGroups()) {
+                Permission perm = group.getPermission(set, permission);
 
                 if (perm != null)
                     return testPermissionRules(perm);
             }
         }
 
-        return PermissionService.instance.getDefaults().getPermissionValue(set, permission);
+        return Tristate.UNDEFINED;
     }
 
     /**

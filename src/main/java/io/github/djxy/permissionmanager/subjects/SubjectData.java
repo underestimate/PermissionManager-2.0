@@ -31,6 +31,10 @@ public class SubjectData implements org.spongepowered.api.service.permission.Sub
         return ImmutableSet.copyOf(contexts.keySet());
     }
 
+    public boolean containsContexts(Set<Context> set){
+        return contexts.containsKey(set);
+    }
+
     public ContextContainer getContextContainer(Set<Context> set){
         return contexts.containsKey(set)?contexts.get(set):null;
     }

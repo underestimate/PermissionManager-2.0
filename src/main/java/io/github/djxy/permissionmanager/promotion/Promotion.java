@@ -115,24 +115,24 @@ public final class Promotion implements ConfigurationNodeSerializer, Configurati
 
     private void promoteAdd(User user, Set<Context> set, ContextContainer contextContainer){
         for(Map.Entry<String,Boolean> pairs : contextContainer.getPermissions().toMap().entrySet())
-            user.setPermission(set, pairs.getKey(), Tristate.fromBoolean(pairs.getValue()));
+            user.getSubjectData().setPermission(set, pairs.getKey(), Tristate.fromBoolean(pairs.getValue()));
 
         for(Group group : contextContainer.getGroups())
-            user.addParent(set, group);
+            user.getSubjectData().addParent(set, group);
 
         for(Map.Entry<String,String> pairs : contextContainer.getOptions().entrySet())
-            user.setOption(set, pairs.getKey(), pairs.getValue());
+            user.getSubjectData().setOption(set, pairs.getKey(), pairs.getValue());
     }
 
     private void promoteRemove(User user, Set<Context> set, ContextContainer contextContainer){
         for(Map.Entry<String,Boolean> pairs : contextContainer.getPermissions().toMap().entrySet())
-            user.setPermission(set, pairs.getKey(), Tristate.UNDEFINED);
+            user.getSubjectData().setPermission(set, pairs.getKey(), Tristate.UNDEFINED);
 
         for(Group group : contextContainer.getGroups())
-            user.removeParent(set, group);
+            user.getSubjectData().removeParent(set, group);
 
         for(String option : contextContainer.getOptions().keySet())
-            user.setOption(set, option, null);
+            user.getSubjectData().setOption(set, option, null);
     }
 
     @Override

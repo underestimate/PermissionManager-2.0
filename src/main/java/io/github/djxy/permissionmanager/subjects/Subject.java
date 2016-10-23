@@ -39,7 +39,12 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
 
     @Override
     public List<org.spongepowered.api.service.permission.Subject> getParents(Set<Context> set) {
-        return null;
+        ArrayList<org.spongepowered.api.service.permission.Subject> groups = new ArrayList<>();
+
+        groups.addAll(getSubjectData().getParents(set));
+        groups.addAll(getTransientSubjectData().getParents(set));
+
+        return groups;
     }
 
     public Collection<Context> getWorldContexts(){

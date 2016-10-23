@@ -103,7 +103,7 @@ public class UserCollection extends SubjectCollection {
         subjects.put(uuid.toString(), user);
 
         if(!fromFile)
-            user.addParent(SubjectData.GLOBAL_CONTEXT, GroupCollection.instance.getDefaults());
+            user.getSubjectData().addParent(SubjectData.GLOBAL_CONTEXT, GroupCollection.instance.getDefaults());
 
         user.addListener(subjectListener);
 

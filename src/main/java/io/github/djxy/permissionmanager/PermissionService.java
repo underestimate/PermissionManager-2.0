@@ -21,7 +21,6 @@ public class PermissionService implements org.spongepowered.api.service.permissi
     public static final PermissionService instance = new PermissionService();
 
     private final ConcurrentHashMap<String,SubjectCollection> subjectCollections = new ConcurrentHashMap<>();
-    private final Default defaultSubject = new Default(SpecialCollection.instance);
 
     private PermissionService() {
         subjectCollections.put(UserCollection.instance.getIdentifier(), UserCollection.instance);
@@ -42,11 +41,11 @@ public class PermissionService implements org.spongepowered.api.service.permissi
     }
 
     public SubjectData getDefaultData() {
-        return defaultSubject;
+        return Default.instance.getSubjectData();
     }
 
     public Subject getDefaults() {
-        return defaultSubject;
+        return Default.instance;
     }
 
     @Override

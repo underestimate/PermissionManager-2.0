@@ -149,7 +149,7 @@ public abstract class SubjectCommands extends Command {
                 .addParser(subjectName, subjectParser)
                 .setCommandExecutor((source, values) -> {
                     Subject subject = (Subject) values.get(subjectName);
-                    subject.setOption(SubjectData.GLOBAL_CONTEXT, values.get("option").toString(), values.get("value").toString());
+                    subject.getSubjectData().setOption(SubjectData.GLOBAL_CONTEXT, values.get("option").toString(), values.get("value").toString());
 
                     source.sendMessage(
                             parser.parse(
@@ -175,7 +175,7 @@ public abstract class SubjectCommands extends Command {
                 .setCommandExecutor((source, values) -> {
                     Subject subject = (Subject) values.get(subjectName);
                     World world = (World) values.get("world");
-                    subject.setOption(Sets.newHashSet(new Context(Context.WORLD_KEY, world.getName())), values.get("option").toString(), values.get("value").toString());
+                    subject.getSubjectData().setOption(Sets.newHashSet(new Context(Context.WORLD_KEY, world.getName())), values.get("option").toString(), values.get("value").toString());
 
                     source.sendMessage(
                             parser.parse(
@@ -200,7 +200,7 @@ public abstract class SubjectCommands extends Command {
                 .addParser(subjectName, subjectParser)
                 .setCommandExecutor((source, values) -> {
                     Subject subject = (Subject) values.get(subjectName);
-                    subject.setOption(SubjectData.GLOBAL_CONTEXT, values.get("option").toString(), null);
+                    subject.getSubjectData().setOption(SubjectData.GLOBAL_CONTEXT, values.get("option").toString(), null);
 
                     source.sendMessage(
                             parser.parse(
@@ -226,7 +226,7 @@ public abstract class SubjectCommands extends Command {
                     Subject subject = (Subject) values.get(subjectName);
                     World world = (World) values.get("world");
 
-                    subject.setOption(Sets.newHashSet(new Context(Context.WORLD_KEY, world.getName())), values.get("option").toString(), null);
+                    subject.getSubjectData().setOption(Sets.newHashSet(new Context(Context.WORLD_KEY, world.getName())), values.get("option").toString(), null);
 
                     source.sendMessage(
                             parser.parse(
@@ -254,7 +254,7 @@ public abstract class SubjectCommands extends Command {
                     Subject subject = (Subject) values.get(subjectName);
                     Group group = (Group) values.get("groupRemoved");
 
-                    subject.removeParent(SubjectData.GLOBAL_CONTEXT, group);
+                    subject.getSubjectData().removeParent(SubjectData.GLOBAL_CONTEXT, group);
                     
                     source.sendMessage(
                             parser.parse(
@@ -282,7 +282,7 @@ public abstract class SubjectCommands extends Command {
                     World world = (World) values.get("world");
                     Group group = (Group) values.get("groupRemoved");
 
-                    subject.removeParent(Sets.newHashSet(new Context(Context.WORLD_KEY, world.getName())), group);
+                    subject.getSubjectData().removeParent(Sets.newHashSet(new Context(Context.WORLD_KEY, world.getName())), group);
 
                     source.sendMessage(
                             parser.parse(
@@ -309,7 +309,7 @@ public abstract class SubjectCommands extends Command {
                     Subject subject = (Subject) values.get(subjectName);
                     Group group = (Group) values.get("newGroup");
 
-                    subject.addParent(SubjectData.GLOBAL_CONTEXT, group);
+                    subject.getSubjectData().addParent(SubjectData.GLOBAL_CONTEXT, group);
 
                     source.sendMessage(
                             parser.parse(
@@ -337,7 +337,7 @@ public abstract class SubjectCommands extends Command {
                     World world = (World) values.get("world");
                     Group group = (Group) values.get("newGroup");
 
-                    subject.addParent(Sets.newHashSet(new Context(Context.WORLD_KEY, world.getName())), group);
+                    subject.getSubjectData().addParent(Sets.newHashSet(new Context(Context.WORLD_KEY, world.getName())), group);
 
                     source.sendMessage(
                             parser.parse(
@@ -368,7 +368,7 @@ public abstract class SubjectCommands extends Command {
                                     createVariableMap("click_confirmation", translator.getTranslation(getLanguage(source), "click_confirmation")),
                                     createVariableMap(subjectName, getSubjectName(subject)),
                                     createVariableMap("click_confirmation", createTextActionCallback(source1 -> {
-                                        subject.clearParents(SubjectData.GLOBAL_CONTEXT);
+                                        subject.getSubjectData().clearParents(SubjectData.GLOBAL_CONTEXT);
 
                                         source.sendMessage(
                                                 parser.parse(
@@ -403,7 +403,7 @@ public abstract class SubjectCommands extends Command {
                                             "world", world.getName()
                                     ),
                                     createVariableMap("click_confirmation", createTextActionCallback(source1 -> {
-                                        subject.clearParents(Sets.newHashSet(new Context(Context.WORLD_KEY, world.getName())));
+                                        subject.getSubjectData().clearParents(Sets.newHashSet(new Context(Context.WORLD_KEY, world.getName())));
 
                                         source.sendMessage(
                                                 parser.parse(
@@ -436,7 +436,7 @@ public abstract class SubjectCommands extends Command {
                                     createVariableMap("click_confirmation", translator.getTranslation(getLanguage(source), "click_confirmation")),
                                     createVariableMap(subjectName, getSubjectName(subject)),
                                     createVariableMap("click_confirmation", createTextActionCallback(source1 -> {
-                                        subject.clearOptions(SubjectData.GLOBAL_CONTEXT);
+                                        subject.getSubjectData().clearOptions(SubjectData.GLOBAL_CONTEXT);
 
                                         source.sendMessage(
                                                 parser.parse(
@@ -471,7 +471,7 @@ public abstract class SubjectCommands extends Command {
                                             "world", world.getName()
                                     ),
                                     createVariableMap("click_confirmation", createTextActionCallback(source1 -> {
-                                        subject.clearOptions(Sets.newHashSet(new Context(Context.WORLD_KEY, world.getName())));
+                                        subject.getSubjectData().clearOptions(Sets.newHashSet(new Context(Context.WORLD_KEY, world.getName())));
 
                                         source.sendMessage(
                                                 parser.parse(
@@ -504,7 +504,7 @@ public abstract class SubjectCommands extends Command {
                                     createVariableMap("click_confirmation", translator.getTranslation(getLanguage(source), "click_confirmation")),
                                     createVariableMap(subjectName, getSubjectName(subject)),
                                     createVariableMap("click_confirmation", createTextActionCallback(source1 -> {
-                                        subject.clearPermissions(SubjectData.GLOBAL_CONTEXT);
+                                        subject.getSubjectData().clearPermissions(SubjectData.GLOBAL_CONTEXT);
 
                                         source.sendMessage(
                                                 parser.parse(
@@ -539,7 +539,7 @@ public abstract class SubjectCommands extends Command {
                                             "world", world.getName()
                                     ),
                                     createVariableMap("click_confirmation", createTextActionCallback(source1 -> {
-                                        subject.clearPermissions(Sets.newHashSet(new Context(Context.WORLD_KEY, world.getName())));
+                                        subject.getSubjectData().clearPermissions(Sets.newHashSet(new Context(Context.WORLD_KEY, world.getName())));
 
                                         source.sendMessage(
                                                 parser.parse(
@@ -565,7 +565,7 @@ public abstract class SubjectCommands extends Command {
                 .addParser(subjectName, subjectParser)
                 .setCommandExecutor((source, values) -> {
                     Subject subject = (Subject) values.get(subjectName);
-                    subject.setPermission(SubjectData.GLOBAL_CONTEXT, values.get("permission").toString(), Tristate.TRUE);
+                    subject.getSubjectData().setPermission(SubjectData.GLOBAL_CONTEXT, values.get("permission").toString(), Tristate.TRUE);
 
                     source.sendMessage(
                             parser.parse(
@@ -590,7 +590,7 @@ public abstract class SubjectCommands extends Command {
                 .setCommandExecutor((source, values) -> {
                     Subject subject = (Subject) values.get(subjectName);
                     World world = (World) values.get("world");
-                    subject.setPermission(Sets.newHashSet(new Context(Context.WORLD_KEY, world.getName())), values.get("permission").toString(), Tristate.TRUE);
+                    subject.getSubjectData().setPermission(Sets.newHashSet(new Context(Context.WORLD_KEY, world.getName())), values.get("permission").toString(), Tristate.TRUE);
 
                     source.sendMessage(
                             parser.parse(
@@ -614,7 +614,7 @@ public abstract class SubjectCommands extends Command {
                 .addParser(subjectName, subjectParser)
                 .setCommandExecutor((source, values) -> {
                     Subject subject = (Subject) values.get(subjectName);
-                    subject.setPermission(SubjectData.GLOBAL_CONTEXT, values.get("permission").toString(), Tristate.UNDEFINED);
+                    subject.getSubjectData().setPermission(SubjectData.GLOBAL_CONTEXT, values.get("permission").toString(), Tristate.UNDEFINED);
 
                     source.sendMessage(
                             parser.parse(
@@ -639,7 +639,7 @@ public abstract class SubjectCommands extends Command {
                 .setCommandExecutor((source, values) -> {
                     Subject subject = (Subject) values.get(subjectName);
                     World world = (World) values.get("world");
-                    subject.setPermission(Sets.newHashSet(new Context(Context.WORLD_KEY, world.getName())), values.get("permission").toString(), Tristate.UNDEFINED);
+                    subject.getSubjectData().setPermission(Sets.newHashSet(new Context(Context.WORLD_KEY, world.getName())), values.get("permission").toString(), Tristate.UNDEFINED);
 
                     source.sendMessage(
                             parser.parse(
@@ -663,7 +663,7 @@ public abstract class SubjectCommands extends Command {
                 .addParser(subjectName, subjectParser)
                 .setCommandExecutor((source, values) -> {
                     Subject subject = (Subject) values.get(subjectName);
-                    subject.setPermission(SubjectData.GLOBAL_CONTEXT, values.get("permission").toString(), Tristate.FALSE);
+                    subject.getSubjectData().setPermission(SubjectData.GLOBAL_CONTEXT, values.get("permission").toString(), Tristate.FALSE);
 
                     source.sendMessage(
                             parser.parse(
@@ -688,7 +688,7 @@ public abstract class SubjectCommands extends Command {
                 .setCommandExecutor((source, values) -> {
                     Subject subject = (Subject) values.get(subjectName);
                     World world = (World) values.get("world");
-                    subject.setPermission(Sets.newHashSet(new Context(Context.WORLD_KEY, world.getName())), values.get("permission").toString(), Tristate.FALSE);
+                    subject.getSubjectData().setPermission(Sets.newHashSet(new Context(Context.WORLD_KEY, world.getName())), values.get("permission").toString(), Tristate.FALSE);
 
                     source.sendMessage(
                             parser.parse(
