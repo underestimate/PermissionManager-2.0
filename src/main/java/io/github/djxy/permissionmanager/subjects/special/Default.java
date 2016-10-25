@@ -68,7 +68,7 @@ public class Default implements org.spongepowered.api.service.permission.Subject
             return Tristate.fromBoolean(perm.getValue());
         }
 
-        if(data.containsContexts(set) && (perm = transientData.getContextContainer(set).getPermissions().getPermission(permission)) != null) {
+        if(transientData.containsContexts(set) && (perm = transientData.getContextContainer(set).getPermissions().getPermission(permission)) != null) {
             Subject.logGetPermissionValue(LOGGER, this, set, permission, Tristate.fromBoolean(perm.getValue()));
             return Tristate.fromBoolean(perm.getValue());
         }
