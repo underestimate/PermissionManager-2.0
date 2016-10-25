@@ -49,24 +49,21 @@ public class PermissionMap implements ConfigurationNodeSerializer, Configuration
         if(!permission.contains("."))
             return null;
 
-        String permissions[] = new String[permission.length() - permission.replace(".", "").length() + 1];
-        int lastIndex = 1;
+        int count = permission.length() - permission.replace(".", "").length();
+        String tmp = permission;
+        Permission perm;
 
-        permissions[0] = "*";
+        for(int i = 0; i < count; i++){
+            tmp = permission.substring(0, tmp.lastIndexOf("."));
 
-        for(int i = 0; i < permission.length(); i++){
-            if(permission.charAt(i) == '.')
-                permissions[lastIndex++] = permission.substring(0, i) + ".*";
-        }
+            if((perm = this.permissions.get(tmp)) != null)
+                return perm;
 
-        for(int i = permissions.length-1; i >= 0; i--){
-            Permission perm = this.permissions.get(permissions[i]);
-
-            if(perm != null)
+            if((perm = this.permissions.get(tmp+".*")) != null)
                 return perm;
         }
 
-        return null;
+        return this.permissions.get("*");
     }
 
     public void clear(){
