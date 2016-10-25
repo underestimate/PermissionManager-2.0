@@ -18,6 +18,7 @@ import io.github.djxy.permissionmanager.rules.region.RegionRuleService;
 import io.github.djxy.permissionmanager.rules.region.plugins.FoxGuardPluginRegion;
 import io.github.djxy.permissionmanager.rules.region.plugins.RedProtectPluginRegion;
 import io.github.djxy.permissionmanager.subjects.group.GroupCollection;
+import io.github.djxy.permissionmanager.subjects.special.Default;
 import io.github.djxy.permissionmanager.subjects.user.UserCollection;
 import io.github.djxy.permissionmanager.translator.Translator;
 import io.github.djxy.permissionmanager.util.FileConversionUtil;
@@ -62,6 +63,8 @@ public class PermissionManager {
 
         translator = ResourceUtil.loadTranslations();
 
+        Default.instance.load(path.resolve("default.yml"));
+
         path.resolve("users").toFile().mkdirs();
         path.resolve("groups").toFile().mkdirs();
         path.resolve("promotions").toFile().mkdirs();
@@ -102,6 +105,7 @@ public class PermissionManager {
     @Listener
     public void onGameStoppedServerEvent(GameStoppedServerEvent event){
         LOGGER.info("PermissionService is about to save the subjects.");
+        Default.instance.save(path.resolve("default.yml"));
         UserCollection.instance.save();
         GroupCollection.instance.save();
         Promotions.instance.save();

@@ -6,11 +6,19 @@ import io.github.djxy.permissionmanager.subjects.Permission;
 import io.github.djxy.permissionmanager.subjects.Subject;
 import io.github.djxy.permissionmanager.subjects.SubjectData;
 import io.github.djxy.permissionmanager.subjects.group.Group;
+import ninja.leaping.configurate.ConfigurationNode;
+import ninja.leaping.configurate.ConfigurationOptions;
+import ninja.leaping.configurate.loader.ConfigurationLoader;
+import ninja.leaping.configurate.yaml.YAMLConfigurationLoader;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.service.permission.SubjectCollection;
 import org.spongepowered.api.util.Tristate;
+import org.yaml.snakeyaml.DumperOptions;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -140,6 +148,40 @@ public class Default implements org.spongepowered.api.service.permission.Subject
     @Override
     public Set<Context> getActiveContexts() {
         return SubjectData.GLOBAL_CONTEXT;
+    }
+
+    public void save(Path pathToFile){
+        Preconditions.checkNotNull(pathToFile);
+
+        File file = pathToFile.toFile();
+
+        ConfigurationLoader loader = YAMLConfigurationLoader.builder().setIndent(4).setFlowStyle(DumperOptions.FlowStyle.BLOCK).setDefaultOptions(ConfigurationOptions.defaults()).setFile(file).build();
+        ConfigurationNode node = loader.createEmptyNode();
+
+        data.serialize(node);
+
+        try {
+            loader.save(node);
+            LOGGER.info(IDENTIFIER+": Saved.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void load(Path pathToFile){
+        Preconditions.checkNotNull(pathToFile);
+
+        File file = pathToFile.toFile();
+
+        try{
+            ConfigurationLoader loader = YAMLConfigurationLoader.builder().setIndent(4).setFlowStyle(DumperOptions.FlowStyle.BLOCK).setDefaultOptions(ConfigurationOptions.defaults()).setFile(file).build();
+            ConfigurationNode node = loader.load();
+
+            data.deserialize(node);
+            LOGGER.info(IDENTIFIER+": Loaded.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }
