@@ -118,7 +118,6 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
         Preconditions.checkNotNull(subject);
 
         return subject instanceof Group && (data.getParents(set).contains(subject) || transientData.getParents(set).contains(subject));
-
     }
 
     @Override
@@ -143,11 +142,11 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
                 '}';
     }
 
-    public static void logGetPermissionValue(Logger logger, Subject subject, Set<Context> set, String permission, Tristate tristate){
+    public static void logGetPermissionValue(Logger logger, org.spongepowered.api.service.permission.Subject subject, Set<Context> set, String permission, Tristate tristate){
         logger.info("Subject: "+subject.getIdentifier() +" - Contexts " + set+ " - Permission: " + permission + " - Tristate: "+tristate.name());
     }
 
-    public static void logGetOption(Logger logger, Subject subject, Set<Context> set, String option, Optional<String> value){
+    public static void logGetOption(Logger logger, org.spongepowered.api.service.permission.Subject subject, Set<Context> set, String option, Optional<String> value){
         logger.info("Subject: "+subject.getIdentifier() +" - Contexts " + set+ " - Option: " + option + " - Value: "+value);
     }
 
