@@ -5,7 +5,6 @@ import io.github.djxy.permissionmanager.subjects.group.GroupCollection;
 import io.github.djxy.permissionmanager.subjects.special.Default;
 import io.github.djxy.permissionmanager.subjects.user.UserCollection;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.event.world.SaveWorldEvent;
 
 /**
@@ -14,7 +13,7 @@ import org.spongepowered.api.event.world.SaveWorldEvent;
 public class WorldEvent {
 
     @Listener
-    public void onSaveWorld(SaveWorldEvent event){
+    public void onSaveWorld(SaveWorldEvent.Post event){
         Default.instance.save();
         UserCollection.instance.save();
         GroupCollection.instance.save();
