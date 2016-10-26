@@ -1,5 +1,6 @@
 package io.github.djxy.permissionmanager;
 
+import com.google.common.collect.ImmutableList;
 import io.github.djxy.permissionmanager.subjects.special.Default;
 import io.github.djxy.permissionmanager.subjects.group.GroupCollection;
 import io.github.djxy.permissionmanager.subjects.special.SpecialCollection;
@@ -12,6 +13,7 @@ import org.spongepowered.api.service.permission.SubjectData;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Created by Samuel on 2016-08-17.
@@ -21,6 +23,7 @@ public class PermissionService implements org.spongepowered.api.service.permissi
     public static final PermissionService instance = new PermissionService();
 
     private final ConcurrentHashMap<String,SubjectCollection> subjectCollections = new ConcurrentHashMap<>();
+    private final CopyOnWriteArrayList<ContextCalculator> contextCalculators = new CopyOnWriteArrayList<>();
 
     private PermissionService() {
         subjectCollections.put(UserCollection.instance.getIdentifier(), UserCollection.instance);
@@ -75,6 +78,10 @@ public class PermissionService implements org.spongepowered.api.service.permissi
 
     @Override
     public void registerContextCalculator(ContextCalculator<Subject> contextCalculator) {
+        contextCalculators.add(contextCalculator);
     }
 
+    public List<ContextCalculator> getContextCalculators() {
+        return ImmutableList.copyOf(contextCalculators);
+    }
 }
