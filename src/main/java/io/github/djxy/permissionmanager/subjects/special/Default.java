@@ -36,8 +36,17 @@ public class Default implements org.spongepowered.api.service.permission.Subject
 
     private final SubjectData data = new SubjectData(this);
     private final SubjectData transientData = new SubjectData(this);
+    private Path file;
 
     private Default() {
+    }
+
+    public Path getFile() {
+        return file;
+    }
+
+    public void setFile(Path file) {
+        this.file = file;
     }
 
     @Override
@@ -150,10 +159,8 @@ public class Default implements org.spongepowered.api.service.permission.Subject
         return SubjectData.GLOBAL_CONTEXT;
     }
 
-    public void save(Path pathToFile){
-        Preconditions.checkNotNull(pathToFile);
-
-        File file = pathToFile.toFile();
+    public void save(){
+        File file = this.file.toFile();
 
         ConfigurationLoader loader = YAMLConfigurationLoader.builder().setIndent(4).setFlowStyle(DumperOptions.FlowStyle.BLOCK).setDefaultOptions(ConfigurationOptions.defaults()).setFile(file).build();
         ConfigurationNode node = loader.createEmptyNode();
@@ -168,10 +175,8 @@ public class Default implements org.spongepowered.api.service.permission.Subject
         }
     }
 
-    public void load(Path pathToFile){
-        Preconditions.checkNotNull(pathToFile);
-
-        File file = pathToFile.toFile();
+    public void load(){
+        File file = this.file.toFile();
 
         try{
             ConfigurationLoader loader = YAMLConfigurationLoader.builder().setIndent(4).setFlowStyle(DumperOptions.FlowStyle.BLOCK).setDefaultOptions(ConfigurationOptions.defaults()).setFile(file).build();

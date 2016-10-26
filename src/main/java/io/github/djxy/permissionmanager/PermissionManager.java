@@ -8,6 +8,7 @@ import io.github.djxy.permissionmanager.commands.MenuCommands;
 import io.github.djxy.permissionmanager.commands.PromotionCommands;
 import io.github.djxy.permissionmanager.commands.UserCommands;
 import io.github.djxy.permissionmanager.events.PlayerEvent;
+import io.github.djxy.permissionmanager.events.WorldEvent;
 import io.github.djxy.permissionmanager.logger.Logger;
 import io.github.djxy.permissionmanager.logger.LoggerMode;
 import io.github.djxy.permissionmanager.promotion.Promotions;
@@ -63,7 +64,8 @@ public class PermissionManager {
 
         translator = ResourceUtil.loadTranslations();
 
-        Default.instance.load(path.resolve("default.yml"));
+        Default.instance.setFile(path.resolve("default.yml"));
+        Default.instance.load();
 
         path.resolve("users").toFile().mkdirs();
         path.resolve("groups").toFile().mkdirs();
@@ -73,6 +75,7 @@ public class PermissionManager {
         FileConversionUtil.convertGroups(path);
         FileConversionUtil.convertPromotions(path);
 
+        Sponge.getEventManager().registerListeners(this, new WorldEvent());
         Sponge.getEventManager().registerListeners(this, new PlayerEvent());
 
         loadPlugins();
@@ -105,7 +108,7 @@ public class PermissionManager {
     @Listener
     public void onGameStoppedServerEvent(GameStoppedServerEvent event){
         LOGGER.info("PermissionService is about to save the subjects.");
-        Default.instance.save(path.resolve("default.yml"));
+        Default.instance.save();
         UserCollection.instance.save();
         GroupCollection.instance.save();
         Promotions.instance.save();
