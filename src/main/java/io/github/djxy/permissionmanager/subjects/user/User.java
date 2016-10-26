@@ -13,6 +13,7 @@ import io.github.djxy.permissionmanager.subjects.Permission;
 import io.github.djxy.permissionmanager.subjects.Subject;
 import io.github.djxy.permissionmanager.subjects.SubjectData;
 import io.github.djxy.permissionmanager.subjects.group.Group;
+import io.github.djxy.permissionmanager.subjects.special.Default;
 import io.github.djxy.permissionmanager.util.ContextUtil;
 import ninja.leaping.configurate.ConfigurationNode;
 import org.spongepowered.api.Sponge;
@@ -98,9 +99,7 @@ public class User extends Subject {
             return opt;
         }
 
-        logGetOption(LOGGER, this, set, key, opt);
-
-        return Optional.empty();
+        return Default.instance.getOption(set, key);
     }
 
     private Optional<String> getOption(SubjectData subjectData, Set<Context> set, String key){
@@ -198,9 +197,7 @@ public class User extends Subject {
             return tristate;
         }
 
-        logGetPermissionValue(LOGGER, this, set, permission, Tristate.UNDEFINED);
-
-        return Tristate.UNDEFINED;
+        return Default.instance.getPermissionValue(set, permission);
     }
 
     private Tristate getPermissionValue(SubjectData subjectData, Set<Context> set, String permission){
