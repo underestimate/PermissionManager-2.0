@@ -45,6 +45,7 @@ public class SubjectTest {
             GroupCollection.instance.createDefaultGroup();
 
             Default.instance.getTransientSubjectData().setPermission(globalContext, "griefprevention.claim.flag.block-break", Tristate.FALSE);
+            Default.instance.getSubjectData().setPermission(globalContext, "griefprevention.claim.flag.block-break.minecraft.chest", Tristate.TRUE);
 
             user = UserCollection.instance.createUser(UUID.randomUUID());
             groupGlobal = GroupCollection.instance.createGroup("groupGlobal");
@@ -62,7 +63,6 @@ public class SubjectTest {
             user.getSubjectData().addParent(worldContext, groupWorld);
             groupWorld.getSubjectData().addParent(worldContext, groupWorld2);
 
-            user.getSubjectData().setPermission(globalContext, "griefprevention.claim.flag.block-break.minecraft.chest", Tristate.TRUE);
             user.getSubjectData().setPermission(globalContext, "perm.1", Tristate.TRUE);
             user.getSubjectData().setPermission(worldContext, "perm.2", Tristate.FALSE);
             user.getSubjectData().setPermission(specialContext, "perm.3", Tristate.TRUE);

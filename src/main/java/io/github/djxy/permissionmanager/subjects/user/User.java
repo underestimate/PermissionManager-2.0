@@ -197,7 +197,9 @@ public class User extends Subject {
             return tristate;
         }
 
-        return Default.instance.getPermissionValue(set, permission);
+        logGetPermissionValue(LOGGER, this, set, permission, Tristate.UNDEFINED);
+
+        return Tristate.UNDEFINED;
     }
 
     private Tristate getPermissionValue(SubjectData subjectData, Set<Context> set, String permission){
