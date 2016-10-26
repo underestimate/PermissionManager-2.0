@@ -1,11 +1,13 @@
 package io.github.djxy.permissionmanager.subjects;
 
 import com.google.common.base.Preconditions;
+import io.github.djxy.permissionmanager.PermissionService;
 import io.github.djxy.permissionmanager.logger.Logger;
 import io.github.djxy.permissionmanager.subjects.group.Group;
 import io.github.djxy.permissionmanager.util.ContextUtil;
 import ninja.leaping.configurate.ConfigurationNode;
 import org.spongepowered.api.service.context.Context;
+import org.spongepowered.api.service.context.ContextCalculator;
 import org.spongepowered.api.service.permission.SubjectCollection;
 import org.spongepowered.api.util.Tristate;
 
@@ -79,7 +81,12 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
 
     @Override
     public Set<Context> getActiveContexts() {
-        return SubjectData.GLOBAL_CONTEXT;
+        Set<Context> set = new HashSet<>();
+
+        for(ContextCalculator contextCalculator : PermissionService.instance.getContextCalculators())
+            contextCalculator.accumulateContexts(this, set);
+
+        return set;
     }
 
     @Override
@@ -88,12 +95,12 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
     }
 
     @Override
-    public org.spongepowered.api.service.permission.SubjectData getSubjectData() {
+    public SubjectData getSubjectData() {
         return data;
     }
 
     @Override
-    public org.spongepowered.api.service.permission.SubjectData getTransientSubjectData() {
+    public SubjectData getTransientSubjectData() {
         return transientData;
     }
 
