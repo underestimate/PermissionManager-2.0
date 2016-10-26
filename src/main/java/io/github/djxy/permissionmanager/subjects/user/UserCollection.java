@@ -39,6 +39,12 @@ public class UserCollection extends SubjectCollection {
     }
 
     @Override
+    public synchronized void load() {
+        for(String identifier : subjects.keySet())
+            load(identifier);
+    }
+
+    @Override
     public Subject get(String identifier) {
         Preconditions.checkNotNull(identifier);
         UUID uuid = UUID.fromString(identifier);

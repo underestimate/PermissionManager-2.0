@@ -2,10 +2,12 @@ package io.github.djxy.permissionmanager.commands;
 
 import io.github.djxy.customcommands.annotations.CustomCommand;
 import io.github.djxy.customcommands.annotations.CustomParser;
+import io.github.djxy.permissionmanager.commands.parsers.GroupParser;
 import io.github.djxy.permissionmanager.commands.parsers.LanguageParser;
 import io.github.djxy.permissionmanager.commands.parsers.UserParser;
 import io.github.djxy.permissionmanager.language.Language;
 import io.github.djxy.permissionmanager.subjects.Subject;
+import io.github.djxy.permissionmanager.subjects.group.Group;
 import io.github.djxy.permissionmanager.subjects.user.User;
 import io.github.djxy.permissionmanager.subjects.user.UserCollection;
 import io.github.djxy.permissionmanager.translator.Translator;
@@ -25,6 +27,24 @@ public class UserCommands extends SubjectCommands {
 
     public UserCommands(Translator translator) {
         super(translator, UserCollection.instance, "users", "user", new UserParser());
+    }
+
+    @CustomCommand(
+            command = "pm load users",
+            permission = "permissionmanager.commands.users.load",
+            parsers = {}
+    )
+    public void loadOnlineUsers(CommandSource source, Map<String, Object> values){
+        UserCollection.instance.load();
+
+        source.sendMessage(
+                parser.parse(
+                        translator.getTranslation(getLanguage(source), "user_loaded_all"),
+                        EMPTY_MAP,
+                        EMPTY_MAP,
+                        EMPTY_MAP
+                )
+        );
     }
 
     @CustomCommand(
