@@ -1,4 +1,5 @@
 import com.google.common.collect.Sets;
+import io.github.djxy.permissionmanager.PermissionService;
 import io.github.djxy.permissionmanager.exceptions.SubjectIdentifierExistException;
 import io.github.djxy.permissionmanager.language.Language;
 import io.github.djxy.permissionmanager.logger.Logger;
@@ -44,8 +45,8 @@ public class SubjectTest {
 
             GroupCollection.instance.createDefaultGroup();
 
-            Default.instance.getTransientSubjectData().setPermission(globalContext, "griefprevention.claim.flag.block-break", Tristate.FALSE);
-            Default.instance.getSubjectData().setPermission(globalContext, "griefprevention.claim.flag.block-break.minecraft.chest", Tristate.TRUE);
+            Default.instance.getTransientSubjectData().setPermission(globalContext, "griefprevention.claim.flag.block-break.minecraft", Tristate.FALSE);
+            Default.instance.getSubjectData().setPermission(globalContext, "griefprevention.claim.flag.block-break.minecraft.grass", Tristate.TRUE);
 
             user = UserCollection.instance.createUser(UUID.randomUUID());
             groupGlobal = GroupCollection.instance.createGroup("groupGlobal");
@@ -99,14 +100,15 @@ public class SubjectTest {
 
             groupGlobal.setRank(0);
             user.setLanguage(Language.getLanguage("fra"));
-        } catch (SubjectIdentifierExistException e) {
+            Thread.sleep(1000);
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     @Test
     public void testDefaultPermission(){
-        Assert.assertEquals(true, user.getPermissionValue(globalContext, "griefprevention.claim.flag.block-break.minecraft.chest") == Tristate.TRUE);
+        Assert.assertEquals(true, Default.instance.getPermissionValue(globalContext, "griefprevention.claim.flag.block-break.minecraft.grass.[snowy=false]") == Tristate.TRUE);
     }
 
     @Test
