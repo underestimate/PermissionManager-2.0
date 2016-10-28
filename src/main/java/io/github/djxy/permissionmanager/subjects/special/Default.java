@@ -63,27 +63,39 @@ public class Default implements org.spongepowered.api.service.permission.Subject
     public Permission getPermission(org.spongepowered.api.service.permission.Subject subject, Set<Context> set, String permission){
         Permission perm;
 
-        if((perm = getPermission(this.getSubjectData(), set, permission)) != null)
+        if((perm = getPermission(this.getSubjectData(), set, permission)) != null) {
+            Subject.logGetPermissionValue(LOGGER, this, set, permission, Tristate.fromBoolean(perm.getValue()));
             return perm;
+        }
 
-        if((perm = getPermission(this.getTransientSubjectData(), set, permission)) != null)
+        if((perm = getPermission(this.getTransientSubjectData(), set, permission)) != null) {
+            Subject.logGetPermissionValue(LOGGER, this, set, permission, Tristate.fromBoolean(perm.getValue()));
             return perm;
+        }
 
         if(subject instanceof Locatable && ((Locatable) subject).getWorld() != null){
             Set<Context> worldSet = Sets.newHashSet(new Context(Context.WORLD_KEY, ((Locatable) subject).getWorld().getName()));
 
-            if((perm = getPermission(this.getSubjectData(), worldSet, permission)) != null)
+            if((perm = getPermission(this.getSubjectData(), worldSet, permission)) != null) {
+                Subject.logGetPermissionValue(LOGGER, this, set, permission, Tristate.fromBoolean(perm.getValue()));
                 return perm;
+            }
 
-            if((perm = getPermission(this.getTransientSubjectData(), worldSet, permission)) != null)
+            if((perm = getPermission(this.getTransientSubjectData(), worldSet, permission)) != null) {
+                Subject.logGetPermissionValue(LOGGER, this, set, permission, Tristate.fromBoolean(perm.getValue()));
                 return perm;
+            }
         }
         
-        if((perm = getPermission(this.getSubjectData(), org.spongepowered.api.service.permission.SubjectData.GLOBAL_CONTEXT, permission)) != null)
+        if((perm = getPermission(this.getSubjectData(), org.spongepowered.api.service.permission.SubjectData.GLOBAL_CONTEXT, permission)) != null) {
+            Subject.logGetPermissionValue(LOGGER, this, set, permission, Tristate.fromBoolean(perm.getValue()));
             return perm;
+        }
 
-        if((perm = getPermission(this.getTransientSubjectData(), org.spongepowered.api.service.permission.SubjectData.GLOBAL_CONTEXT, permission)) != null)
+        if((perm = getPermission(this.getTransientSubjectData(), org.spongepowered.api.service.permission.SubjectData.GLOBAL_CONTEXT, permission)) != null) {
+            Subject.logGetPermissionValue(LOGGER, this, set, permission, Tristate.fromBoolean(perm.getValue()));
             return perm;
+        }
 
         Subject.logGetPermissionValue(LOGGER, this, set, permission, Tristate.UNDEFINED);
 
