@@ -1,6 +1,7 @@
 package io.github.djxy.permissionmanager.subjects.special;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Sets;
 import io.github.djxy.permissionmanager.logger.Logger;
 import io.github.djxy.permissionmanager.subjects.Permission;
 import io.github.djxy.permissionmanager.subjects.Subject;
@@ -14,6 +15,7 @@ import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.service.permission.SubjectCollection;
 import org.spongepowered.api.util.Tristate;
+import org.spongepowered.api.world.Locatable;
 import org.yaml.snakeyaml.DumperOptions;
 
 import java.io.File;
@@ -47,6 +49,45 @@ public class Default implements org.spongepowered.api.service.permission.Subject
 
     public void setFile(Path file) {
         this.file = file;
+    }
+
+    public Permission getPermission(Subject subject, Set<Context> set, String permission){
+        Permission perm;
+
+        if((perm = getPermission(this.getSubjectData(), set, permission)) != null)
+            return perm;
+
+        if((perm = getPermission(this.getTransientSubjectData(), set, permission)) != null)
+            return perm;
+
+        if(subject.isLocatable() && ((Locatable) subject).getWorld() != null){
+            Set<Context> worldSet = Sets.newHashSet(new Context(Context.WORLD_KEY, ((Locatable) subject).getWorld().getName()));
+
+            if((perm = getPermission(this.getSubjectData(), worldSet, permission)) != null)
+                return perm;
+
+            if((perm = getPermission(this.getTransientSubjectData(), worldSet, permission)) != null)
+                return perm;
+        }
+        
+        if((perm = getPermission(this.getSubjectData(), org.spongepowered.api.service.permission.SubjectData.GLOBAL_CONTEXT, permission)) != null)
+            return perm;
+
+        if((perm = getPermission(this.getTransientSubjectData(), org.spongepowered.api.service.permission.SubjectData.GLOBAL_CONTEXT, permission)) != null)
+            return perm;
+
+        return null;
+    }
+
+    private Permission getPermission(SubjectData subjectData, Set<Context> set, String permission){
+        Permission perm;
+
+        if(subjectData.containsContexts(set)){
+            if((perm = subjectData.getContextContainer(set).getPermissions().getPermission(permission)) != null)
+                return perm;
+        }
+
+        return null;
     }
 
     @Override

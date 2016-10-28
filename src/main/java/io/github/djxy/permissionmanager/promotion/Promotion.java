@@ -42,63 +42,6 @@ public final class Promotion implements ConfigurationNodeSerializer, Configurati
         this.name = name;
     }
 
-    public ContextContainer getAddGlobalContextContainer(){
-        return addGlobalContext;
-    }
-
-    public ContextContainer getRemoveGlobalContextContainer(){
-        return removeGlobalContext;
-    }
-
-    public ContextContainer getAddContextContainer(Context context){
-        Preconditions.checkNotNull(context);
-
-        return addContexts.get(context);
-    }
-
-    public ContextContainer getRemoveContextContainer(Context context){
-        Preconditions.checkNotNull(context);
-
-        return removeContexts.get(context);
-    }
-
-    public boolean containsAddContext(Context context){
-        Preconditions.checkNotNull(context);
-
-        return addContexts.containsKey(context);
-    }
-
-    public boolean containsRemoveContext(Context context){
-        Preconditions.checkNotNull(context);
-
-        return removeContexts.containsKey(context);
-    }
-
-    public ContextContainer createAddContext(Context context){
-        Preconditions.checkNotNull(context);
-
-        if(addContexts.containsKey(context))
-            return addContexts.get(context);
-
-        ContextContainer container = new ContextContainer();
-
-        addContexts.put(context, container);
-
-        return container;
-    }
-
-    public ContextContainer createRemoveContext(Context context){
-        Preconditions.checkNotNull(context);
-
-        if(removeContexts.containsKey(context))
-            return removeContexts.get(context);
-
-        ContextContainer container = new ContextContainer();
-
-        removeContexts.put(context, container);
-
-        return container;
-    }
 
     public void promote(User user){
         LOGGER.info("Promotion "+getName()+" apply to "+user.getIdentifier()+".");
@@ -149,11 +92,12 @@ public final class Promotion implements ConfigurationNodeSerializer, Configurati
             Map<Object,ConfigurationNode> worldsMap = (Map<Object, ConfigurationNode>) worlds.getChildrenMap();
 
             for(Object world : worldsMap.keySet()){
+                Context context = new Context(Context.WORLD_KEY, world.toString());
                 ContextContainer worldContainer = new ContextContainer();
 
                 worldContainer.deserialize(worldsMap.get(world));
 
-                addContexts.put(new Context(Context.WORLD_KEY, world.toString()), worldContainer);
+                addContexts.put(context, worldContainer);
             }
         }
 
@@ -169,11 +113,12 @@ public final class Promotion implements ConfigurationNodeSerializer, Configurati
             Map<Object,ConfigurationNode> worldsMap = (Map<Object, ConfigurationNode>) worlds.getChildrenMap();
 
             for(Object world : worldsMap.keySet()){
+                Context context = new Context(Context.WORLD_KEY, world.toString());
                 ContextContainer worldContainer = new ContextContainer();
 
                 worldContainer.deserialize(worldsMap.get(world));
 
-                removeContexts.put(new Context(Context.WORLD_KEY, world.toString()), worldContainer);
+                removeContexts.put(context, worldContainer);
             }
         }
     }

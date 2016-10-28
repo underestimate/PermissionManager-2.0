@@ -22,6 +22,9 @@ import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.util.Tristate;
+import org.spongepowered.api.world.Locatable;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -29,7 +32,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * Created by Samuel on 2016-08-09.
  */
-public class User extends Subject {
+public class User extends Subject implements Locatable {
 
     private final static Set<Context> GLOBAL_SET = org.spongepowered.api.service.permission.SubjectData.GLOBAL_CONTEXT;
     private final static Logger LOGGER = new Logger(User.class);
@@ -87,12 +90,12 @@ public class User extends Subject {
         Preconditions.checkNotNull(key);
         Optional<String> opt;
 
-        if((opt = getOption((SubjectData) getSubjectData(), set, key)).isPresent()) {
+        if((opt = getOption(getSubjectData(), set, key)).isPresent()) {
             logGetOption(LOGGER, this, set, key, opt);
             return opt;
         }
 
-        if((opt = getOption((SubjectData) getTransientSubjectData(), set, key)).isPresent()){
+        if((opt = getOption(getTransientSubjectData(), set, key)).isPresent()){
             logGetOption(LOGGER, this, set, key, opt);
             return opt;
         }
@@ -177,138 +180,16 @@ public class User extends Subject {
     public Tristate getPermissionValue(Set<Context> set, String permission) {
         Preconditions.checkNotNull(set);
         Preconditions.checkNotNull(permission);
+        Permission perm = getPermission(this, set, permission);
+        Tristate tristate = Tristate.UNDEFINED;
 
-        Tristate tristate;
+        if(perm == null)
+            perm = Default.instance.getPermission(this, set, permission);
 
-        if(!(tristate = getPermissionValue((SubjectData) getSubjectData(), set, permission)).equals(Tristate.UNDEFINED)) {
-            logGetPermissionValue(LOGGER, this, set, permission, tristate);
-            return tristate;
-        }
+        if(perm != null)
+            logGetPermissionValue(LOGGER, this, set, permission, tristate = testPermissionRules(perm));
 
-        if(!(tristate = getPermissionValue((SubjectData) getTransientSubjectData(), set, permission)).equals(Tristate.UNDEFINED)) {
-            logGetPermissionValue(LOGGER, this, set, permission, tristate);
-            return tristate;
-        }
-
-        if(!(tristate = PermissionService.instance.getDefaults().getPermissionValue(set, permission)).equals(Tristate.UNDEFINED)) {
-            logGetPermissionValue(LOGGER, this, set, permission, tristate);
-            return tristate;
-        }
-
-        logGetPermissionValue(LOGGER, this, set, permission, Tristate.UNDEFINED);
-
-        return Tristate.UNDEFINED;
-    }
-
-    private Tristate getPermissionValueTest(Set<Context> set, String permission){
-        Permission perm;
-
-        if(this.getTransientSubjectData().containsContexts(set)){
-            if((perm = this.getTransientSubjectData().getContextContainer(set).getPermissions().getPermission(permission)) != null)
-                return testPermissionRules(perm);
-        }
-
-        if(this.getSubjectData().containsContexts(set)){
-            if((perm = this.getSubjectData().getContextContainer(set).getPermissions().getPermission(permission)) != null)
-                return testPermissionRules(perm);
-        }
-
-        if(getPlayerWorld().isPresent()){
-            Set<Context> worldSet = Sets.newHashSet(new Context(Context.WORLD_KEY, getPlayerWorld().get()));
-
-            if(this.getTransientSubjectData().containsContexts(worldSet)){
-                if((perm = this.getTransientSubjectData().getContextContainer(worldSet).getPermissions().getPermission(permission)) != null)
-                    return testPermissionRules(perm);
-            }
-
-            if(this.getSubjectData().containsContexts(worldSet)){
-                if((perm = this.getSubjectData().getContextContainer(worldSet).getPermissions().getPermission(permission)) != null)
-                    return testPermissionRules(perm);
-            }
-        }
-
-        if(this.getTransientSubjectData().containsContexts(GLOBAL_SET)){
-            if((perm = this.getTransientSubjectData().getContextContainer(GLOBAL_SET).getPermissions().getPermission(permission)) != null)
-                return testPermissionRules(perm);
-        }
-
-        if(this.getSubjectData().containsContexts(GLOBAL_SET)){
-            if((perm = this.getSubjectData().getContextContainer(GLOBAL_SET).getPermissions().getPermission(permission)) != null)
-                return testPermissionRules(perm);
-        }
-
-        return Tristate.UNDEFINED;
-    }
-
-    private Tristate getPermissionValue(SubjectData subjectData, Set<Context> set, String permission){
-        if(ContextUtil.isGlobalContext(set)) {
-            if(getPlayerWorld().isPresent()) {
-                Set<Context> worldContext = Sets.newHashSet(new Context(Context.WORLD_KEY, getPlayerWorld().get()));
-
-                if(subjectData.containsContexts(worldContext)){
-                    Permission value = subjectData.getContextContainer(worldContext).getPermissions().getPermission(permission);
-
-                    if (value != null)
-                        return testPermissionRules(value);
-                }
-            }
-        }
-        else if(subjectData.containsContexts(set)){
-            Permission value = subjectData.getContextContainer(set).getPermissions().getPermission(permission);
-
-            if (value != null)
-                return testPermissionRules(value);
-        }
-
-        if(subjectData.containsContexts(SubjectData.GLOBAL_CONTEXT)){
-            Permission value = subjectData.getContextContainer(SubjectData.GLOBAL_CONTEXT).getPermissions().getPermission(permission);
-
-            if (value != null)
-                return testPermissionRules(value);
-        }
-
-        if(ContextUtil.isGlobalContext(set)) {
-            if(getPlayerWorld().isPresent()) {
-                Set<Context> worldContext = Sets.newHashSet(new Context(Context.WORLD_KEY, getPlayerWorld().get()));
-
-                if(subjectData.containsContexts(worldContext)) {
-                    for (Group group : subjectData.getContextContainer(worldContext).getGroups()) {
-                        Permission perm = group.getPermission(worldContext, permission);
-
-                        if (perm != null)
-                            return testPermissionRules(perm);
-                    }
-                }
-
-                if(subjectData.containsContexts(SubjectData.GLOBAL_CONTEXT)) {
-                    for (Group group : subjectData.getContextContainer(SubjectData.GLOBAL_CONTEXT).getGroups()) {
-                        Permission perm = group.getPermission(worldContext, permission);
-
-                        if (perm != null)
-                            return testPermissionRules(perm);
-                    }
-                }
-            }
-        }
-        else if(subjectData.containsContexts(set)){
-            for (Group group : subjectData.getContextContainer(set).getGroups()) {
-                Permission perm = group.getPermission(set, permission);
-
-                if (perm != null)
-                    return testPermissionRules(perm);
-            }
-        }
-
-        if(subjectData.containsContexts(SubjectData.GLOBAL_CONTEXT)) {
-            for (Group group : subjectData.getContextContainer(SubjectData.GLOBAL_CONTEXT).getGroups()) {
-                Permission perm = group.getPermission(set, permission);
-
-                if (perm != null)
-                    return testPermissionRules(perm);
-            }
-        }
-
-        return Tristate.UNDEFINED;
+        return tristate;
     }
 
     /**
@@ -371,6 +252,16 @@ public class User extends Subject {
         } catch (Exception e){
             return false;
         }
+    }
+
+    @Override
+    public Location<World> getLocation() {
+        return getPlayer().isPresent()?getPlayer().get().getLocation():null;
+    }
+
+    @Override
+    public World getWorld() {
+        return getPlayer().isPresent()?getPlayer().get().getWorld():null;
     }
 
 }

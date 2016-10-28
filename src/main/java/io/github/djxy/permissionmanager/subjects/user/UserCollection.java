@@ -111,7 +111,8 @@ public class UserCollection extends SubjectCollection {
         if(!fromFile)
             user.getSubjectData().addParent(SubjectData.GLOBAL_CONTEXT, GroupCollection.instance.getDefaults());
 
-        user.addListener(subjectListener);
+        user.getSubjectData().addListener(subjectListener);
+        user.getTransientSubjectData().addListener(subjectListener);
 
         LOGGER.info("User: "+uuid+" - Created from file "+fromFile);
 

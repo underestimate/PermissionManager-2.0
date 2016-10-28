@@ -20,7 +20,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
 public class SubjectData implements org.spongepowered.api.service.permission.SubjectData, ConfigurationNodeSerializer, ConfigurationNodeDeserializer {
 
     protected final ConcurrentHashMap<Set<Context>, ContextContainer> contexts = new ConcurrentHashMap<>();
-    private final CopyOnWriteArraySet<SubjectListener> listeners = new CopyOnWriteArraySet<>();
+    private final CopyOnWriteArraySet<SubjectDataListener> listeners = new CopyOnWriteArraySet<>();
+    private io.github.djxy.permissionmanager.util.ImmutableSet<SubjectDataListener> immutableListeners = new io.github.djxy.permissionmanager.util.ImmutableSet<>(listeners);
     private final Subject subject;
 
     public SubjectData(Subject subject) {
@@ -39,11 +40,11 @@ public class SubjectData implements org.spongepowered.api.service.permission.Sub
         return contexts.containsKey(set)?contexts.get(set):null;
     }
 
-    public void addListener(SubjectListener listener){
+    public void addListener(SubjectDataListener listener){
         listeners.add(listener);
     }
 
-    public void removeListener(SubjectListener listener){
+    public void removeListener(SubjectDataListener listener){
         listeners.remove(listener);
     }
 
@@ -81,22 +82,18 @@ public class SubjectData implements org.spongepowered.api.service.permission.Sub
 
         if(tristate != Tristate.UNDEFINED) {
             if(!contexts.containsKey(set))
-                contexts.put(set, new ContextContainer());
+                contexts.put(set, new ContextContainer(subject, set, immutableListeners));
 
             ContextContainer container = contexts.get(set);
 
-            container.getPermissions().putPermission(permission, new Permission(permission, tristate.asBoolean()));
+            Permission perm = new Permission(permission, tristate.asBoolean());
 
-            for(SubjectListener listener : listeners)
-                listener.onSetPermission(set, subject, permission, tristate.asBoolean());
+            container.getPermissions().putPermission(permission, perm);
         }
         else if(contexts.containsKey(set)) {
             ContextContainer container = contexts.get(set);
 
             container.getPermissions().removePermission(permission);
-
-            for(SubjectListener listener : listeners)
-                listener.onRemovePermission(set, subject, permission);
 
             if(container.isEmpty())
                 contexts.remove(set);
@@ -124,13 +121,10 @@ public class SubjectData implements org.spongepowered.api.service.permission.Sub
 
         ContextContainer container = contexts.get(set);
 
-        for(String permission : container.getPermissions().toMap().keySet())
-            for(SubjectListener listener : listeners)
-                listener.onRemovePermission(set, subject, permission);
-
         container.getPermissions().clear();
 
-        contexts.remove(set);
+        if(container.isEmpty())
+            contexts.remove(set);
 
         return true;
     }
@@ -167,13 +161,13 @@ public class SubjectData implements org.spongepowered.api.service.permission.Sub
         Preconditions.checkNotNull(set);
         Preconditions.checkNotNull(subject);
 
-        if(!(subject instanceof Group))
+        if(!(subject instanceof Group) || subject == this)
             return false;
 
         Group parent = (Group) subject;
 
         if(!contexts.containsKey(set))
-            contexts.put(set, new ContextContainer());
+            contexts.put(set, new ContextContainer(subject, set, immutableListeners));
 
         ContextContainer container = contexts.get(set);
 
@@ -263,7 +257,7 @@ public class SubjectData implements org.spongepowered.api.service.permission.Sub
 
         if(value != null){
             if(!contexts.containsKey(set))
-                contexts.put(set, new ContextContainer());
+                contexts.put(set, new ContextContainer(subject, set, immutableListeners));
         }
         else if(!contexts.containsKey(set))
             return false;
@@ -313,7 +307,10 @@ public class SubjectData implements org.spongepowered.api.service.permission.Sub
     public void deserialize(ConfigurationNode node) {
         contexts.clear();
 
-        contexts.put(GLOBAL_CONTEXT, new ContextContainer());
+        immutableListeners.clear();
+        immutableListeners = new io.github.djxy.permissionmanager.util.ImmutableSet<>(listeners);
+
+        contexts.put(GLOBAL_CONTEXT, new ContextContainer(subject, GLOBAL_CONTEXT, immutableListeners));
 
         contexts.get(GLOBAL_CONTEXT).deserialize(node);
 
@@ -327,11 +324,12 @@ public class SubjectData implements org.spongepowered.api.service.permission.Sub
                 Map<Object,ConfigurationNode> map = (Map<Object, ConfigurationNode>) contextNode.getChildrenMap();
 
                 for(Object mapNode : map.keySet()){
-                    ContextContainer container = new ContextContainer();
+                    Set<Context> set = Sets.newHashSet(new Context(contextKeys[i], mapNode.toString()));
+                    ContextContainer container = new ContextContainer(subject, set, immutableListeners);
 
                     container.deserialize(map.get(mapNode));
 
-                    contexts.put(Sets.newHashSet(new Context(contextKeys[i], mapNode.toString())), container);
+                    contexts.put(set, container);
                 }
             }
         }
@@ -392,7 +390,7 @@ public class SubjectData implements org.spongepowered.api.service.permission.Sub
         if(set.isEmpty())
             return;
 
-        ContextContainer container = new ContextContainer();
+        ContextContainer container = new ContextContainer(subject, set, immutableListeners);
 
         container.deserialize(node);
 

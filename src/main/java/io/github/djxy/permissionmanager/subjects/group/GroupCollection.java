@@ -88,7 +88,8 @@ public class GroupCollection extends SubjectCollection {
 
         subjects.put(identifier, group);
 
-        group.addListener(subjectListener);
+        group.getSubjectData().addListener(subjectListener);
+        group.getTransientSubjectData().addListener(subjectListener);
         group.addListener(groupListener);
 
         LOGGER.info("Group: " + group.getIdentifier() + " - Created.");

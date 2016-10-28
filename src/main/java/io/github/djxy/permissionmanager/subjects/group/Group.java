@@ -129,18 +129,6 @@ public class Group extends Subject implements Comparable<Group> {
         return Optional.empty();
     }
 
-    @Override
-    public Tristate getPermissionValue(Set<Context> set, String permission) {
-        Preconditions.checkNotNull(set);
-        Preconditions.checkNotNull(permission);
-        Permission perm;
-
-        if((perm = getPermission(set, permission)) != null)
-            return Tristate.fromBoolean(perm.getValue());
-
-        return Tristate.UNDEFINED;
-    }
-
     public Permission getPermission(Set<Context> set, String permission) {
         Preconditions.checkNotNull(set);
         Preconditions.checkNotNull(permission);

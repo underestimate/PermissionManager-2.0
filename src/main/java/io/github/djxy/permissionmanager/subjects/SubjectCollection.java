@@ -33,7 +33,7 @@ public abstract class SubjectCollection implements org.spongepowered.api.service
     protected final String identifier;
     protected final String subjectName;
     protected final ConcurrentHashMap<String,Subject> subjects = new ConcurrentHashMap<>();
-    protected final Listener subjectListener = new Listener();
+    protected final DataListener subjectListener = new DataListener();
     private final ConcurrentHashMap<Context, ConcurrentHashMap<String, ConcurrentHashMap<Subject, Boolean>>> contextsSubjectsWithPermissions = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, ConcurrentHashMap<Subject, Boolean>> globalContextSubjectsWithPermissions = new ConcurrentHashMap<>();
     protected Path directory;
@@ -214,13 +214,12 @@ public abstract class SubjectCollection implements org.spongepowered.api.service
         LOGGER.info(subjectName+": " + identifier + " - Saved.");
     }
 
-    private class Listener implements io.github.djxy.permissionmanager.subjects.SubjectListener {
+    private class DataListener implements SubjectDataListener {
 
         @Override
-        public void onSetPermission(Set<Context> set, Subject subject, String permission, boolean value) {
+        public void onSetPermission(Set<Context> set, Subject subject, Permission permission) {
             Preconditions.checkNotNull(set);
             Preconditions.checkNotNull(permission);
-            Preconditions.checkNotNull(value);
 
             ConcurrentHashMap<String, ConcurrentHashMap<Subject, Boolean>> subjectWithPermissions = null;
 
@@ -238,10 +237,10 @@ public abstract class SubjectCollection implements org.spongepowered.api.service
             if(subjectWithPermissions == null)
                 return;
 
-            if(!subjectWithPermissions.containsKey(permission))
-                subjectWithPermissions.put(permission, new ConcurrentHashMap<>());
+            if(!subjectWithPermissions.containsKey(permission.getPermission()))
+                subjectWithPermissions.put(permission.getPermission(), new ConcurrentHashMap<>());
 
-            subjectWithPermissions.get(permission).put(subject, value);
+            subjectWithPermissions.get(permission.getPermission()).put(subject, permission.getValue());
         }
 
         @Override

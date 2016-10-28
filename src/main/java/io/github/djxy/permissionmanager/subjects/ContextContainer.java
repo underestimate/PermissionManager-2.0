@@ -6,6 +6,8 @@ import io.github.djxy.permissionmanager.subjects.group.Group;
 import io.github.djxy.permissionmanager.subjects.group.GroupCollection;
 import io.github.djxy.permissionmanager.subjects.group.GroupListener;
 import ninja.leaping.configurate.ConfigurationNode;
+import org.spongepowered.api.service.context.Context;
+import org.spongepowered.api.service.permission.Subject;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -19,11 +21,21 @@ public class ContextContainer implements GroupListener, ConfigurationNodeSeriali
     private final PermissionMap permissions;
     private final CopyOnWriteArrayList<Group> groups;
     private final ConcurrentHashMap<String, String> options;
+    private final Subject subject;
+    private final Set<Context> contexts;
+    private final Set<SubjectDataListener> listeners;
 
-    public ContextContainer() {
-        this.permissions = new PermissionMap();
+    public ContextContainer(Subject subject, Set<Context> contexts, Set<SubjectDataListener> listeners) {
+        this.subject = subject;
+        this.permissions = new PermissionMap(listeners, contexts, subject);
         this.groups = new CopyOnWriteArrayList<>();
         this.options = new ConcurrentHashMap<>();
+        this.listeners = listeners;
+        this.contexts = contexts;
+    }
+
+    public ContextContainer() {
+        this(null, new HashSet<>(), new HashSet<>());
     }
 
     public boolean isEmpty(){
@@ -54,6 +66,10 @@ public class ContextContainer implements GroupListener, ConfigurationNodeSeriali
 
         groups.add(group);
 
+        if(subject != null)
+            for(SubjectDataListener listener : listeners)
+                listener.onAddGroup(contexts, subject, group);
+
         Collections.sort(groups);
     }
 
@@ -63,6 +79,10 @@ public class ContextContainer implements GroupListener, ConfigurationNodeSeriali
         group.removeListener(this);
 
         groups.remove(group);
+
+        if(subject != null)
+            for(SubjectDataListener listener : listeners)
+                listener.onRemoveGroup(contexts, subject, group);
     }
 
     public Map<String,String> getOptions(){
