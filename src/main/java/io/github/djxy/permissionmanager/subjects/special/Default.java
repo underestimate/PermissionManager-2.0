@@ -77,23 +77,23 @@ public class Default implements org.spongepowered.api.service.permission.Subject
             Set<Context> worldSet = Sets.newHashSet(new Context(Context.WORLD_KEY, ((Locatable) subject).getWorld().getName()));
 
             if((perm = getPermission(this.getSubjectData(), worldSet, permission)) != null) {
-                Subject.logGetPermissionValue(LOGGER, this, set, permission, Tristate.fromBoolean(perm.getValue()));
+                Subject.logGetPermissionValue(LOGGER, this, worldSet, permission, Tristate.fromBoolean(perm.getValue()));
                 return perm;
             }
 
             if((perm = getPermission(this.getTransientSubjectData(), worldSet, permission)) != null) {
-                Subject.logGetPermissionValue(LOGGER, this, set, permission, Tristate.fromBoolean(perm.getValue()));
+                Subject.logGetPermissionValue(LOGGER, this, worldSet, permission, Tristate.fromBoolean(perm.getValue()));
                 return perm;
             }
         }
         
         if((perm = getPermission(this.getSubjectData(), org.spongepowered.api.service.permission.SubjectData.GLOBAL_CONTEXT, permission)) != null) {
-            Subject.logGetPermissionValue(LOGGER, this, set, permission, Tristate.fromBoolean(perm.getValue()));
+            Subject.logGetPermissionValue(LOGGER, this, org.spongepowered.api.service.permission.SubjectData.GLOBAL_CONTEXT, permission, Tristate.fromBoolean(perm.getValue()));
             return perm;
         }
 
         if((perm = getPermission(this.getTransientSubjectData(), org.spongepowered.api.service.permission.SubjectData.GLOBAL_CONTEXT, permission)) != null) {
-            Subject.logGetPermissionValue(LOGGER, this, set, permission, Tristate.fromBoolean(perm.getValue()));
+            Subject.logGetPermissionValue(LOGGER, this, org.spongepowered.api.service.permission.SubjectData.GLOBAL_CONTEXT, permission, Tristate.fromBoolean(perm.getValue()));
             return perm;
         }
 
