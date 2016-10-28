@@ -56,12 +56,8 @@ public class Default implements org.spongepowered.api.service.permission.Subject
         Preconditions.checkNotNull(set);
         Preconditions.checkNotNull(permission);
         Permission perm = getPermission(this, set, permission);
-        Tristate tristate = Tristate.UNDEFINED;
 
-        if(perm != null)
-            Subject.logGetPermissionValue(LOGGER, this, set, permission, Tristate.fromBoolean(perm.getValue()));
-
-        return tristate;
+        return perm == null?Tristate.UNDEFINED:Tristate.fromBoolean(perm.getValue());
     }
 
     public Permission getPermission(org.spongepowered.api.service.permission.Subject subject, Set<Context> set, String permission){

@@ -64,49 +64,58 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
         return activeContexts;
     }
 
-    public boolean isLocatable() {
-        return locatable;
-    }
-
     @Override
     public Tristate getPermissionValue(Set<Context> set, String s) {
         Preconditions.checkNotNull(set);
         Preconditions.checkNotNull(s);
         Permission perm = getPermission(this, set, s);
-        Tristate tristate;
 
         if(perm == null)
             perm = Default.instance.getPermission(this, set, s);
+        else
+            return Tristate.fromBoolean(perm.getValue());
 
-        logGetPermissionValue(LOGGER, this, set, s, tristate = (perm == null?Tristate.UNDEFINED:Tristate.fromBoolean(perm.getValue())));
-
-        return tristate;
+        return perm == null?Tristate.UNDEFINED:Tristate.fromBoolean(perm.getValue());
     }
 
     protected Permission getPermission(Subject subject, Set<Context> set, String permission){
         Permission perm;
 
-        if((perm = getPermission(this.getTransientSubjectData(), set, permission)) != null)
+        if((perm = getPermission(this.getTransientSubjectData(), set, permission)) != null) {
+            logGetPermissionValue(LOGGER, this, set, permission, Tristate.fromBoolean(perm.getValue()));
             return perm;
+        }
 
-        if((perm = getPermission(this.getSubjectData(), set, permission)) != null)
+        if((perm = getPermission(this.getSubjectData(), set, permission)) != null) {
+            logGetPermissionValue(LOGGER, this, set, permission, Tristate.fromBoolean(perm.getValue()));
             return perm;
+        }
 
         if(subject.locatable && ((Locatable) subject).getWorld() != null){
             Set<Context> worldSet = Sets.newHashSet(new Context(Context.WORLD_KEY, ((Locatable) subject).getWorld().getName()));
 
-            if((perm = getPermission(this.getTransientSubjectData(), worldSet, permission)) != null)
+            if((perm = getPermission(this.getTransientSubjectData(), worldSet, permission)) != null) {
+                logGetPermissionValue(LOGGER, this, set, permission, Tristate.fromBoolean(perm.getValue()));
                 return perm;
+            }
 
-            if((perm = getPermission(this.getSubjectData(), worldSet, permission)) != null)
+            if((perm = getPermission(this.getSubjectData(), worldSet, permission)) != null) {
+                logGetPermissionValue(LOGGER, this, set, permission, Tristate.fromBoolean(perm.getValue()));
                 return perm;
+            }
         }
 
-        if((perm = getPermission(this.getTransientSubjectData(), GLOBAL_SET, permission)) != null)
+        if((perm = getPermission(this.getTransientSubjectData(), GLOBAL_SET, permission)) != null) {
+            logGetPermissionValue(LOGGER, this, set, permission, Tristate.fromBoolean(perm.getValue()));
             return perm;
+        }
 
-        if((perm = getPermission(this.getSubjectData(), GLOBAL_SET, permission)) != null)
+        if((perm = getPermission(this.getSubjectData(), GLOBAL_SET, permission)) != null) {
+            logGetPermissionValue(LOGGER, this, set, permission, Tristate.fromBoolean(perm.getValue()));
             return perm;
+        }
+
+        logGetPermissionValue(LOGGER, this, set, permission, Tristate.UNDEFINED);
 
         for(Group group : getGroups(this.getTransientSubjectData(), set))
             if((perm = group.getPermission(subject, set, permission)) != null)
@@ -135,8 +144,6 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
         for(Group group : getGroups(this.getSubjectData(), GLOBAL_SET))
             if((perm = group.getPermission(subject, set, permission)) != null)
                 return perm;
-
-        logGetPermissionValue(LOGGER, this, set, permission, Tristate.UNDEFINED);
 
         return null;
     }

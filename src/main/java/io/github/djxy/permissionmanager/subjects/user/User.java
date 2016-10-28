@@ -181,15 +181,13 @@ public class User extends Subject implements Locatable {
         Preconditions.checkNotNull(set);
         Preconditions.checkNotNull(permission);
         Permission perm = getPermission(this, set, permission);
-        Tristate tristate = Tristate.UNDEFINED;
 
         if(perm == null)
             perm = Default.instance.getPermission(this, set, permission);
+        else
+            return testPermissionRules(perm);
 
-        if(perm != null)
-            logGetPermissionValue(LOGGER, this, set, permission, tristate = testPermissionRules(perm));
-
-        return tristate;
+        return perm == null?Tristate.UNDEFINED:testPermissionRules(perm);
     }
 
     /**
