@@ -51,7 +51,20 @@ public class Default implements org.spongepowered.api.service.permission.Subject
         this.file = file;
     }
 
-    public Permission getPermission(Subject subject, Set<Context> set, String permission){
+    @Override
+    public Tristate getPermissionValue(Set<Context> set, String permission) {
+        Preconditions.checkNotNull(set);
+        Preconditions.checkNotNull(permission);
+        Permission perm = getPermission(this, set, permission);
+        Tristate tristate = Tristate.UNDEFINED;
+
+        if(perm != null)
+            Subject.logGetPermissionValue(LOGGER, this, set, permission, Tristate.fromBoolean(perm.getValue()));
+
+        return tristate;
+    }
+
+    public Permission getPermission(org.spongepowered.api.service.permission.Subject subject, Set<Context> set, String permission){
         Permission perm;
 
         if((perm = getPermission(this.getSubjectData(), set, permission)) != null)
@@ -60,7 +73,7 @@ public class Default implements org.spongepowered.api.service.permission.Subject
         if((perm = getPermission(this.getTransientSubjectData(), set, permission)) != null)
             return perm;
 
-        if(subject.isLocatable() && ((Locatable) subject).getWorld() != null){
+        if(subject instanceof Locatable && ((Locatable) subject).getWorld() != null){
             Set<Context> worldSet = Sets.newHashSet(new Context(Context.WORLD_KEY, ((Locatable) subject).getWorld().getName()));
 
             if((perm = getPermission(this.getSubjectData(), worldSet, permission)) != null)
@@ -75,6 +88,8 @@ public class Default implements org.spongepowered.api.service.permission.Subject
 
         if((perm = getPermission(this.getTransientSubjectData(), org.spongepowered.api.service.permission.SubjectData.GLOBAL_CONTEXT, permission)) != null)
             return perm;
+
+        Subject.logGetPermissionValue(LOGGER, this, set, permission, Tristate.UNDEFINED);
 
         return null;
     }
@@ -113,27 +128,6 @@ public class Default implements org.spongepowered.api.service.permission.Subject
     @Override
     public boolean hasPermission(Set<Context> set, String s) {
         return getPermissionValue(set, s).asBoolean();
-    }
-
-    @Override
-    public Tristate getPermissionValue(Set<Context> set, String permission) {
-        Preconditions.checkNotNull(set);
-        Preconditions.checkNotNull(permission);
-        Permission perm;
-
-        if(data.containsContexts(set) && (perm = data.getContextContainer(set).getPermissions().getPermission(permission)) != null) {
-            Subject.logGetPermissionValue(LOGGER, this, set, permission, Tristate.fromBoolean(perm.getValue()));
-            return Tristate.fromBoolean(perm.getValue());
-        }
-
-        if(transientData.containsContexts(set) && (perm = transientData.getContextContainer(set).getPermissions().getPermission(permission)) != null) {
-            Subject.logGetPermissionValue(LOGGER, this, set, permission, Tristate.fromBoolean(perm.getValue()));
-            return Tristate.fromBoolean(perm.getValue());
-        }
-
-        Subject.logGetPermissionValue(LOGGER, this, set, permission, Tristate.UNDEFINED);
-
-        return Tristate.UNDEFINED;
     }
 
     @Override
