@@ -11,6 +11,7 @@ import io.github.djxy.permissionmanager.subjects.group.Group;
 import io.github.djxy.permissionmanager.subjects.special.Default;
 import io.github.djxy.permissionmanager.util.ContextUtil;
 import ninja.leaping.configurate.ConfigurationNode;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.service.context.ContextCalculator;
@@ -34,6 +35,8 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
     protected final SubjectData data;
     protected final SubjectData transientData;
     private final boolean locatable;
+    private final Set<Context> activeContexts = new HashSet<>();
+    private long activeContextsLastTick = -1;
 
     public Subject(String identifier, SubjectCollection collection) {
         Preconditions.checkNotNull(identifier);
@@ -44,6 +47,21 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
         this.data = new SubjectData(this);
         this.transientData = new SubjectData(this);
         this.locatable = this instanceof Locatable;
+    }
+
+    @Override
+    public Set<Context> getActiveContexts() {
+        int tick = Sponge.getServer().getRunningTimeTicks();
+
+        if(tick != activeContextsLastTick){
+            activeContextsLastTick = tick;
+            activeContexts.clear();
+
+            for(ContextCalculator contextCalculator : PermissionService.instance.getContextCalculators())
+                contextCalculator.accumulateContexts(this, activeContexts);
+        }
+
+        return activeContexts;
     }
 
     public boolean isLocatable() {
@@ -170,16 +188,6 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
 
     public String getIdentifier() {
         return identifier;
-    }
-
-    @Override
-    public Set<Context> getActiveContexts() {
-        Set<Context> set = new HashSet<>();
-
-        for(ContextCalculator contextCalculator : PermissionService.instance.getContextCalculators())
-            contextCalculator.accumulateContexts(this, set);
-
-        return set;
     }
 
     @Override
