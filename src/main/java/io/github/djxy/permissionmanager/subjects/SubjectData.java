@@ -152,7 +152,6 @@ public class SubjectData implements org.spongepowered.api.service.permission.Sub
 
         ContextContainer container = contexts.get(set);
 
-
         return (List) container.getGroups();
     }
 
