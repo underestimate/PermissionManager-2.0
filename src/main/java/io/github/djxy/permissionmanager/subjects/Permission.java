@@ -70,4 +70,11 @@ public class Permission implements ConfigurationNodeDeserializer, ConfigurationN
         }
     }
 
+    @Override
+    public String toString() {
+        return "Permission{" +
+                "permission='" + permission + '\'' +
+                ", value=" + value +
+                '}';
+    }
 }
