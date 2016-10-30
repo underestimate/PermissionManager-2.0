@@ -2,9 +2,7 @@ package io.github.djxy.permissionmanager.subjects.user;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import io.github.djxy.permissionmanager.PermissionService;
 import io.github.djxy.permissionmanager.language.Language;
 import io.github.djxy.permissionmanager.logger.Logger;
 import io.github.djxy.permissionmanager.rules.Rule;
@@ -26,7 +24,11 @@ import org.spongepowered.api.world.Locatable;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -184,8 +186,18 @@ public class User extends Subject implements Locatable {
 
         if(perm == null)
             perm = Default.instance.getPermission(this, set, permission);
-        else
+        else {
+            /*if(set.equals(Sets.newHashSet(new Context("gp_claim", "0cc71067-d6e6-4f11-90eb-006aa3aa0196")))) {
+                System.out.println(permission+" "+perm);
+                System.out.println();
+            }*/
             return testPermissionRules(perm);
+        }
+
+        /*if(set.equals(Sets.newHashSet(new Context("gp_claim", "0cc71067-d6e6-4f11-90eb-006aa3aa0196")))) {
+            System.out.println(permission+" "+perm);
+            System.out.println();
+        }*/
 
         return perm == null?Tristate.UNDEFINED:testPermissionRules(perm);
     }

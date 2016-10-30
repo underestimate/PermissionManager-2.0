@@ -57,11 +57,6 @@ public class Default implements org.spongepowered.api.service.permission.Subject
         Preconditions.checkNotNull(permission);
         Permission perm = getPermission(this, set, permission);
 
-        /*if(set.equals(Sets.newHashSet(new Context("gp_claim", "0cc71067-d6e6-4f11-90eb-006aa3aa0196")))) {
-            System.out.println(permission+" "+data.getContextContainer(set).getPermissions().getPermission(permission));
-            System.out.println(permission+" "+perm);
-        }*/
-
         return perm == null?Tristate.UNDEFINED:Tristate.fromBoolean(perm.getValue());
     }
 
