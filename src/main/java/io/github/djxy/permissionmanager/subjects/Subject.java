@@ -5,21 +5,23 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import io.github.djxy.permissionmanager.PermissionService;
 import io.github.djxy.permissionmanager.logger.Logger;
-import io.github.djxy.permissionmanager.rules.Rule;
-import io.github.djxy.permissionmanager.rules.Rules;
 import io.github.djxy.permissionmanager.subjects.group.Group;
 import io.github.djxy.permissionmanager.subjects.special.Default;
 import io.github.djxy.permissionmanager.util.ContextUtil;
 import ninja.leaping.configurate.ConfigurationNode;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.service.context.ContextCalculator;
 import org.spongepowered.api.service.permission.SubjectCollection;
 import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.world.Locatable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Created by Samuel on 2016-08-09.
