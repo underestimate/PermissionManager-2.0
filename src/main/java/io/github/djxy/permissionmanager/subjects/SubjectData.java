@@ -69,6 +69,11 @@ public class SubjectData implements org.spongepowered.api.service.permission.Sub
         if(!contexts.containsKey(set))
             return new HashMap<>();
 
+        /*if(set.equals(Sets.newHashSet(new Context("gp_claim", "0cc71067-d6e6-4f11-90eb-006aa3aa0196")))) {
+            System.out.println(contexts.get(set).getPermissions().toMap());
+            System.out.println(contexts.get(set).getPermissions().toMap().isEmpty());
+        }*/
+
         ContextContainer container = contexts.get(set);
 
         return container.getPermissions().toMap();
