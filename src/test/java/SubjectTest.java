@@ -1,6 +1,4 @@
 import com.google.common.collect.Sets;
-import io.github.djxy.permissionmanager.PermissionService;
-import io.github.djxy.permissionmanager.exceptions.SubjectIdentifierExistException;
 import io.github.djxy.permissionmanager.language.Language;
 import io.github.djxy.permissionmanager.logger.Logger;
 import io.github.djxy.permissionmanager.logger.LoggerMode;
@@ -100,7 +98,6 @@ public class SubjectTest {
 
             groupGlobal.setRank(0);
             user.setLanguage(Language.getLanguage("fra"));
-            Thread.sleep(1000);
         } catch (Exception e) {
             e.printStackTrace();
         }
