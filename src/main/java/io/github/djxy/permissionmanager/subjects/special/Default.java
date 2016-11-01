@@ -210,9 +210,6 @@ public class Default implements org.spongepowered.api.service.permission.Subject
 
         data.serialize(node);
 
-        /*transientData.serialize(node.getNode("transient"));
-        data.serialize(node.getNode("persistent"));*/
-
         try {
             loader.save(node);
             LOGGER.info(IDENTIFIER+": Saved.");
@@ -230,8 +227,6 @@ public class Default implements org.spongepowered.api.service.permission.Subject
 
             data.deserialize(node);
 
-            //data.deserialize(node.getNode("persistent"));
-            
             LOGGER.info(IDENTIFIER+": Loaded.");
         } catch (Exception e) {
             e.printStackTrace();
