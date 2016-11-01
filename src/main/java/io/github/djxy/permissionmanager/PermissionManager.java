@@ -38,6 +38,7 @@ import java.nio.file.Path;
 /**
  * Created by Samuel on 2016-08-07.
  */
+@Plugin(id = "permissionmanager", name = "PermissionManager", version = "2.5.0", authors = {"Djxy"})
 public class PermissionManager {
 
     private static final int FG_COMPAT_MIN_VERSION = 1;
