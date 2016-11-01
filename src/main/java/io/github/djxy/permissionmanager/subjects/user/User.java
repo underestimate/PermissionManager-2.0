@@ -2,18 +2,13 @@ package io.github.djxy.permissionmanager.subjects.user;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Sets;
 import io.github.djxy.permissionmanager.language.Language;
 import io.github.djxy.permissionmanager.logger.Logger;
 import io.github.djxy.permissionmanager.rules.Rule;
 import io.github.djxy.permissionmanager.rules.Rules;
-import io.github.djxy.permissionmanager.subjects.ContextContainer;
 import io.github.djxy.permissionmanager.subjects.Permission;
 import io.github.djxy.permissionmanager.subjects.Subject;
-import io.github.djxy.permissionmanager.subjects.SubjectData;
-import io.github.djxy.permissionmanager.subjects.group.Group;
 import io.github.djxy.permissionmanager.subjects.special.Default;
-import io.github.djxy.permissionmanager.util.ContextUtil;
 import ninja.leaping.configurate.ConfigurationNode;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
@@ -36,7 +31,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class User extends Subject implements Locatable {
 
-    private final static Set<Context> GLOBAL_SET = org.spongepowered.api.service.permission.SubjectData.GLOBAL_CONTEXT;
     private final static Logger LOGGER = new Logger(User.class);
 
     private final UUID uuid;
@@ -87,98 +81,6 @@ public class User extends Subject implements Locatable {
     }
 
     @Override
-    public Optional<String> getOption(Set<Context> set, String key) {
-        Preconditions.checkNotNull(set);
-        Preconditions.checkNotNull(key);
-        Optional<String> opt;
-
-        if((opt = getOption(getSubjectData(), set, key)).isPresent()) {
-            logGetOption(LOGGER, this, set, key, opt);
-            return opt;
-        }
-
-        if((opt = getOption(getTransientSubjectData(), set, key)).isPresent()){
-            logGetOption(LOGGER, this, set, key, opt);
-            return opt;
-        }
-
-        return Default.instance.getOption(set, key);
-    }
-
-    private Optional<String> getOption(SubjectData subjectData, Set<Context> set, String key){
-        if(ContextUtil.isGlobalContext(set)) {
-            if(getPlayerWorld().isPresent()) {
-                Set<Context> worldContext = Sets.newHashSet(new Context(Context.WORLD_KEY, getPlayerWorld().get()));
-
-                if(subjectData.containsContexts(worldContext)) {
-                    String value = subjectData.getContextContainer(worldContext).getOption(key);
-
-                    if (value != null)
-                        return Optional.of(value);
-                }
-            }
-        }
-        else if(subjectData.containsContexts(set)){
-            String value = subjectData.getContextContainer(set).getOption(key);
-
-            if (value != null)
-                return Optional.of(value);
-        }
-
-        if(subjectData.containsContexts(SubjectData.GLOBAL_CONTEXT)){
-            ContextContainer globalContainer = subjectData.getContextContainer(SubjectData.GLOBAL_CONTEXT);
-
-            String value = globalContainer.getOption(key);
-
-            if (value != null)
-                return Optional.of(value);
-        }
-
-        if(ContextUtil.isGlobalContext(set)) {
-            if(getPlayerWorld().isPresent()) {
-                Set<Context> worldContext = Sets.newHashSet(new Context(Context.WORLD_KEY, getPlayerWorld().get()));
-
-                if(subjectData.containsContexts(worldContext)) {
-                    for (Group group : subjectData.getContextContainer(worldContext).getGroups()) {
-                        Optional<String> valueOpt = group.getOption(worldContext, key);
-
-                        if (valueOpt.isPresent())
-                            return valueOpt;
-                    }
-                }
-
-                if(subjectData.containsContexts(SubjectData.GLOBAL_CONTEXT)){
-                    for (Group group : subjectData.getContextContainer(SubjectData.GLOBAL_CONTEXT).getGroups()) {
-                        Optional<String> valueOpt = group.getOption(worldContext, key);
-
-                        if (valueOpt.isPresent())
-                            return valueOpt;
-                    }
-                }
-            }
-        }
-        else if(subjectData.containsContexts(set)){
-            for (Group group : subjectData.getContextContainer(set).getGroups()) {
-                Optional<String> valueOpt = group.getOption(set, key);
-
-                if (valueOpt.isPresent())
-                    return valueOpt;
-            }
-        }
-
-        if(subjectData.containsContexts(SubjectData.GLOBAL_CONTEXT)){
-            for (Group group : subjectData.getContextContainer(SubjectData.GLOBAL_CONTEXT).getGroups()) {
-                Optional<String> valueOpt = group.getOption(set, key);
-
-                if (valueOpt.isPresent())
-                    return valueOpt;
-            }
-        }
-
-        return Optional.empty();
-    }
-
-    @Override
     public Tristate getPermissionValue(Set<Context> set, String permission) {
         Preconditions.checkNotNull(set);
         Preconditions.checkNotNull(permission);
@@ -190,6 +92,20 @@ public class User extends Subject implements Locatable {
             return testPermissionRules(perm);
 
         return perm == null?Tristate.UNDEFINED:testPermissionRules(perm);
+    }
+
+    @Override
+    public Optional<String> getOption(Set<Context> set, String s) {
+        Preconditions.checkNotNull(set);
+        Preconditions.checkNotNull(s);
+        String value = getOption(this, set, s);
+
+        if(value == null)
+            value = Default.instance.getOption(this, set, s);
+        else
+            return Optional.of(value);
+
+        return value == null?Optional.empty():Optional.of(value);
     }
 
     /**
