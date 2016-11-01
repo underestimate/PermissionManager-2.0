@@ -186,18 +186,8 @@ public class User extends Subject implements Locatable {
 
         if(perm == null)
             perm = Default.instance.getPermission(this, set, permission);
-        else {
-            /*if(set.equals(Sets.newHashSet(new Context("gp_claim", "0cc71067-d6e6-4f11-90eb-006aa3aa0196")))) {
-                System.out.println(permission+" "+perm);
-                System.out.println();
-            }*/
+        else
             return testPermissionRules(perm);
-        }
-
-        /*if(set.equals(Sets.newHashSet(new Context("gp_claim", "0cc71067-d6e6-4f11-90eb-006aa3aa0196")))) {
-            System.out.println(permission+" "+perm);
-            System.out.println();
-        }*/
 
         return perm == null?Tristate.UNDEFINED:testPermissionRules(perm);
     }
