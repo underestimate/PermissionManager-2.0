@@ -80,6 +80,20 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
         return perm == null?Tristate.UNDEFINED:Tristate.fromBoolean(perm.getValue());
     }
 
+    @Override
+    public Optional<String> getOption(Set<Context> set, String s) {
+        Preconditions.checkNotNull(set);
+        Preconditions.checkNotNull(s);
+        String option = getOption(this, set, s);
+
+        if(option == null)
+            option = Default.instance.getOption(this, set, s);
+        else
+            return Optional.of(option);
+
+        return option == null?Optional.empty():Optional.of(option);
+    }
+
     protected Permission getPermission(Subject subject, Set<Context> set, String permission){
         Permission perm;
 
@@ -150,6 +164,74 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
         return null;
     }
 
+    protected String getOption(Subject subject, Set<Context> set, String option){
+        String value;
+
+        if((value = getOption(this.getTransientSubjectData(), set, option)) != null) {
+            logGetOption(LOGGER, this, set, option, value);
+            return value;
+        }
+
+        if((value = getOption(this.getSubjectData(), set, option)) != null) {
+            logGetOption(LOGGER, this, set, option, value);
+            return value;
+        }
+
+        if(subject.locatable && ((Locatable) subject).getWorld() != null){
+            Set<Context> worldSet = Sets.newHashSet(new Context(Context.WORLD_KEY, ((Locatable) subject).getWorld().getName()));
+
+            if((value = getOption(this.getTransientSubjectData(), worldSet, option)) != null) {
+                logGetOption(LOGGER, this, set, option, value);
+                return value;
+            }
+
+            if((value = getOption(this.getSubjectData(), worldSet, option)) != null) {
+                logGetOption(LOGGER, this, set, option, value);
+                return value;
+            }
+        }
+
+        if((value = getOption(this.getTransientSubjectData(), GLOBAL_SET, option)) != null) {
+            logGetOption(LOGGER, this, set, option, value);
+            return value;
+        }
+
+        if((value = getOption(this.getSubjectData(), GLOBAL_SET, option)) != null) {
+            logGetOption(LOGGER, this, set, option, value);
+            return value;
+        }
+
+        for(Group group : getGroups(this.getTransientSubjectData(), set))
+            if((value = group.getOption(subject, set, option)) != null)
+                return value;
+
+        for(Group group : getGroups(this.getSubjectData(), set))
+            if((value = group.getOption(subject, set, option)) != null)
+                return value;
+
+        if(subject.locatable && ((Locatable) subject).getWorld() != null){
+            Set<Context> worldSet = Sets.newHashSet(new Context(Context.WORLD_KEY, ((Locatable) subject).getWorld().getName()));
+
+            for(Group group : getGroups(this.getTransientSubjectData(), worldSet))
+                if((value = group.getOption(subject, set, option)) != null)
+                    return value;
+
+            for(Group group : getGroups(this.getSubjectData(), worldSet))
+                if((value = group.getOption(subject, set, option)) != null)
+                    return value;
+        }
+
+        for(Group group : getGroups(this.getTransientSubjectData(), GLOBAL_SET))
+            if((value = group.getOption(subject, set, option)) != null)
+                return value;
+
+        for(Group group : getGroups(this.getSubjectData(), GLOBAL_SET))
+            if((value = group.getOption(subject, set, option)) != null)
+                return value;
+
+        return null;
+    }
+
     private List<Group> getGroups(SubjectData subjectData, Set<Context> set){
         return subjectData.containsContexts(set)?subjectData.getContextContainer(set).getGroups():EMPTY_GROUPS;
     }
@@ -160,6 +242,17 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
         if(subjectData.containsContexts(set)){
             if((perm = subjectData.getContextContainer(set).getPermissions().getPermission(permission)) != null)
                 return perm;
+        }
+
+        return null;
+    }
+
+    private String getOption(SubjectData subjectData, Set<Context> set, String option){
+        String opt;
+
+        if(subjectData.containsContexts(set)){
+            if((opt = subjectData.getContextContainer(set).getOption(option)) != null)
+                return opt;
         }
 
         return null;
@@ -263,7 +356,7 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
         logger.info("Subject: "+subject.getIdentifier() +" - Contexts " + set+ " - Permission: " + permission + " - Tristate: "+tristate.name());
     }
 
-    public static void logGetOption(Logger logger, org.spongepowered.api.service.permission.Subject subject, Set<Context> set, String option, Optional<String> value){
+    public static void logGetOption(Logger logger, org.spongepowered.api.service.permission.Subject subject, Set<Context> set, String option, String value){
         logger.info("Subject: "+subject.getIdentifier() +" - Contexts " + set+ " - Option: " + option + " - Value: "+value);
     }
 

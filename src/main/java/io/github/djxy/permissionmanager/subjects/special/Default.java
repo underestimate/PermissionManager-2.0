@@ -172,24 +172,63 @@ public class Default implements org.spongepowered.api.service.permission.Subject
     }
 
     @Override
-    public Optional<String> getOption(Set<Context> set, String key) {
-        Preconditions.checkNotNull(set);
-        Preconditions.checkNotNull(key);
-        String option;
+    public Optional<String> getOption(Set<Context> set, String option) {
+        String value = getOption(this, set, option);
 
-        if(data.containsContexts(set) && (option = data.getContextContainer(set).getOption(key)) != null) {
-            Subject.logGetOption(LOGGER, this, set, key, Optional.of(option));
-            return Optional.of(option);
+        return value == null?Optional.empty():Optional.of(value);
+    }
+
+    public String getOption(org.spongepowered.api.service.permission.Subject subject, Set<Context> set, String option){
+        String value;
+
+        if((value = getOption(this.getSubjectData(), set, option)) != null) {
+            Subject.logGetOption(LOGGER, this, set, option, value);
+            return value;
         }
 
-        if(transientData.containsContexts(set) && (option = transientData.getContextContainer(set).getOption(key)) != null) {
-            Subject.logGetOption(LOGGER, this, set, key, Optional.of(option));
-            return Optional.of(option);
+        if((value = getOption(this.getTransientSubjectData(), set, option)) != null) {
+            Subject.logGetOption(LOGGER, this, set, option, value);
+            return value;
         }
 
-        Subject.logGetOption(LOGGER, this, set, key, Optional.empty());
+        if(subject instanceof Locatable && ((Locatable) subject).getWorld() != null){
+            Set<Context> worldSet = Sets.newHashSet(new Context(Context.WORLD_KEY, ((Locatable) subject).getWorld().getName()));
 
-        return Optional.empty();
+            if((value = getOption(this.getSubjectData(), worldSet, option)) != null) {
+                Subject.logGetOption(LOGGER, this, set, option, value);
+                return value;
+            }
+
+            if((value = getOption(this.getTransientSubjectData(), worldSet, option)) != null) {
+                Subject.logGetOption(LOGGER, this, set, option, value);
+                return value;
+            }
+        }
+
+        if((value = getOption(this.getSubjectData(), org.spongepowered.api.service.permission.SubjectData.GLOBAL_CONTEXT, option)) != null) {
+            Subject.logGetOption(LOGGER, this, set, option, value);
+            return value;
+        }
+
+        if((value = getOption(this.getTransientSubjectData(), org.spongepowered.api.service.permission.SubjectData.GLOBAL_CONTEXT, option)) != null) {
+            Subject.logGetOption(LOGGER, this, set, option, value);
+            return value;
+        }
+
+        Subject.logGetPermissionValue(LOGGER, this, set, option, Tristate.UNDEFINED);
+
+        return null;
+    }
+
+    private String getOption(SubjectData subjectData, Set<Context> set, String option){
+        String opt;
+
+        if(subjectData.containsContexts(set)){
+            if((opt = subjectData.getContextContainer(set).getOption(option)) != null)
+                return opt;
+        }
+
+        return null;
     }
 
     @Override
