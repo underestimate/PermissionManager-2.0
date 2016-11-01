@@ -5,12 +5,14 @@ import io.github.djxy.permissionmanager.logger.Logger;
 import io.github.djxy.permissionmanager.subjects.ContextContainer;
 import io.github.djxy.permissionmanager.subjects.Permission;
 import io.github.djxy.permissionmanager.subjects.Subject;
+import io.github.djxy.permissionmanager.subjects.SubjectData;
 import ninja.leaping.configurate.ConfigurationNode;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.util.Tristate;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -59,15 +61,72 @@ public class Group extends Subject implements Comparable<Group> {
     }
 
     @Override
-    public Optional<String> getOption(Set<Context> set, String s) {
-        return getOption(set, s, new ArrayList<>());
+    public Optional<String> getOption(Set<Context> set, String key) {
+        Preconditions.checkNotNull(set);
+        Preconditions.checkNotNull(key);
+        Optional<String> opt;
+
+        if((opt = getOption((SubjectData) getSubjectData(), set, key)).isPresent()) {
+            logGetOption(LOGGER, this, set, key, opt);
+            return opt;
+        }
+
+        if((opt = getOption((SubjectData) getTransientSubjectData(), set, key)).isPresent()) {
+            logGetOption(LOGGER, this, set, key, opt);
+            return opt;
+        }
+
+        logGetOption(LOGGER, this, set, key, opt);
+
+        return Optional.empty();
     }
+    
+    private Optional<String> getOption(SubjectData subjectData, Set<Context> set, String key){
+        ArrayList<Group> groupsChecked = new ArrayList<>();
 
-    @Override
-    public Tristate getPermissionValue(Set<Context> set, String permission) {
-        Permission permission1 = getPermissionValue(set, permission, new ArrayList<>());
+        if(subjectData.containsContexts(set)) {
+            ContextContainer container = subjectData.getContextContainer(set);
 
-        return permission1 == null?Tristate.UNDEFINED:Tristate.fromBoolean(permission1.getValue());
+            String value = container.getOption(key);
+
+            if (value != null)
+                return Optional.of(value);
+        }
+
+        if(subjectData.containsContexts(SubjectData.GLOBAL_CONTEXT)){
+            ContextContainer container = subjectData.getContextContainer(SubjectData.GLOBAL_CONTEXT);
+
+            String value = container.getOption(key);
+
+            if (value != null)
+                return Optional.of(value);
+        }
+
+        groupsChecked.add(this);
+
+        if(subjectData.containsContexts(set)) {
+            for (Group group : subjectData.getContextContainer(set).getGroups()) {
+                if (!groupsChecked.contains(group)) {
+                    Optional<String> valueOpt = group.getOption(set, key);
+
+                    if (valueOpt.isPresent())
+                        return valueOpt;
+                }
+            }
+        }
+
+        if(subjectData.containsContexts(SubjectData.GLOBAL_CONTEXT)){
+            for (Group group : subjectData.getContextContainer(SubjectData.GLOBAL_CONTEXT).getGroups()) {
+                if (!groupsChecked.contains(group)) {
+                    Optional<String> valueOpt = group.getOption(set, key);
+
+                    if (valueOpt.isPresent())
+                        return valueOpt;
+                }
+            }
+        }
+
+        return Optional.empty();
     }
 
     public void addListener(GroupListener listener){
@@ -85,104 +144,6 @@ public class Group extends Subject implements Comparable<Group> {
 
     protected void setIdentifier(String identifier){
         this.identifier = identifier;
-    }
-
-    private Optional<String> getOption(Set<Context> set, String key, ArrayList<Group> groupsChecked){
-        Preconditions.checkNotNull(set);
-        Preconditions.checkNotNull(key);
-        Preconditions.checkNotNull(groupsChecked);
-
-        if(contexts.containsKey(set)) {
-            ContextContainer container = contexts.get(set);
-
-            String value = container.getOption(key);
-
-            if (value != null)
-                return Optional.of(value);
-        }
-
-        if(contexts.containsKey(GLOBAL_CONTEXT)){
-            ContextContainer container = contexts.get(GLOBAL_CONTEXT);
-
-            String value = container.getOption(key);
-
-            if (value != null)
-                return Optional.of(value);
-        }
-
-        groupsChecked.add(this);
-
-        if(contexts.containsKey(set)) {
-            for (Group group : contexts.get(set).getGroups()) {
-                if (!groupsChecked.contains(group)) {
-                    Optional<String> valueOpt = group.getOption(set, key);
-
-                    if (valueOpt.isPresent())
-                        return valueOpt;
-                }
-            }
-        }
-
-        if(contexts.containsKey(GLOBAL_CONTEXT)){
-            for (Group group : contexts.get(GLOBAL_CONTEXT).getGroups()) {
-                if (!groupsChecked.contains(group)) {
-                    Optional<String> valueOpt = group.getOption(set, key);
-
-                    if (valueOpt.isPresent())
-                        return valueOpt;
-                }
-            }
-        }
-
-        return Optional.empty();
-    }
-
-    public Permission getPermissionValue(Set<Context> set, String permission, ArrayList<Group> groupsChecked) {
-        Preconditions.checkNotNull(set);
-        Preconditions.checkNotNull(permission);
-        Preconditions.checkNotNull(groupsChecked);
-
-        LOGGER.info(getIdentifier() + " get permission value for " + permission + " - " + set);
-
-        if(contexts.containsKey(set)) {
-            Permission perm = contexts.get(set).getPermissions().getPermission(permission);
-            
-            if(perm != null)
-                return perm;
-        }
-
-        if(contexts.containsKey(GLOBAL_CONTEXT)){
-            Permission perm = contexts.get(GLOBAL_CONTEXT).getPermissions().getPermission(permission);
-
-            if(perm != null)
-                return perm;
-        }
-
-        groupsChecked.add(this);
-
-        if(contexts.containsKey(set)) {
-            for (Group group : contexts.get(set).getGroups()) {
-                if (!groupsChecked.contains(group)) {
-                    Permission perm = group.getPermissionValue(set, permission, groupsChecked);
-
-                    if (perm != null)
-                        return perm;
-                }
-            }
-        }
-
-        if(contexts.containsKey(GLOBAL_CONTEXT)){
-            for (Group group : contexts.get(GLOBAL_CONTEXT).getGroups()) {
-                if (!groupsChecked.contains(group)) {
-                    Permission perm = group.getPermissionValue(set, permission, groupsChecked);
-
-                    if (perm != null)
-                        return perm;
-                }
-            }
-        }
-
-        return null;
     }
 
     @Override

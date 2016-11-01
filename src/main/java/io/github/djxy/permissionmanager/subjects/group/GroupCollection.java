@@ -64,7 +64,7 @@ public class GroupCollection extends SubjectCollection {
         subjects.put(identifier, group);
         subjects.remove(group.getIdentifier());
 
-        LOGGER.info("Group " + group.getIdentifier() + " renamed " + identifier+".");
+        LOGGER.info("Group: " + group.getIdentifier() + " - Renamed " + identifier+".");
 
         File file = directory.resolve(group.getIdentifier()+".yml").toFile();
 
@@ -92,7 +92,7 @@ public class GroupCollection extends SubjectCollection {
             createDefaultGroup();
         }
 
-        LOGGER.info("Group " + group.getIdentifier() + " deleted.");
+        LOGGER.info("Group: " + group.getIdentifier() + " - Deleted.");
 
         File file = directory.resolve(group.getIdentifier()+".yml").toFile();
 
@@ -112,10 +112,11 @@ public class GroupCollection extends SubjectCollection {
 
         subjects.put(identifier, group);
 
-        group.addListener(subjectListener);
+        group.getSubjectData().addListener(subjectListener);
+        group.getTransientSubjectData().addListener(subjectListener);
         group.addListener(groupListener);
 
-        LOGGER.info("Group " + group.getIdentifier() + " created.");
+        LOGGER.info("Group: " + group.getIdentifier() + " - Created.");
 
         return group;
     }
@@ -131,7 +132,7 @@ public class GroupCollection extends SubjectCollection {
 
             group.setDefaultGroup(true);
 
-            LOGGER.info("Default group(" + group.getIdentifier() + ") created.");
+            LOGGER.info("Group: " + group.getIdentifier() + " - Group created to be the default group.");
         } catch (SubjectIdentifierExistException e) {
             e.printStackTrace();
             createDefaultGroup();
@@ -162,7 +163,7 @@ public class GroupCollection extends SubjectCollection {
                 return;
 
             defaultGroup = group;
-            LOGGER.info("New default group("+defaultGroup.getIdentifier()+").");
+            LOGGER.info("Group: " + defaultGroup.getIdentifier() + " - Group set as the default group.");
         }
 
     }

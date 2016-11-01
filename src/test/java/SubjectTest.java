@@ -1,10 +1,10 @@
 import com.google.common.collect.Sets;
-import io.github.djxy.permissionmanager.exceptions.SubjectIdentifierExistException;
 import io.github.djxy.permissionmanager.language.Language;
 import io.github.djxy.permissionmanager.logger.Logger;
 import io.github.djxy.permissionmanager.logger.LoggerMode;
 import io.github.djxy.permissionmanager.subjects.group.Group;
 import io.github.djxy.permissionmanager.subjects.group.GroupCollection;
+import io.github.djxy.permissionmanager.subjects.special.Default;
 import io.github.djxy.permissionmanager.subjects.user.User;
 import io.github.djxy.permissionmanager.subjects.user.UserCollection;
 import junit.framework.Assert;
@@ -43,6 +43,9 @@ public class SubjectTest {
 
             GroupCollection.instance.createDefaultGroup();
 
+            Default.instance.getTransientSubjectData().setPermission(globalContext, "griefprevention.claim.flag.block-break.minecraft", Tristate.FALSE);
+            Default.instance.getSubjectData().setPermission(globalContext, "griefprevention.claim.flag.block-break.minecraft.grass", Tristate.TRUE);
+
             user = UserCollection.instance.createUser(UUID.randomUUID());
             groupGlobal = GroupCollection.instance.createGroup("groupGlobal");
             groupGlobal2 = GroupCollection.instance.createGroup("groupGlobal2");
@@ -51,53 +54,58 @@ public class SubjectTest {
 
             groupGlobal.setDefaultGroup(true);
 
-            user.addParent(globalContext, groupGlobal);
-            user.addParent(specialContext, groupGlobal2);
-            groupGlobal.addParent(globalContext, groupGlobal2);
-            groupGlobal2.addParent(specialContext, groupWorld2);
+            user.getSubjectData().addParent(globalContext, groupGlobal);
+            user.getSubjectData().addParent(specialContext, groupGlobal2);
+            groupGlobal.getSubjectData().addParent(globalContext, groupGlobal2);
+            groupGlobal2.getSubjectData().addParent(specialContext, groupWorld2);
 
-            user.addParent(worldContext, groupWorld);
-            groupWorld.addParent(worldContext, groupWorld2);
+            user.getSubjectData().addParent(worldContext, groupWorld);
+            groupWorld.getSubjectData().addParent(worldContext, groupWorld2);
 
-            user.setPermission(globalContext, "perm.1", Tristate.TRUE);
-            user.setPermission(worldContext, "perm.2", Tristate.FALSE);
-            user.setPermission(specialContext, "perm.3", Tristate.TRUE);
+            user.getSubjectData().setPermission(globalContext, "perm.1", Tristate.TRUE);
+            user.getSubjectData().setPermission(worldContext, "perm.2", Tristate.FALSE);
+            user.getSubjectData().setPermission(specialContext, "perm.3", Tristate.TRUE);
 
-            groupGlobal.setPermission(globalContext, "perm.3", Tristate.TRUE);
-            groupGlobal.setPermission(worldContext, "perm.4", Tristate.FALSE);
+            groupGlobal.getSubjectData().setPermission(globalContext, "perm.3", Tristate.TRUE);
+            groupGlobal.getSubjectData().setPermission(worldContext, "perm.4", Tristate.FALSE);
 
-            groupGlobal2.setPermission(globalContext, "perm.5", Tristate.TRUE);
-            groupGlobal2.setPermission(worldContext, "perm.6", Tristate.FALSE);
+            groupGlobal2.getSubjectData().setPermission(globalContext, "perm.5", Tristate.TRUE);
+            groupGlobal2.getSubjectData().setPermission(worldContext, "perm.6", Tristate.FALSE);
 
-            groupWorld.setPermission(globalContext, "perm.7", Tristate.TRUE);
-            groupWorld.setPermission(worldContext, "perm.8", Tristate.FALSE);
+            groupWorld.getSubjectData().setPermission(globalContext, "perm.7", Tristate.TRUE);
+            groupWorld.getSubjectData().setPermission(worldContext, "perm.8", Tristate.FALSE);
 
-            groupWorld2.setPermission(globalContext, "perm.9", Tristate.TRUE);
-            groupWorld2.setPermission(worldContext, "perm.10", Tristate.FALSE);
-            groupWorld2.setPermission(specialContext, "perm.11", Tristate.TRUE);
+            groupWorld2.getSubjectData().setPermission(globalContext, "perm.9", Tristate.TRUE);
+            groupWorld2.getSubjectData().setPermission(worldContext, "perm.10", Tristate.FALSE);
+            groupWorld2.getSubjectData().setPermission(specialContext, "perm.11", Tristate.TRUE);
 
-            user.setOption(globalContext, "option.1", "1");
-            user.setOption(worldContext, "option.2", "2");
-            user.setOption(specialContext, "option.12", "2");
+            user.getSubjectData().setOption(globalContext, "option.1", "1");
+            user.getSubjectData().setOption(worldContext, "option.2", "2");
+            user.getSubjectData().setOption(specialContext, "option.12", "2");
 
-            groupGlobal.setOption(globalContext, "option.3", "3");
-            groupGlobal.setOption(worldContext, "option.4", "4");
+            groupGlobal.getSubjectData().setOption(globalContext, "option.3", "3");
+            groupGlobal.getSubjectData().setOption(worldContext, "option.4", "4");
 
-            groupGlobal2.setOption(globalContext, "option.5", "5");
-            groupGlobal2.setOption(worldContext, "option.6", "6");
+            groupGlobal2.getSubjectData().setOption(globalContext, "option.5", "5");
+            groupGlobal2.getSubjectData().setOption(worldContext, "option.6", "6");
 
-            groupWorld.setOption(globalContext, "option.7", "7");
-            groupWorld.setOption(worldContext, "option.8", "8");
+            groupWorld.getSubjectData().setOption(globalContext, "option.7", "7");
+            groupWorld.getSubjectData().setOption(worldContext, "option.8", "8");
 
-            groupWorld2.setOption(globalContext, "option.9", "9");
-            groupWorld2.setOption(worldContext, "option.10", "0");
-            groupWorld2.setOption(specialContext, "option.11", "test");
+            groupWorld2.getSubjectData().setOption(globalContext, "option.9", "9");
+            groupWorld2.getSubjectData().setOption(worldContext, "option.10", "0");
+            groupWorld2.getSubjectData().setOption(specialContext, "option.11", "test");
 
             groupGlobal.setRank(0);
             user.setLanguage(Language.getLanguage("fra"));
-        } catch (SubjectIdentifierExistException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Test
+    public void testDefaultPermission(){
+        Assert.assertEquals(true, Default.instance.getPermissionValue(globalContext, "griefprevention.claim.flag.block-break.minecraft.grass.[snowy=false]") == Tristate.TRUE);
     }
 
     @Test

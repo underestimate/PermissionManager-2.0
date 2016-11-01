@@ -39,6 +39,12 @@ public class UserCollection extends SubjectCollection {
     }
 
     @Override
+    public synchronized void load() {
+        for(String identifier : subjects.keySet())
+            load(identifier);
+    }
+
+    @Override
     public Subject get(String identifier) {
         Preconditions.checkNotNull(identifier);
         UUID uuid = UUID.fromString(identifier);
@@ -71,7 +77,7 @@ public class UserCollection extends SubjectCollection {
 
             subjects.remove(uuid.toString());
 
-            LOGGER.info("User "+uuid+" unloaded.");
+            LOGGER.info("User: "+uuid+" - Unloaded.");
             LOGGER.info(subjects.size()+" user(s) loaded.");
         } catch (IOException e) {
             e.printStackTrace();
@@ -103,11 +109,12 @@ public class UserCollection extends SubjectCollection {
         subjects.put(uuid.toString(), user);
 
         if(!fromFile)
-            user.addParent(SubjectData.GLOBAL_CONTEXT, GroupCollection.instance.getDefaults());
+            user.getSubjectData().addParent(SubjectData.GLOBAL_CONTEXT, GroupCollection.instance.getDefaults());
 
-        user.addListener(subjectListener);
+        user.getSubjectData().addListener(subjectListener);
+        user.getTransientSubjectData().addListener(subjectListener);
 
-        LOGGER.info("User "+uuid+" created. From file: "+fromFile);
+        LOGGER.info("User: "+uuid+" - Created from file "+fromFile);
 
         return user;
     }

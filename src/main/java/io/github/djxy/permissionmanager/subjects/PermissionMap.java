@@ -1,12 +1,15 @@
 package io.github.djxy.permissionmanager.subjects;
 
 import com.google.common.base.Preconditions;
+import io.github.djxy.permissionmanager.util.ImmutableMap;
 import ninja.leaping.configurate.ConfigurationNode;
+import org.spongepowered.api.service.context.Context;
+import org.spongepowered.api.service.permission.Subject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -15,9 +18,22 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PermissionMap implements ConfigurationNodeSerializer, ConfigurationNodeDeserializer {
 
     private final ConcurrentHashMap<String,Permission> permissions;
+    private final Set<SubjectDataListener> listeners;
+    private final Set<Context> contexts;
+    private final org.spongepowered.api.service.permission.Subject subject;
+    private final ConcurrentHashMap<String,Boolean> map = new ConcurrentHashMap<>();
+    private final ImmutableMap<String,Boolean> immutableMap;
 
-    public PermissionMap() {
+    public PermissionMap(Set<SubjectDataListener> listeners, Set<Context> contexts, Subject subject) {
+        this.listeners = listeners;
+        this.contexts = contexts;
+        this.subject = subject;
         this.permissions = new ConcurrentHashMap<>();
+        this.immutableMap = new ImmutableMap<String,Boolean>(map){
+            @Override
+            public void clear() {}
+        };
+
     }
 
     public List<Permission> getPermissions(){
@@ -33,12 +49,22 @@ public class PermissionMap implements ConfigurationNodeSerializer, Configuration
         Preconditions.checkNotNull(permission);
 
         permissions.put(permission, perm);
+        map.put(permission, perm.getValue());
+
+        if(subject != null)
+            for(SubjectDataListener listener : listeners)
+                listener.onSetPermission(contexts, subject, perm);
     }
 
     public void removePermission(String permission){
         Preconditions.checkNotNull(permission);
 
         permissions.remove(permission);
+        map.remove(permission);
+
+        if(subject != null)
+            for(SubjectDataListener listener : listeners)
+                listener.onRemovePermission(contexts, subject, permission);
     }
 
     public Permission getPermission(String permission) {
@@ -49,37 +75,35 @@ public class PermissionMap implements ConfigurationNodeSerializer, Configuration
         if(!permission.contains("."))
             return null;
 
-        String permissions[] = new String[permission.length() - permission.replace(".", "").length() + 1];
-        int lastIndex = 1;
+        int count = permission.length() - permission.replace(".", "").length();
+        String tmp = permission;
+        Permission perm;
 
-        permissions[0] = "*";
+        for(int i = 0; i < count; i++){
+            tmp = permission.substring(0, tmp.lastIndexOf("."));
 
-        for(int i = 0; i < permission.length(); i++){
-            if(permission.charAt(i) == '.')
-                permissions[lastIndex++] = permission.substring(0, i) + ".*";
-        }
+            if((perm = this.permissions.get(tmp)) != null)
+                return perm;
 
-        for(int i = permissions.length-1; i >= 0; i--){
-            Permission perm = this.permissions.get(permissions[i]);
-
-            if(perm != null)
+            if((perm = this.permissions.get(tmp+".*")) != null)
                 return perm;
         }
 
-        return null;
+        return this.permissions.get("*");
     }
 
     public void clear(){
+        if(subject != null)
+            for(String permission : permissions.keySet())
+                for(SubjectDataListener listener : listeners)
+                    listener.onRemovePermission(contexts, subject, permission);
+
         permissions.clear();
+        map.clear();
     }
 
     public Map<String,Boolean> toMap(){
-        Map<String,Boolean> map = new HashMap<>();
-
-        for(Map.Entry pairs : permissions.entrySet())
-            map.put((String) pairs.getKey(), ((Permission) pairs.getValue()).getValue());
-
-        return map;
+        return immutableMap;
     }
 
     @Override
@@ -94,7 +118,7 @@ public class PermissionMap implements ConfigurationNodeSerializer, Configuration
                 String perm = !permValue ?value.substring(1):value;
                 Permission permission = new Permission(perm, permValue);
 
-                permissions.put(perm, permission);
+                putPermission(perm, permission);
             }
         }
     }

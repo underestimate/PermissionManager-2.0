@@ -44,16 +44,16 @@ public abstract class SubjectMenu extends Menu {
         this.permissionAddWorldTab = new WorldTab(this, translator.getTranslation(user.getLanguage(), "menu_subject_add_permission_world"), "pm "+subjectCollectionName+" "+identifier+" set permission <PERMISSION> #");
         this.permissionDenyWorldTab = new WorldTab(this, translator.getTranslation(user.getLanguage(), "menu_subject_deny_permission_world"), "pm "+subjectCollectionName+" "+identifier+" deny permission <PERMISSION> #");
         this.permissionRemoveWorldTab = new WorldContextTab(this, translator.getTranslation(user.getLanguage(), "menu_subject_remove_permission_world"), subject, world -> {
-            new PermissionMenuList(player, translator, this, subject.getPermissions(SubjectData.GLOBAL_CONTEXT), permission -> {
+            new PermissionMenuList(player, translator, this, subject.getSubjectData().getPermissions(SubjectData.GLOBAL_CONTEXT), permission -> {
                 runCommandAndRefreshMenu("pm " + subjectCollectionName + " " + identifier + " remove permission " + permission + " " + world);
             }).sendToPlayer();
         });
         this.optionAddWorldTab = new WorldTab(this, translator.getTranslation(user.getLanguage(), "menu_subject_add_option_world"), "pm "+subjectCollectionName+" "+identifier+" set option <OPTION> <VALUE> #");
         this.optionSetWorldTab = new WorldContextTab(this, translator.getTranslation(user.getLanguage(), "menu_subject_set_option_world"), subject, world -> {
-            new OptionMenuList(player, translator, this, subject.getOptions(Sets.newHashSet(new Context(Context.WORLD_KEY, world))), false, "pm "+subjectCollectionName+" "+identifier+" set option # "+world).sendToPlayer();
+            new OptionMenuList(player, translator, this, subject.getSubjectData().getOptions(Sets.newHashSet(new Context(Context.WORLD_KEY, world))), false, "pm "+subjectCollectionName+" "+identifier+" set option # "+world).sendToPlayer();
         });
         this.optionRemoveWorldTab = new WorldContextTab(this, translator.getTranslation(user.getLanguage(), "menu_subject_remove_option_world"), subject, world -> {
-            new OptionMenuList(player, translator, this, subject.getOptions(Sets.newHashSet(new Context(Context.WORLD_KEY, world))), true, option -> {
+            new OptionMenuList(player, translator, this, subject.getSubjectData().getOptions(Sets.newHashSet(new Context(Context.WORLD_KEY, world))), true, option -> {
                 runCommandAndRefreshMenu("pm " + subjectCollectionName + " " + identifier + " remove option " + option + " " + world);
             }).sendToPlayer();
         });
@@ -80,7 +80,7 @@ public abstract class SubjectMenu extends Menu {
         permissionDenyWorldTab.render("", lines);
 
         lines.add(createOption(TextActions.executeCallback(source -> {
-            new PermissionMenuList(player, translator, this, subject.getPermissions(SubjectData.GLOBAL_CONTEXT), permission -> {
+            new PermissionMenuList(player, translator, this, subject.getSubjectData().getPermissions(SubjectData.GLOBAL_CONTEXT), permission -> {
                 runCommandAndRefreshMenu("pm " + subjectCollectionName + " " + identifier + " remove permission " + permission);
             }).sendToPlayer();
         }), translator.getTranslation(user.getLanguage(), "menu_subject_remove_permission")));
@@ -90,12 +90,12 @@ public abstract class SubjectMenu extends Menu {
         optionAddWorldTab.render("", lines);
 
         lines.add(createOption(TextActions.executeCallback(source -> {
-            new OptionMenuList(player, translator, this, subject.getOptions(SubjectData.GLOBAL_CONTEXT), false, "pm " + subjectCollectionName + " " + identifier + " set option #").sendToPlayer();
+            new OptionMenuList(player, translator, this, subject.getSubjectData().getOptions(SubjectData.GLOBAL_CONTEXT), false, "pm " + subjectCollectionName + " " + identifier + " set option #").sendToPlayer();
         }), translator.getTranslation(user.getLanguage(), "menu_subject_set_option")));
         optionSetWorldTab.render("", lines);
 
         lines.add(createOption(TextActions.executeCallback(source -> {
-            new OptionMenuList(player, translator, this, subject.getOptions(Sets.newHashSet(SubjectData.GLOBAL_CONTEXT)), true, option -> {
+            new OptionMenuList(player, translator, this, subject.getSubjectData().getOptions(Sets.newHashSet(SubjectData.GLOBAL_CONTEXT)), true, option -> {
                 runCommandAndRefreshMenu("pm " + subjectCollectionName + " " + identifier + " remove option " + option);
             }).sendToPlayer();
         }), translator.getTranslation(user.getLanguage(), "menu_subject_remove_option")));

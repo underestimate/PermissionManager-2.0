@@ -1,54 +1,189 @@
 package io.github.djxy.permissionmanager.subjects;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
+import io.github.djxy.permissionmanager.PermissionService;
 import io.github.djxy.permissionmanager.logger.Logger;
 import io.github.djxy.permissionmanager.subjects.group.Group;
+import io.github.djxy.permissionmanager.subjects.special.Default;
 import io.github.djxy.permissionmanager.util.ContextUtil;
 import ninja.leaping.configurate.ConfigurationNode;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.service.context.Context;
+import org.spongepowered.api.service.context.ContextCalculator;
 import org.spongepowered.api.service.permission.SubjectCollection;
-import org.spongepowered.api.service.permission.SubjectData;
 import org.spongepowered.api.util.Tristate;
+import org.spongepowered.api.world.Locatable;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Created by Samuel on 2016-08-09.
  */
-public abstract class Subject implements org.spongepowered.api.service.permission.Subject, SubjectData, ConfigurationNodeSerializer, ConfigurationNodeDeserializer {
+public abstract class Subject implements org.spongepowered.api.service.permission.Subject, ConfigurationNodeSerializer, ConfigurationNodeDeserializer {
 
     private static final Logger LOGGER = new Logger(Subject.class);
+    private final static Set<Context> GLOBAL_SET = org.spongepowered.api.service.permission.SubjectData.GLOBAL_CONTEXT;
+    private final static List<Group> EMPTY_GROUPS = ImmutableList.of();
 
     protected String identifier;
     protected final SubjectCollection collection;
-    protected final ConcurrentHashMap<Set<Context>, ContextContainer> contexts;
-    private final CopyOnWriteArrayList<SubjectListener> listeners;
+    protected final SubjectData data;
+    protected final SubjectData transientData;
+    private final boolean locatable;
+    private final Set<Context> activeContexts = new HashSet<>();
+    private long activeContextsLastTick = -1;
 
     public Subject(String identifier, SubjectCollection collection) {
         Preconditions.checkNotNull(identifier);
         Preconditions.checkNotNull(collection);
 
-        this.collection = collection;
         this.identifier = identifier;
-        this.contexts = new ConcurrentHashMap<>();
-        this.listeners = new CopyOnWriteArrayList<>();
+        this.collection = collection;
+        this.data = new SubjectData(this);
+        this.transientData = new SubjectData(this);
+        this.locatable = this instanceof Locatable;
+    }
+
+    @Override
+    public Set<Context> getActiveContexts() {
+        int tick = Sponge.getServer().getRunningTimeTicks();
+
+        if(tick != activeContextsLastTick){
+            activeContextsLastTick = tick;
+            activeContexts.clear();
+
+            for(ContextCalculator contextCalculator : PermissionService.instance.getContextCalculators())
+                contextCalculator.accumulateContexts(this, activeContexts);
+        }
+
+        return activeContexts;
+    }
+
+    @Override
+    public Tristate getPermissionValue(Set<Context> set, String s) {
+        Preconditions.checkNotNull(set);
+        Preconditions.checkNotNull(s);
+        Permission perm = getPermission(this, set, s);
+
+        if(perm == null)
+            perm = Default.instance.getPermission(this, set, s);
+        else
+            return Tristate.fromBoolean(perm.getValue());
+
+        return perm == null?Tristate.UNDEFINED:Tristate.fromBoolean(perm.getValue());
+    }
+
+    protected Permission getPermission(Subject subject, Set<Context> set, String permission){
+        Permission perm;
+
+        if((perm = getPermission(this.getTransientSubjectData(), set, permission)) != null) {
+            logGetPermissionValue(LOGGER, this, set, permission, Tristate.fromBoolean(perm.getValue()));
+            return perm;
+        }
+
+        if((perm = getPermission(this.getSubjectData(), set, permission)) != null) {
+            logGetPermissionValue(LOGGER, this, set, permission, Tristate.fromBoolean(perm.getValue()));
+            return perm;
+        }
+
+        if(subject.locatable && ((Locatable) subject).getWorld() != null){
+            Set<Context> worldSet = Sets.newHashSet(new Context(Context.WORLD_KEY, ((Locatable) subject).getWorld().getName()));
+
+            if((perm = getPermission(this.getTransientSubjectData(), worldSet, permission)) != null) {
+                logGetPermissionValue(LOGGER, this, set, permission, Tristate.fromBoolean(perm.getValue()));
+                return perm;
+            }
+
+            if((perm = getPermission(this.getSubjectData(), worldSet, permission)) != null) {
+                logGetPermissionValue(LOGGER, this, set, permission, Tristate.fromBoolean(perm.getValue()));
+                return perm;
+            }
+        }
+
+        if((perm = getPermission(this.getTransientSubjectData(), GLOBAL_SET, permission)) != null) {
+            logGetPermissionValue(LOGGER, this, set, permission, Tristate.fromBoolean(perm.getValue()));
+            return perm;
+        }
+
+        if((perm = getPermission(this.getSubjectData(), GLOBAL_SET, permission)) != null) {
+            logGetPermissionValue(LOGGER, this, set, permission, Tristate.fromBoolean(perm.getValue()));
+            return perm;
+        }
+
+        logGetPermissionValue(LOGGER, this, set, permission, Tristate.UNDEFINED);
+
+        for(Group group : getGroups(this.getTransientSubjectData(), set))
+            if((perm = group.getPermission(subject, set, permission)) != null)
+                return perm;
+
+        for(Group group : getGroups(this.getSubjectData(), set))
+            if((perm = group.getPermission(subject, set, permission)) != null)
+                return perm;
+
+        if(subject.locatable && ((Locatable) subject).getWorld() != null){
+            Set<Context> worldSet = Sets.newHashSet(new Context(Context.WORLD_KEY, ((Locatable) subject).getWorld().getName()));
+
+            for(Group group : getGroups(this.getTransientSubjectData(), worldSet))
+                if((perm = group.getPermission(subject, set, permission)) != null)
+                    return perm;
+
+            for(Group group : getGroups(this.getSubjectData(), worldSet))
+                if((perm = group.getPermission(subject, set, permission)) != null)
+                    return perm;
+        }
+
+        for(Group group : getGroups(this.getTransientSubjectData(), GLOBAL_SET))
+            if((perm = group.getPermission(subject, set, permission)) != null)
+                return perm;
+
+        for(Group group : getGroups(this.getSubjectData(), GLOBAL_SET))
+            if((perm = group.getPermission(subject, set, permission)) != null)
+                return perm;
+
+        return null;
+    }
+
+    private List<Group> getGroups(SubjectData subjectData, Set<Context> set){
+        return subjectData.containsContexts(set)?subjectData.getContextContainer(set).getGroups():EMPTY_GROUPS;
+    }
+
+    private Permission getPermission(SubjectData subjectData, Set<Context> set, String permission){
+        Permission perm;
+
+        if(subjectData.containsContexts(set)){
+            if((perm = subjectData.getContextContainer(set).getPermissions().getPermission(permission)) != null)
+                return perm;
+        }
+
+        return null;
+    }
+
+    @Override
+    public List<org.spongepowered.api.service.permission.Subject> getParents() {
+        return getParents(org.spongepowered.api.service.permission.SubjectData.GLOBAL_CONTEXT);
+    }
+
+    @Override
+    public List<org.spongepowered.api.service.permission.Subject> getParents(Set<Context> set) {
+        ArrayList<org.spongepowered.api.service.permission.Subject> groups = new ArrayList<>();
+
+        groups.addAll(getSubjectData().getParents(set));
+        groups.addAll(getTransientSubjectData().getParents(set));
+
+        return groups;
     }
 
     public Collection<Context> getWorldContexts(){
         ArrayList<Context> worldContexts = new ArrayList<>();
 
-        for(Set<Context> contextSet : contexts.keySet()) {
+        for(Set<Context> contextSet : data.getContexts()) {
             if (ContextUtil.isSingleContext(contextSet)) {
                 Context context = ContextUtil.getContext(contextSet);
 
@@ -64,19 +199,6 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
         return identifier;
     }
 
-    public void addListener(SubjectListener listener){
-        listeners.add(listener);
-    }
-
-    public void removeListener(SubjectListener listener){
-        listeners.remove(listener);
-    }
-
-    @Override
-    public Set<Context> getActiveContexts() {
-        return GLOBAL_CONTEXT;
-    }
-
     @Override
     public SubjectCollection getContainingCollection() {
         return collection;
@@ -84,12 +206,12 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
 
     @Override
     public SubjectData getSubjectData() {
-        return this;
+        return data;
     }
 
     @Override
     public SubjectData getTransientSubjectData() {
-        return this;
+        return transientData;
     }
 
     @Override
@@ -112,378 +234,22 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
         Preconditions.checkNotNull(set);
         Preconditions.checkNotNull(subject);
 
-        if (!(subject instanceof Group))
-            return false;
-        if(!contexts.containsKey(set))
-            return false;
-
-        Group parent = (Group) subject;
-        ContextContainer container = contexts.get(set);
-
-        return container != null && container.hasGroup(parent);
-
-    }
-
-    @Override
-    public Map<Set<Context>, Map<String, Boolean>> getAllPermissions() {
-        Map<Set<Context>, Map<String, Boolean>> map = new HashMap<>();
-        Enumeration<Set<Context>> contexts = this.contexts.keys();
-
-        while(contexts.hasMoreElements()){
-            Set<Context> set = contexts.nextElement();
-
-            map.put(set, getPermissions(set));
-        }
-
-        return map;
-    }
-
-    @Override
-    public Map<String, Boolean> getPermissions(Set<Context> set) {
-        Preconditions.checkNotNull(set);
-
-        if(!contexts.containsKey(set))
-            return new HashMap<>();
-
-        ContextContainer container = contexts.get(set);
-
-        return container.getPermissions().toMap();
-    }
-
-    @Override
-    public boolean setPermission(Set<Context> set, String permission, Tristate tristate) {
-        Preconditions.checkNotNull(set);
-        Preconditions.checkNotNull(permission);
-        Preconditions.checkNotNull(tristate);
-
-        if(tristate != Tristate.UNDEFINED) {
-            if(!contexts.containsKey(set))
-                contexts.put(set, new ContextContainer());
-
-            ContextContainer container = contexts.get(set);
-
-            container.getPermissions().putPermission(permission, new Permission(permission, tristate.asBoolean()));
-
-            for(SubjectListener listener : listeners)
-                listener.onSetPermission(set, this, permission, tristate.asBoolean());
-        }
-        else if(contexts.containsKey(set)) {
-            ContextContainer container = contexts.get(set);
-
-            container.getPermissions().removePermission(permission);
-
-            for(SubjectListener listener : listeners)
-                listener.onRemovePermission(set, this, permission);
-
-            if(container.isEmpty())
-                contexts.remove(set);
-        }
-
-        return true;
-    }
-
-    @Override
-    public boolean clearPermissions() {
-        Enumeration<Set<Context>> contexts = this.contexts.keys();
-
-        while(contexts.hasMoreElements())
-            clearPermissions(Sets.newHashSet(contexts.nextElement()));
-
-        return true;
-    }
-
-    @Override
-    public boolean clearPermissions(Set<Context> set) {
-        Preconditions.checkNotNull(set);
-
-        if(!contexts.containsKey(set))
-            return false;
-
-        ContextContainer container = contexts.get(set);
-
-        for(String permission : container.getPermissions().toMap().keySet())
-            for(SubjectListener listener : listeners)
-                listener.onRemovePermission(set, this, permission);
-
-        container.getPermissions().clear();
-
-        contexts.remove(set);
-
-        return true;
-    }
-
-    @Override
-    public List<org.spongepowered.api.service.permission.Subject> getParents() {
-        return getParents(getActiveContexts());
-    }
-
-    @Override
-    public Map<Set<Context>, List<org.spongepowered.api.service.permission.Subject>> getAllParents() {
-        Map<Set<Context>, List<org.spongepowered.api.service.permission.Subject>> map = new HashMap<>();
-        Enumeration<Set<Context>> contexts = this.contexts.keys();
-
-        while(contexts.hasMoreElements()){
-            Set<Context> set = contexts.nextElement();
-
-            map.put(set, getParents(set));
-        }
-
-        return map;
-    }
-
-    @Override
-    public List<org.spongepowered.api.service.permission.Subject> getParents(Set<Context> set) {
-        Preconditions.checkNotNull(set);
-
-        if(!contexts.containsKey(set))
-            return new ArrayList<>();
-
-        ContextContainer container = contexts.get(set);
-
-
-        return (List) container.getGroups();
-    }
-
-    @Override
-    public boolean addParent(Set<Context> set, org.spongepowered.api.service.permission.Subject subject) {
-        Preconditions.checkNotNull(set);
-        Preconditions.checkNotNull(subject);
-
-        if(!(subject instanceof Group))
-            return false;
-
-        Group parent = (Group) subject;
-
-        if(!contexts.containsKey(set))
-            contexts.put(set, new ContextContainer());
-
-        ContextContainer container = contexts.get(set);
-
-        container.addGroup(parent);
-
-        return true;
-    }
-
-    @Override
-    public boolean removeParent(Set<Context> set, org.spongepowered.api.service.permission.Subject subject) {
-        Preconditions.checkNotNull(set);
-        Preconditions.checkNotNull(subject);
-
-        if(!(subject instanceof Group))
-            return false;
-
-        Group parent = (Group) subject;
-
-        if(!contexts.containsKey(set))
-            return false;
-
-        ContextContainer container = contexts.get(set);
-
-        container.removeGroup(parent);
-
-        if(container.isEmpty())
-            contexts.remove(set);
-
-        return true;
-    }
-
-    @Override
-    public boolean clearParents() {
-        Enumeration<Set<Context>> contexts = this.contexts.keys();
-
-        while(contexts.hasMoreElements())
-            clearParents(contexts.nextElement());
-
-        return true;
-    }
-
-    @Override
-    public boolean clearParents(Set<Context> set) {
-        Preconditions.checkNotNull(set);
-
-        if(!contexts.containsKey(set))
-            return false;
-
-        ContextContainer container = contexts.get(set);
-
-        container.clearGroups();
-
-        if(container.isEmpty())
-            contexts.remove(set);
-
-        return true;
-    }
-
-    @Override
-    public Map<Set<Context>, Map<String, String>> getAllOptions() {
-        Map<Set<Context>, Map<String, String>> options = new HashMap<>();
-        Enumeration<Set<Context>> contexts = this.contexts.keys();
-
-        while(contexts.hasMoreElements()) {
-            Set<Context> set = contexts.nextElement();
-
-            options.put(set, getOptions(set));
-        }
-
-        return options;
-    }
-
-    @Override
-    public Map<String, String> getOptions(Set<Context> set) {
-        Preconditions.checkNotNull(set);
-
-        if(!contexts.containsKey(set))
-            return new HashMap<>();
-
-        return contexts.get(set).getOptions();
-    }
-
-    @Override
-    public boolean setOption(Set<Context> set, String key, String value) {
-        Preconditions.checkNotNull(set);
-        Preconditions.checkNotNull(key);
-
-        if(value != null){
-            if(!contexts.containsKey(set))
-                contexts.put(set, new ContextContainer());
-        }
-        else if(!contexts.containsKey(set))
-            return false;
-
-        ContextContainer container = contexts.get(set);
-
-        if(value == null) {
-            container.removeOption(key);
-
-            if(container.isEmpty())
-                contexts.remove(set);
-        }
-        else
-            container.setOption(key, value);
-
-        return true;
-    }
-
-    @Override
-    public boolean clearOptions(Set<Context> set) {
-        Preconditions.checkNotNull(set);
-
-        if(!contexts.containsKey(set))
-            return false;
-
-        ContextContainer container = contexts.get(set);
-
-        container.clearOptions();
-
-        if(container.isEmpty())
-            contexts.remove(set);
-
-        return true;
-    }
-
-    @Override
-    public boolean clearOptions() {
-        Enumeration<Set<Context>> contexts = this.contexts.keys();
-
-        while(contexts.hasMoreElements())
-            clearOptions(contexts.nextElement());
-
-        return true;
+        return subject instanceof Group && (data.getParents(set).contains(subject) || transientData.getParents(set).contains(subject));
     }
 
     @Override
     public Optional<String> getOption(String key) {
-        return getOption(GLOBAL_CONTEXT, key);
+        return getOption(org.spongepowered.api.service.permission.SubjectData.GLOBAL_CONTEXT, key);
     }
 
     @Override
     public void deserialize(ConfigurationNode node) {
-        contexts.clear();
-
-        contexts.put(GLOBAL_CONTEXT, new ContextContainer());
-
-        contexts.get(GLOBAL_CONTEXT).deserialize(node);
-
-        ConfigurationNode[] nodes = {node.getNode("worlds")};
-        String[] contextKeys = {Context.WORLD_KEY};
-
-        for(int i = 0; i < nodes.length; i++){
-            ConfigurationNode contextNode = nodes[i];
-
-            if(!contextNode.isVirtual() && contextNode.hasMapChildren()){
-                Map<Object,ConfigurationNode> map = (Map<Object, ConfigurationNode>) contextNode.getChildrenMap();
-
-                for(Object mapNode : map.keySet()){
-                    ContextContainer container = new ContextContainer();
-
-                    container.deserialize(map.get(mapNode));
-
-                    contexts.put(Sets.newHashSet(new Context(contextKeys[i], mapNode.toString())), container);
-                }
-            }
-        }
-
-        ConfigurationNode contexts = node.getNode("contexts");
-
-        if(!contexts.isVirtual() && contexts.hasListChildren()){
-            List<ConfigurationNode> list = (List<ConfigurationNode>) contexts.getChildrenList();
-
-            for(ConfigurationNode configurationNode : list)
-                deserializeContextSet(configurationNode);
-        }
+        data.deserialize(node);
     }
 
     @Override
     public void serialize(ConfigurationNode node) {
-        if(contexts.containsKey(GLOBAL_CONTEXT))
-            contexts.get(GLOBAL_CONTEXT).serialize(node);
-
-        Enumeration<Set<Context>> enumeration = contexts.keys();
-
-        while(enumeration.hasMoreElements()) {
-            Set<Context> set = enumeration.nextElement();
-
-            if(ContextUtil.isSingleContext(set)){
-                Context context = ContextUtil.getContext(set);
-
-                if(context.getKey().equals(Context.WORLD_KEY))
-                    contexts.get(set).serialize(node.getNode("worlds", context.getValue()));
-                else
-                    serializeContextSet(node.getNode("contexts").getAppendedNode(), set);
-            }
-            else if(!ContextUtil.isGlobalContext(set))
-                serializeContextSet(node.getNode("contexts").getAppendedNode(), set);
-        }
-    }
-
-    private void serializeContextSet(ConfigurationNode node, Set<Context> set){
-        ConfigurationNode contexts = node.getNode("contexts");
-
-        for(Context context : set)
-            contexts.getNode(context.getKey()).setValue(context.getValue());
-
-        this.contexts.get(set).serialize(node);
-    }
-
-    private void deserializeContextSet(ConfigurationNode node){
-        ConfigurationNode contexts = node.getNode("contexts");
-        Set<Context> set = new HashSet<>();
-
-        if(!contexts.isVirtual() && contexts.hasMapChildren()){
-            Map<Object,ConfigurationNode> map = (Map<Object, ConfigurationNode>) contexts.getChildrenMap();
-
-            for(Object mapNode : map.keySet())
-                set.add(new Context(mapNode.toString(), map.get(mapNode).getString("")));
-        }
-
-        if(set.isEmpty())
-            return;
-
-        ContextContainer container = new ContextContainer();
-
-        container.deserialize(node);
-
-        this.contexts.put(set, container);
+        data.serialize(node);
     }
 
     @Override
@@ -491,6 +257,14 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
         return "Subject{" +
                 "identifier='" + identifier + '\'' +
                 '}';
+    }
+
+    public static void logGetPermissionValue(Logger logger, org.spongepowered.api.service.permission.Subject subject, Set<Context> set, String permission, Tristate tristate){
+        logger.info("Subject: "+subject.getIdentifier() +" - Contexts " + set+ " - Permission: " + permission + " - Tristate: "+tristate.name());
+    }
+
+    public static void logGetOption(Logger logger, org.spongepowered.api.service.permission.Subject subject, Set<Context> set, String option, Optional<String> value){
+        logger.info("Subject: "+subject.getIdentifier() +" - Contexts " + set+ " - Option: " + option + " - Value: "+value);
     }
 
 }
