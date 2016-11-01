@@ -1,13 +1,11 @@
 package io.github.djxy.permissionmanager.subjects.special;
 
-import io.github.djxy.permissionmanager.exceptions.SubjectIdentifierExistException;
-import io.github.djxy.permissionmanager.exceptions.SubjectIdentifierInvalidException;
-import io.github.djxy.permissionmanager.subjects.SubjectCollection;
 import org.spongepowered.api.service.permission.Subject;
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by Samuel on 2016-08-17.
@@ -54,7 +52,6 @@ public class SpecialCollection implements org.spongepowered.api.service.permissi
         return new HashMap<>();
     }
 
-    @Override
     public Subject getDefaults() {
         return new Special("", this);
     }

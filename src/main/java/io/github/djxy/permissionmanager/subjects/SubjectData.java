@@ -225,7 +225,6 @@ public class SubjectData implements org.spongepowered.api.service.permission.Sub
         return true;
     }
 
-    @Override
     public Map<Set<Context>, Map<String, String>> getAllOptions() {
         Map<Set<Context>, Map<String, String>> options = new HashMap<>();
         Enumeration<Set<Context>> contexts = this.contexts.keys();
@@ -239,7 +238,6 @@ public class SubjectData implements org.spongepowered.api.service.permission.Sub
         return options;
     }
 
-    @Override
     public Map<String, String> getOptions(Set<Context> set) {
         Preconditions.checkNotNull(set);
 
@@ -249,7 +247,6 @@ public class SubjectData implements org.spongepowered.api.service.permission.Sub
         return contexts.get(set).getOptions();
     }
 
-    @Override
     public boolean setOption(Set<Context> set, String key, String value) {
         Preconditions.checkNotNull(set);
         Preconditions.checkNotNull(key);
@@ -275,7 +272,6 @@ public class SubjectData implements org.spongepowered.api.service.permission.Sub
         return true;
     }
 
-    @Override
     public boolean clearOptions(Set<Context> set) {
         Preconditions.checkNotNull(set);
 
@@ -292,7 +288,6 @@ public class SubjectData implements org.spongepowered.api.service.permission.Sub
         return true;
     }
 
-    @Override
     public boolean clearOptions() {
         Enumeration<Set<Context>> contexts = this.contexts.keys();
 
