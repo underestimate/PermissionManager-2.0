@@ -6,6 +6,7 @@ import io.github.djxy.permissionmanager.language.Language;
 import io.github.djxy.permissionmanager.logger.Logger;
 import io.github.djxy.permissionmanager.rules.Rule;
 import io.github.djxy.permissionmanager.rules.Rules;
+import io.github.djxy.permissionmanager.subjects.Locatable;
 import io.github.djxy.permissionmanager.subjects.Permission;
 import io.github.djxy.permissionmanager.subjects.Subject;
 import io.github.djxy.permissionmanager.subjects.special.Default;
@@ -15,7 +16,6 @@ import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.util.Tristate;
-import org.spongepowered.api.world.Locatable;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 

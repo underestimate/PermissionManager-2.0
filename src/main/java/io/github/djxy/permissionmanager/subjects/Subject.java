@@ -14,7 +14,6 @@ import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.service.context.ContextCalculator;
 import org.spongepowered.api.service.permission.SubjectCollection;
 import org.spongepowered.api.util.Tristate;
-import org.spongepowered.api.world.Locatable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -80,7 +79,6 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
         return perm == null?Tristate.UNDEFINED:Tristate.fromBoolean(perm.getValue());
     }
 
-    @Override
     public Optional<String> getOption(Set<Context> set, String s) {
         Preconditions.checkNotNull(set);
         Preconditions.checkNotNull(s);
@@ -260,7 +258,7 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
 
     @Override
     public List<org.spongepowered.api.service.permission.Subject> getParents() {
-        return getParents(org.spongepowered.api.service.permission.SubjectData.GLOBAL_CONTEXT);
+        return getParents(getActiveContexts());
     }
 
     @Override
@@ -330,9 +328,8 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
         return subject instanceof Group && (data.getParents(set).contains(subject) || transientData.getParents(set).contains(subject));
     }
 
-    @Override
     public Optional<String> getOption(String key) {
-        return getOption(org.spongepowered.api.service.permission.SubjectData.GLOBAL_CONTEXT, key);
+        return getOption(getActiveContexts(), key);
     }
 
     @Override

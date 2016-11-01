@@ -2,7 +2,9 @@ package io.github.djxy.permissionmanager.subjects.special;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
+import io.github.djxy.permissionmanager.PermissionService;
 import io.github.djxy.permissionmanager.logger.Logger;
+import io.github.djxy.permissionmanager.subjects.Locatable;
 import io.github.djxy.permissionmanager.subjects.Permission;
 import io.github.djxy.permissionmanager.subjects.Subject;
 import io.github.djxy.permissionmanager.subjects.SubjectData;
@@ -11,17 +13,19 @@ import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.ConfigurationOptions;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
 import ninja.leaping.configurate.yaml.YAMLConfigurationLoader;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.service.context.Context;
+import org.spongepowered.api.service.context.ContextCalculator;
 import org.spongepowered.api.service.permission.SubjectCollection;
 import org.spongepowered.api.util.Tristate;
-import org.spongepowered.api.world.Locatable;
 import org.yaml.snakeyaml.DumperOptions;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -39,6 +43,8 @@ public class Default implements org.spongepowered.api.service.permission.Subject
     private final SubjectData data = new SubjectData(this);
     private final SubjectData transientData = new SubjectData(this);
     private Path file;
+    private final Set<Context> activeContexts = new HashSet<>();
+    private long activeContextsLastTick = -1;
 
     private Default() {
     }
@@ -151,14 +157,13 @@ public class Default implements org.spongepowered.api.service.permission.Subject
         return subject instanceof Group && (data.getParents(set).contains(subject) || transientData.getParents(set).contains(subject));
     }
 
-    @Override
     public Optional<String> getOption(String key) {
-        return getOption(org.spongepowered.api.service.permission.SubjectData.GLOBAL_CONTEXT, key);
+        return getOption(getActiveContexts(), key);
     }
 
     @Override
     public List<org.spongepowered.api.service.permission.Subject> getParents() {
-        return getParents(org.spongepowered.api.service.permission.SubjectData.GLOBAL_CONTEXT);
+        return getParents(getActiveContexts());
     }
 
     @Override
@@ -171,7 +176,6 @@ public class Default implements org.spongepowered.api.service.permission.Subject
         return groups;
     }
 
-    @Override
     public Optional<String> getOption(Set<Context> set, String option) {
         String value = getOption(this, set, option);
 
@@ -238,7 +242,17 @@ public class Default implements org.spongepowered.api.service.permission.Subject
 
     @Override
     public Set<Context> getActiveContexts() {
-        return SubjectData.GLOBAL_CONTEXT;
+        int tick = Sponge.getServer().getRunningTimeTicks();
+
+        if(tick != activeContextsLastTick){
+            activeContextsLastTick = tick;
+            activeContexts.clear();
+
+            for(ContextCalculator contextCalculator : PermissionService.instance.getContextCalculators())
+                contextCalculator.accumulateContexts(this, activeContexts);
+        }
+
+        return activeContexts;
     }
 
     public void save(){
