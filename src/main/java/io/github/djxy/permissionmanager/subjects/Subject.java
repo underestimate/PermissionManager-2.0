@@ -95,12 +95,12 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
     protected Permission getPermission(Subject subject, Set<Context> set, String permission){
         Permission perm;
 
-        if((perm = getPermission(this.getTransientSubjectData(), set, permission)) != null) {
+        if((perm = getPermission(this.transientData, set, permission)) != null) {
             logGetPermissionValue(LOGGER, this, set, permission, Tristate.fromBoolean(perm.getValue()));
             return perm;
         }
 
-        if((perm = getPermission(this.getSubjectData(), set, permission)) != null) {
+        if((perm = getPermission(this.data, set, permission)) != null) {
             logGetPermissionValue(LOGGER, this, set, permission, Tristate.fromBoolean(perm.getValue()));
             return perm;
         }
@@ -108,54 +108,54 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
         if(subject.locatable && ((Locatable) subject).getWorld() != null){
             Set<Context> worldSet = Sets.newHashSet(new Context(Context.WORLD_KEY, ((Locatable) subject).getWorld().getName()));
 
-            if((perm = getPermission(this.getTransientSubjectData(), worldSet, permission)) != null) {
+            if((perm = getPermission(this.transientData, worldSet, permission)) != null) {
                 logGetPermissionValue(LOGGER, this, set, permission, Tristate.fromBoolean(perm.getValue()));
                 return perm;
             }
 
-            if((perm = getPermission(this.getSubjectData(), worldSet, permission)) != null) {
+            if((perm = getPermission(this.data, worldSet, permission)) != null) {
                 logGetPermissionValue(LOGGER, this, set, permission, Tristate.fromBoolean(perm.getValue()));
                 return perm;
             }
         }
 
-        if((perm = getPermission(this.getTransientSubjectData(), GLOBAL_SET, permission)) != null) {
+        if((perm = getPermission(this.transientData, GLOBAL_SET, permission)) != null) {
             logGetPermissionValue(LOGGER, this, set, permission, Tristate.fromBoolean(perm.getValue()));
             return perm;
         }
 
-        if((perm = getPermission(this.getSubjectData(), GLOBAL_SET, permission)) != null) {
+        if((perm = getPermission(this.data, GLOBAL_SET, permission)) != null) {
             logGetPermissionValue(LOGGER, this, set, permission, Tristate.fromBoolean(perm.getValue()));
             return perm;
         }
 
         logGetPermissionValue(LOGGER, this, set, permission, Tristate.UNDEFINED);
 
-        for(Group group : getGroups(this.getTransientSubjectData(), set))
+        for(Group group : getGroups(this.transientData, set))
             if((perm = group.getPermission(subject, set, permission)) != null)
                 return perm;
 
-        for(Group group : getGroups(this.getSubjectData(), set))
+        for(Group group : getGroups(this.data, set))
             if((perm = group.getPermission(subject, set, permission)) != null)
                 return perm;
 
         if(subject.locatable && ((Locatable) subject).getWorld() != null){
             Set<Context> worldSet = Sets.newHashSet(new Context(Context.WORLD_KEY, ((Locatable) subject).getWorld().getName()));
 
-            for(Group group : getGroups(this.getTransientSubjectData(), worldSet))
+            for(Group group : getGroups(this.transientData, worldSet))
                 if((perm = group.getPermission(subject, set, permission)) != null)
                     return perm;
 
-            for(Group group : getGroups(this.getSubjectData(), worldSet))
+            for(Group group : getGroups(this.data, worldSet))
                 if((perm = group.getPermission(subject, set, permission)) != null)
                     return perm;
         }
 
-        for(Group group : getGroups(this.getTransientSubjectData(), GLOBAL_SET))
+        for(Group group : getGroups(this.transientData, GLOBAL_SET))
             if((perm = group.getPermission(subject, set, permission)) != null)
                 return perm;
 
-        for(Group group : getGroups(this.getSubjectData(), GLOBAL_SET))
+        for(Group group : getGroups(this.data, GLOBAL_SET))
             if((perm = group.getPermission(subject, set, permission)) != null)
                 return perm;
 
@@ -165,12 +165,12 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
     protected String getOption(Subject subject, Set<Context> set, String option){
         String value;
 
-        if((value = getOption(this.getTransientSubjectData(), set, option)) != null) {
+        if((value = getOption(this.transientData, set, option)) != null) {
             logGetOption(LOGGER, this, set, option, value);
             return value;
         }
 
-        if((value = getOption(this.getSubjectData(), set, option)) != null) {
+        if((value = getOption(this.data, set, option)) != null) {
             logGetOption(LOGGER, this, set, option, value);
             return value;
         }
@@ -178,52 +178,52 @@ public abstract class Subject implements org.spongepowered.api.service.permissio
         if(subject.locatable && ((Locatable) subject).getWorld() != null){
             Set<Context> worldSet = Sets.newHashSet(new Context(Context.WORLD_KEY, ((Locatable) subject).getWorld().getName()));
 
-            if((value = getOption(this.getTransientSubjectData(), worldSet, option)) != null) {
+            if((value = getOption(this.transientData, worldSet, option)) != null) {
                 logGetOption(LOGGER, this, set, option, value);
                 return value;
             }
 
-            if((value = getOption(this.getSubjectData(), worldSet, option)) != null) {
+            if((value = getOption(this.data, worldSet, option)) != null) {
                 logGetOption(LOGGER, this, set, option, value);
                 return value;
             }
         }
 
-        if((value = getOption(this.getTransientSubjectData(), GLOBAL_SET, option)) != null) {
+        if((value = getOption(this.transientData, GLOBAL_SET, option)) != null) {
             logGetOption(LOGGER, this, set, option, value);
             return value;
         }
 
-        if((value = getOption(this.getSubjectData(), GLOBAL_SET, option)) != null) {
+        if((value = getOption(this.data, GLOBAL_SET, option)) != null) {
             logGetOption(LOGGER, this, set, option, value);
             return value;
         }
 
-        for(Group group : getGroups(this.getTransientSubjectData(), set))
+        for(Group group : getGroups(this.transientData, set))
             if((value = group.getOption(subject, set, option)) != null)
                 return value;
 
-        for(Group group : getGroups(this.getSubjectData(), set))
+        for(Group group : getGroups(this.data, set))
             if((value = group.getOption(subject, set, option)) != null)
                 return value;
 
         if(subject.locatable && ((Locatable) subject).getWorld() != null){
             Set<Context> worldSet = Sets.newHashSet(new Context(Context.WORLD_KEY, ((Locatable) subject).getWorld().getName()));
 
-            for(Group group : getGroups(this.getTransientSubjectData(), worldSet))
+            for(Group group : getGroups(this.transientData, worldSet))
                 if((value = group.getOption(subject, set, option)) != null)
                     return value;
 
-            for(Group group : getGroups(this.getSubjectData(), worldSet))
+            for(Group group : getGroups(this.data, worldSet))
                 if((value = group.getOption(subject, set, option)) != null)
                     return value;
         }
 
-        for(Group group : getGroups(this.getTransientSubjectData(), GLOBAL_SET))
+        for(Group group : getGroups(this.transientData, GLOBAL_SET))
             if((value = group.getOption(subject, set, option)) != null)
                 return value;
 
-        for(Group group : getGroups(this.getSubjectData(), GLOBAL_SET))
+        for(Group group : getGroups(this.data, GLOBAL_SET))
             if((value = group.getOption(subject, set, option)) != null)
                 return value;
 

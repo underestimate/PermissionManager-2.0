@@ -5,6 +5,7 @@ import io.github.djxy.permissionmanager.exceptions.SubjectIdentifierExistExcepti
 import io.github.djxy.permissionmanager.exceptions.SubjectIdentifierInvalidException;
 import io.github.djxy.permissionmanager.logger.Logger;
 import io.github.djxy.permissionmanager.subjects.SubjectCollection;
+import io.github.djxy.permissionmanager.subjects.SubjectData;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.Subject;
 
@@ -112,8 +113,8 @@ public class GroupCollection extends SubjectCollection {
 
         subjects.put(identifier, group);
 
-        group.getSubjectData().addListener(subjectListener);
-        group.getTransientSubjectData().addListener(subjectListener);
+        ((SubjectData) group.getSubjectData()).addListener(subjectListener);
+        ((SubjectData) group.getTransientSubjectData()).addListener(subjectListener);
         group.addListener(groupListener);
 
         LOGGER.info("Group: " + group.getIdentifier() + " - Created.");
