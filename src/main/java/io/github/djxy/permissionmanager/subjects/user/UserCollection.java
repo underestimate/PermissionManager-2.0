@@ -57,6 +57,7 @@ public class UserCollection extends SubjectCollection {
                 return createUser(uuid);
             } catch (SubjectIdentifierExistException e) {
                 e.printStackTrace();
+                return null;
             }
         }
 
