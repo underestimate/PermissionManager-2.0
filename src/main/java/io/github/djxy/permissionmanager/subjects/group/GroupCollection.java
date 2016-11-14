@@ -157,6 +157,9 @@ public class GroupCollection extends SubjectCollection {
 
         @Override
         public void onGroupSetDefault(Group group) {
+            if(defaultGroup == group)
+                return;
+            
             if(defaultGroup != null)
                 defaultGroup.setDefaultGroup(false);
 
