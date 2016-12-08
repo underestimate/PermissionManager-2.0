@@ -118,6 +118,10 @@ public class PermissionManager {
         Promotions.instance.save();
     }
 
+    public Path getPath() {
+        return path;
+    }
+
     private void loadPlugins(){
         if (Sponge.getPluginManager().isLoaded("foxguard")) {
             try {

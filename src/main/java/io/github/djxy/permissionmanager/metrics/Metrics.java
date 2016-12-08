@@ -3,6 +3,7 @@ package io.github.djxy.permissionmanager.metrics;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.inject.Inject;
+import io.github.djxy.permissionmanager.PermissionManager;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
 import org.apache.commons.lang3.Validate;
@@ -250,7 +251,7 @@ public class Metrics {
      * @throws IOException If something did not work :(
      */
     private void loadConfig() throws IOException {
-        Path configPath = Sponge.getGame().getGameDirectory().resolve("config").resolve("bStats");
+        Path configPath = PermissionManager.getInstance().getPath().resolve("bStats");
         configPath.toFile().mkdirs();
         File configFile = new File(configPath.toFile(), "config.conf");
         HoconConfigurationLoader configurationLoader = HoconConfigurationLoader.builder().setFile(configFile).build();
@@ -291,7 +292,7 @@ public class Metrics {
      * @return The first bStats metrics class.
      */
     private Class<?> getFirstBStatsClass() {
-        Path configPath = Sponge.getGame().getGameDirectory().resolve("config").resolve("bStats");
+        Path configPath = PermissionManager.getInstance().getPath().resolve("bStats");
         configPath.toFile().mkdirs();
         File tempFile = new File(configPath.toFile(), "temp.txt");
 
