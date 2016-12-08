@@ -251,7 +251,7 @@ public class Metrics {
      * @throws IOException If something did not work :(
      */
     private void loadConfig() throws IOException {
-        Path configPath = PermissionManager.getInstance().getPath().resolve("bStats");
+        Path configPath = Sponge.getGame().getSavesDirectory().resolve("bStats");
         configPath.toFile().mkdirs();
         File configFile = new File(configPath.toFile(), "config.conf");
         HoconConfigurationLoader configurationLoader = HoconConfigurationLoader.builder().setFile(configFile).build();
@@ -292,7 +292,7 @@ public class Metrics {
      * @return The first bStats metrics class.
      */
     private Class<?> getFirstBStatsClass() {
-        Path configPath = PermissionManager.getInstance().getPath().resolve("bStats");
+        Path configPath = Sponge.getGame().getSavesDirectory().resolve("bStats");
         configPath.toFile().mkdirs();
         File tempFile = new File(configPath.toFile(), "temp.txt");
 
