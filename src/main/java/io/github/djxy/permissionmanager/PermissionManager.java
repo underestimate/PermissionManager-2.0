@@ -11,6 +11,7 @@ import io.github.djxy.permissionmanager.events.PlayerEvent;
 import io.github.djxy.permissionmanager.events.WorldEvent;
 import io.github.djxy.permissionmanager.logger.Logger;
 import io.github.djxy.permissionmanager.logger.LoggerMode;
+import io.github.djxy.permissionmanager.metrics.Metrics;
 import io.github.djxy.permissionmanager.promotion.Promotions;
 import io.github.djxy.permissionmanager.rules.home.HomeRuleService;
 import io.github.djxy.permissionmanager.rules.home.plugins.NationsPluginHome;
@@ -55,6 +56,9 @@ public class PermissionManager {
     @ConfigDir(sharedRoot = false)
     private Path path;
     public static Translator translator;
+
+    @Inject
+    private Metrics metrics;
 
     @Listener
     public void onGamePreInitializationEvent(GamePreInitializationEvent event){
